@@ -26,6 +26,16 @@
     }
 
     #app { position: absolute; top: 0px; left: 0px; }
+	
+	#base {
+		position: absolute; width: 690px; height: 250px; left: 30px; top: 40px;
+		background: rgba(0,0,0,0.6); outline: 6px solid rgba(0,0,0,0.3); outline-offset: -6px;
+		z-index: 0; display: block;
+	}
+	
+	#base.selected {
+		box-shadow: 0 0 0 4px rgba(255,255,255,0.8) inset;
+	}
 
     #stickWrapper {
         width: 230px; height: 230px;
@@ -37,9 +47,9 @@
     }
 
     #stickCanvas {
-        width: 100%; height: 100%;
-        display: block;
-        background: transparent;        
+        width: 100%; height: 100%;        
+        background: transparent;
+		display: block;
     }
 
     .joystickHead {
@@ -82,12 +92,14 @@
         filter: brightness(1);
         overflow: hidden; text-align: center; white-space: nowrap;
         color: #eee; cursor: pointer;
-    }
+    }	
+    .btn.active { filter: brightness(2.0); transform: scale(1.05); }
+    .btn.selected { box-shadow: 0px 2px 0px 6px rgba(255,255,255,1) }
 
-    .btn[data-btn="Up"]		{ top: 50px; left: 120px; background-image: url("images/up.svg"); background-size: contain; background-repeat: no-repeat; background-position: center; }
-    .btn[data-btn="Down"]	{ top: 190px; left: 120px; background-image: url("images/down.svg"); background-size: contain; background-repeat: no-repeat; background-position: center; }
-    .btn[data-btn="Left"]	{ top: 120px; left: 50px; background-image: url("images/left.svg"); background-size: contain; background-repeat: no-repeat; background-position: center; }
-    .btn[data-btn="Right"]	{ top: 120px; left: 190px; background-image: url("images/right.svg"); background-size: contain; background-repeat: no-repeat; background-position: center; }
+    .btn[data-btn="Up"]		{ top: 390px; left: 120px; background-image: url("images/up.svg"); background-size: contain; background-repeat: no-repeat; background-position: center; }
+    .btn[data-btn="Down"]	{ top: 290px; left: 120px; background-image: url("images/down.svg"); background-size: contain; background-repeat: no-repeat; background-position: center; }
+    .btn[data-btn="Left"]	{ top: 290px; left: 20px; background-image: url("images/left.svg"); background-size: contain; background-repeat: no-repeat; background-position: center; }
+    .btn[data-btn="Right"]	{ top: 290px; left: 220px; background-image: url("images/right.svg"); background-size: contain; background-repeat: no-repeat; background-position: center; }
 
     .btn[data-btn="A"] { top: 170px; left: 300px; }
     .btn[data-btn="B"] { top: 170px; left: 400px; }
@@ -99,13 +111,11 @@
     .btn[data-btn="LT"] { top: 170px; left: 600px; }
     .btn[data-btn="RT"] { top: 170px; left: 500px; }
 
-    .btn[data-btn="LS"] { top: 250px; left: 360px; width: 70px; height: 70px; }
-    .btn[data-btn="RS"] { top: 250px; left: 560px; width: 70px; height: 70px; }
+    .btn[data-btn="LS"] { top: 260px; left: 360px; width: 70px; height: 70px; }
+    .btn[data-btn="RS"] { top: 260px; left: 560px; width: 70px; height: 70px; }
     .btn[data-btn="View"] { top: 20px; left: 300px; width: 90px; height: 40px; border-radius: 30px; font-size: 20px; }
     .btn[data-btn="Menu"] { top: 20px; left: 400px; width: 90px; height: 40px; border-radius: 30px; font-size: 20px; }
 
-    .btn.active { filter: brightness(2.0); transform: scale(1.05); }
-    .btn.selected { box-shadow: 0px 2px 0px 6px rgba(255,255,255,1) }
     .stickHighlight.selected { box-shadow: 0px 0px 0px 8px rgba(255,255,255,1) }
 
     :root {
@@ -113,14 +123,16 @@
     }	
 
     /* Palette + toast minimal styles */
-    #colorPanel { position: fixed; bottom: 0; left: 0; width: 100%; display: none; background: #000; padding: 10px; z-index: 1000; display: none; flex-wrap: wrap; gap: 4px; }
-    #colorPanel .swatch { width:30px; height:30px; border-radius:50%; cursor:pointer; }
-    #colorPanel .modeToggle { width:100%; display:flex; justify-content:center; gap:0; margin-bottom:0; }
+    #colorPanel { position: fixed; bottom: 0; left: 0; width: 100%; display: block; background: #000; padding: 10px; z-index: 1000; flex-wrap: wrap; gap: 4px; }
+    #colorPanel .swatch { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; }
+	#colorPanel .swatch:hover { outline: 4px solid #fff; outline-offset: -2px; }
+    #colorPanel .modeToggle { width: 100%; display: flex; justify-content: center; gap:0; margin-bottom:0; }
     #toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) scale(0); background: #000; color:#fff; padding:10px; z-index:9999; border-radius: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.5); transition: transform 0.1s ease; font-family: Swiss721, Arial, sans-serif; }
 </style>
 </head>
 <body>
-<div id="app">	
+<div id="base"></div>
+<div id="app">
     <div id="stickWrapper" class="stickHighlight">
         <div id="directionMarkers">
             <div class="marker" id="marker0"></div>
@@ -189,7 +201,7 @@ const joystick = document.getElementById('joystickHead');
 const canvas = document.getElementById('stickCanvas');
 const ctx = canvas.getContext('2d');
 
-const movableElements = {...btnEls, stickWrapper};
+const movableElements = {...btnEls, stickWrapper, base};
 
 /* appState schema:
 {
@@ -289,7 +301,7 @@ function applyState() {
         // also write merged values back to state (so state contains every button after apply)
         appState.buttons[key] = {...merged};
     }
-
+	
     // joystick/wrapper
     const sw = appState.joystick || {};
     const computedSW = window.getComputedStyle(stickWrapper);
@@ -303,6 +315,21 @@ function applyState() {
     };
     appState.joystick = Object.assign({}, swFallback, sw);
     applyElementData(stickWrapper, appState.joystick);
+	
+	// base
+	const baseData = appState.base || {};
+	const computedBase = window.getComputedStyle(base);
+	const baseFallback = {
+		top: base.style.top || computedBase.top,
+		left: base.style.left || computedBase.left,
+		width: base.style.width || computedBase.width,
+		height: base.style.height || computedBase.height,
+		borderRadius: base.style.borderRadius || computedBase.borderRadius,
+		display: base.style.display || computedBase.display,
+		backgroundColor: base.style.backgroundColor || computedBase.backgroundColor
+	};
+	appState.base = Object.assign({}, baseFallback, baseData);
+	applyElementData(base, appState.base);
 
     // hidden buttons
     if (Array.isArray(appState.hiddenButtons)) {
@@ -340,8 +367,12 @@ function getElementState(key) {
 function updatePosition(key, top, left) {
     if (key === "stickWrapper") {
         appState.joystick.top = top;
-        appState.joystick.left = left;
-    } else {
+        appState.joystick.left = left;		
+    }
+    else if (key === "base") {
+        appState.base.top = top;
+        appState.base.left = left;
+	} else {
         if (!appState.buttons[key]) appState.buttons[key] = {};
         appState.buttons[key].top = top;
         appState.buttons[key].left = left;
@@ -354,7 +385,11 @@ function updateSize(key, width, height, borderRadius, fontSize) {
         appState.joystick.width = width;
         appState.joystick.height = height;
         if (borderRadius !== undefined) appState.joystick.borderRadius = borderRadius;
-    } else {
+    } else if (key === "base") {
+        if (width !== undefined) appState.base.width = width;
+        if (height !== undefined) appState.base.height = height;
+        if (borderRadius !== undefined) appState.base.borderRadius = borderRadius;
+	} else {
         if (!appState.buttons[key]) appState.buttons[key] = {};
         if (width !== undefined) appState.buttons[key].width = width;
         if (height !== undefined) appState.buttons[key].height = height;
@@ -389,7 +424,7 @@ function setHiddenButton(key, hidden) {
         appState.hiddenButtons = appState.hiddenButtons.filter(k => k !== key);
     }
     // apply immediately
-    if (btnEls[key]) btnEls[key].style.display = hidden ? "none" : "flex";
+    if (btnEls[key]) btnEls[key].style.display = hidden ? "none" : "block";
     // maintain joystick ignored list
     if (hidden) {
         if (!cfg.ignoredForJoystick.includes(key)) cfg.ignoredForJoystick.push(key);
@@ -405,6 +440,12 @@ function setJoystickHidden(hidden) {
     scheduleSave();
 }
 
+function setBaseHidden(hidden) {
+    appState.base.display = hidden ? "none" : "";
+    base.style.display = hidden ? "none" : "block";
+    scheduleSave();
+}
+
 /* Profiles */
 const PROFILE_COUNT = 4;
 function saveProfile(n) {
@@ -412,7 +453,16 @@ function saveProfile(n) {
     // collect current live state snapshot
     const snapshot = {
         joystick: Object.assign({}, appState.joystick),
-        buttons: {}
+        buttons: {},
+        base: {
+            top: base.style.top || window.getComputedStyle(base).top,
+            left: base.style.left || window.getComputedStyle(base).left,
+            width: base.style.width || window.getComputedStyle(base).width,
+            height: base.style.height || window.getComputedStyle(base).height,
+            borderRadius: base.style.borderRadius || window.getComputedStyle(base).borderRadius,
+            display: base.style.display || window.getComputedStyle(base).display,
+            backgroundColor: base.style.backgroundColor || window.getComputedStyle(base).backgroundColor
+        }
     };
     for (const key in btnEls) {
         const el = btnEls[key];
@@ -454,6 +504,11 @@ function loadProfile(n) {
             // mirror into appState.buttons
             appState.buttons[key] = Object.assign({}, data);
         }
+    }
+	// base
+	if (snap.base) {
+        Object.assign(appState.base, snap.base);
+        applyElementData(base, appState.base);
     }
     // update derived UI
     resizeCanvas();
@@ -551,42 +606,31 @@ document.addEventListener("mousedown", () => {
 
 /* Keyboard Controls (move/resize/fontsize/border radius/hide/reset/unhide) */
 document.addEventListener("keydown", e => {
-    // ESC: reset (clear saved state)
-    if (e.key === "Escape" && e.ctrlKey) {
-        // ctrl+esc used to clear all storage and reload (safer than plain esc)
-        if (confirm("Reset all saved states and reload?")) {
-            localStorage.removeItem(STORAGE_KEY);
-            location.reload();
-        }
-        return;
-    }
+    // Unhide all
+	if (e.key === "Home") {
+		// Unhide all buttons
+		document.querySelectorAll(".btn").forEach(btn => {
+			btn.style.display = "flex";
+			const btnKey = btn.getAttribute("data-btn");
+			if (appState.buttons[btnKey]) {
+				appState.buttons[btnKey].display = "block";
+			}
+		});
 
-    // Simple ESC without ctrl does selection clear handled earlier in mousedown
-    if (!selectedElement) {
-        // F1-F4 load profiles even if nothing selected
-        if (!e.ctrlKey && e.key.startsWith("F")) {
-            const n = parseInt(e.key.slice(1));
-            if (n >= 1 && n <= PROFILE_COUNT) loadProfile(n);
-        }
-        if (e.ctrlKey && e.key.startsWith("F")) {
-            const n = parseInt(e.key.slice(1));
-            if (n >= 1 && n <= PROFILE_COUNT) saveProfile(n);
-        }
-        return;
-    }
+		// Unhide joystick
+		stickWrapper.style.display = "block";
+		appState.joystick.display = "block";
 
-    // Home: unhide all
-    if (e.key === "Home") {
-        Object.values(btnEls).forEach(btn => btn.style.display = "flex");
-        appState.hiddenButtons = [];
-        // restore joystick
-        appState.joystick.display = "";
-        stickWrapper.style.display = "block";
-        cfg.ignoredForJoystick = ['View','Menu', ...cfg.ignoredForJoystick.filter(b => b !== 'View' && b !== 'Menu')];
-        scheduleSave();
-        e.preventDefault();
-        return;
-    }
+		// Unhide base
+		base.style.display = "block";
+		appState.base.display = "block";
+
+		// Clear hiddenButtons list
+		appState.hiddenButtons = [];
+
+		forceSave();
+		showToast("Visible!");
+	}
 
     const style = window.getComputedStyle(selectedElement);
     let top = parseInt(style.top)||0, left = parseInt(style.left)||0;
@@ -639,7 +683,12 @@ document.addEventListener("keydown", e => {
     
         // Hide
         if (e.key === "Delete") {
-            if (selectedElement?.classList.contains("btn")) {
+		    if (selectedElement?.id === "base") {
+				selectedElement.style.display = "none";
+				setBaseHidden(true);
+				e.preventDefault();
+				return;
+			} else if (selectedElement?.classList.contains("btn")) {
                 selectedElement.style.display = "none";
                 const btnName = selectedElement.dataset.btn;
                 setHiddenButton(btnName, true);
@@ -851,7 +900,7 @@ const colors = [
 	"#F0E5FF","#D1B3FF","#B380FF","#944DFF","#6600FF","#5200CC","#3D0099","#290066",
 	"#FFE5F7","#FFB3E6","#FF80D6","#FF4DC5","#FF00AA","#CC0088","#990066","#660044",
 	"#FFFFFF","#E6E6E6","#CCCCCC","#999999","#666666","#333333","#1A1A1A","#000000",
-	"#ffffff00"
+	"#00000000"
 ];
 
 const colorPanel = document.getElementById('colorPanel');
