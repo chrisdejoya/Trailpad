@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>Trailpad - Refactor (Unified State)</title>
+<title>Trailpad</title>
 <meta name="viewport" content="width=device-width,initial-scale=1" />
     
 <style>
@@ -246,11 +246,11 @@ const movableElements = {...btnEls, stickWrapper, base};
 */
 
 let appState = {
-    buttons: {},      // per-button properties
-    joystick: {},     // stickWrapper properties
-    hiddenButtons: [],// array of names hidden
+    buttons: {},      				// per-button properties
+    joystick: {},     				// stickWrapper properties
+    hiddenButtons: [],				// array of names hidden
     trailColor: defaultTrailColor,
-    profiles: {}      // profile1..profile4
+    profiles: {} 				     // profile1..profile4
 };
 
 /* Debounced save to reduce churn */
@@ -686,7 +686,8 @@ document.addEventListener("keydown", e => {
     let updated = false;
 
     function snap10(val){ return Math.round(val/10)*10; }
-
+	
+	// Edit font size
     if (e.ctrlKey) {
         if (e.key === "[") { fontSize = Math.max(8, fontSize-2); updated=true; e.preventDefault(); }
         if (e.key === "]") { fontSize += 2; updated=true; e.preventDefault(); }
@@ -723,7 +724,8 @@ document.addEventListener("keydown", e => {
                 if (e.key === "ArrowRight") { width += 10; updated=true; }
             }
         }
-
+		
+		// Corner roundness
         if (e.key === "[") { borderRadius = Math.max(0,borderRadius-10); updated=true; }
         if (e.key === "]") { borderRadius += 10; updated=true; }
     
@@ -757,7 +759,7 @@ document.addEventListener("keydown", e => {
         selectedElement.style.height = snap10(height)+"px";
         selectedElement.style.borderRadius = snap10(borderRadius)+"px";
         
-        // save sizes and positions
+        // Save sizes and positions
         if (selectedElement.dataset?.btn) {
             updatePosition(selectedElement.dataset.btn, selectedElement.style.top, selectedElement.style.left);
             updateSize(selectedElement.dataset.btn, selectedElement.style.width, selectedElement.style.height, selectedElement.style.borderRadius, selectedElement.style.fontSize);
@@ -953,9 +955,9 @@ function drawTrail(x,y){
     ctx.globalAlpha=1;
 }
 
-/* ======================
-   Color panel (palette)
-   ====================== */
+/* =============
+   Color Palette
+   ============= */
 
 const colors = [
 	"#FFE5E5","#FFB3B3","#FF8080","#FF4D4D","#E60000","#B30000","#800000","#4D0000",
@@ -1030,7 +1032,7 @@ colors.forEach(c => {
 });
 
 
-// open panel on right-click and also on left-click to select that's awaiting target
+// Open panel on right-click and also on left-click to select an awaiting target
 Object.values(btnEls).forEach(btn => {
   btn.addEventListener("contextmenu", e => {
     e.preventDefault();
@@ -1066,7 +1068,7 @@ colorPanel.style.zIndex = "1000";
 colorPanel.style.display = "none";
 
 /* ======================
-   GAME ANIMATE LOOP
+   ANIMATE LOOP
    ====================== */
 
 function animate() {
@@ -1169,8 +1171,6 @@ window.trailpad = {
     loadProfile
 };
 
-// IMPORT/EXPORT
-
 // Reset
 function resetJoystick() {
     // Recenter joystick head
@@ -1200,7 +1200,7 @@ function resetJoystick() {
     appState.base.display = "block";
 }
 
-function resetLayout() {
+function resetLayout() { // Hard-coded defaults
     // Base
     appState.base = {
         top: "40px",
@@ -1250,10 +1250,9 @@ function resetLayout() {
     }
 
     // reset trail color
-    // appState.trailColor = "#CEEC73";
-    // document.documentElement.style.setProperty('--trail-color', appState.trailColor);
+    appState.trailColor = "#CEEC73";
+    document.documentElement.style.setProperty('--trail-color', appState.trailColor);
 
-    // reset joystick & base positions
     resetJoystick();
 
     // clear hidden buttons
@@ -1263,7 +1262,7 @@ function resetLayout() {
 	showToast("Layout Reset!");
 }
 
-// Add key listener for F5
+// Add key listener to reset layout to default
 document.addEventListener("keydown", e => {
     if(e.key === "F5") {
         e.preventDefault();
@@ -1271,6 +1270,7 @@ document.addEventListener("keydown", e => {
     }
 });
 
+// IMPORT/EXPORT TO-DO!
 
 function saveLayout() {
     showToast("Layouts Saved");
@@ -1291,7 +1291,7 @@ document.addEventListener("keydown", e => {
     }
 });
 
-// Bulletin
+// One-time Update
 const UPDATE_KEY = "trailpadUpdateShown_v1";
 
 function showInitialUpdate(message) {
