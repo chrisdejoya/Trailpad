@@ -550,40 +550,55 @@ function showToast(message, duration = 1500) {
 /* ======================
    Editable labels
    ====================== */
-
 Object.values(btnEls).forEach(btn => {
     if (['Up','Down','Left','Right'].includes(btn.dataset.btn)) return;
+
     btn.addEventListener("dblclick", () => {
         if (btn.querySelector("input")) return;
+
         const oldText = btn.textContent.trim();
         btn.textContent = "";
+
         const input = document.createElement("input");
         input.value = oldText;
+
+        // Match button styles exactly
+        const style = window.getComputedStyle(btn);
+        input.style.position = "absolute";
+        input.style.top = "0";
+        input.style.left = "0";
         input.style.width = "100%";
         input.style.height = "100%";
-        input.style.fontFamily = "inherit";
-        input.style.textAlign = "center";
-        input.style.textTransform = "uppercase";
+        input.style.fontSize = style.fontSize;
+        input.style.fontFamily = style.fontFamily;
+        input.style.fontWeight = style.fontWeight;
+        input.style.textAlign = style.textAlign;
+		input.style.textTransform = "uppercase";
+        input.style.lineHeight = style.lineHeight;
+        input.style.background = "transparent";		
         input.style.border = "none";
         input.style.outline = "none";
-        input.style.background = "transparent";
-        input.style.color = "inherit";
-        input.style.padding = "0"; input.style.margin = "0";
+        input.style.color = style.color;
+        input.style.padding = "0";
+        input.style.margin = "0";
+        input.style.boxSizing = "border-box";
+
         btn.appendChild(input);
-        input.focus(); input.select();
-        input.addEventListener("blur", save);
-        input.addEventListener("keydown", e => {
-            if (e.key === "Enter") save();
-            else if (e.key === "Escape") {
-                btn.textContent = oldText;
-                e.stopPropagation();
-            }
-        });
+        input.focus();
+        input.select();
+
         function save() {
             const newText = input.value.trim();
             btn.textContent = newText;
-            updateLabel(btn.dataset.btn, newText);
+            savedLabels[btn.dataset.btn] = newText;
+            localStorage.setItem("buttonLabels", JSON.stringify(savedLabels));
         }
+
+        input.addEventListener("blur", save);
+        input.addEventListener("keydown", e => {
+            if (e.key === "Enter") save();
+            else if (e.key === "Escape") btn.textContent = oldText;
+        });
     });
 });
 
@@ -734,6 +749,10 @@ function moveSelectedElement(dx, dy) {
     const style = window.getComputedStyle(selectedElement);
     let top = parseInt(style.top) || 0;
     let left = parseInt(style.left) || 0;
+	
+	top = Math.max(0, top);
+    left = Math.max(0, left);
+	
     top += dy; left += dx;
     function snap10(val) { return Math.round(val / 10) * 10; }
     selectedElement.style.top = snap10(top) + "px";
@@ -788,36 +807,55 @@ window.addEventListener('gamepaddisconnected', e => {
 });
 
 const lastPressedTimes = {};
-function updateButtons(pad){
-    if(!pad?.buttons){
-        joystick.style.transform='translate(-50%,-50%) scale(1)'; joystick.textContent='';
-        Object.values(btnEls).forEach(btn=>btn.classList.remove('active'));
+
+function updateButtons(pad) {
+    if (!pad?.buttons) {
+        // Reset joystick when no gamepad
+        joystick.style.transform = 'translate(-50%,-50%) scale(1)';
+        joystick.textContent = '';
+        joystick.style.background = 'rgba(64,64,64,1)';
+        joystick.style.color = '#fff';
+        Object.values(btnEls).forEach(btn => btn.classList.remove('active'));
         return;
     }
-    for(const key in btnEls){
-        const idx=cfg.map[key];
-        if(idx===undefined) continue;
-        const pressed=!!pad.buttons[idx]?.pressed;
-        btnEls[key].classList.toggle('active',pressed);
-        lastPressedTimes[key]=pressed?performance.now():lastPressedTimes[key]||0;
+
+    // Update button states
+    for (const key in btnEls) {
+        const idx = cfg.map[key];
+        if (idx === undefined) continue;
+        const pressed = !!pad.buttons[idx]?.pressed;
+        btnEls[key].classList.toggle('active', pressed);
+        lastPressedTimes[key] = pressed ? performance.now() : lastPressedTimes[key] || 0;
     }
-    let activeBtn=null,latestTime=-1;
-    for(const key in lastPressedTimes){
-        if(btnEls[key].classList.contains('active')&&!cfg.ignoredForJoystick.includes(key)
-           && lastPressedTimes[key]>latestTime){
-            latestTime=lastPressedTimes[key]; activeBtn=key;
+
+    // Determine latest active button for joystick display
+    let activeBtn = null;
+    let latestTime = -1;
+    for (const key in lastPressedTimes) {
+        if (
+            btnEls[key].classList.contains('active') &&
+            !cfg.ignoredForJoystick.includes(key) &&
+            lastPressedTimes[key] > latestTime
+        ) {
+            latestTime = lastPressedTimes[key];
+            activeBtn = key;
         }
     }
-    if(activeBtn){
-        const btnColor=getComputedStyle(btnEls[activeBtn]).backgroundColor;
-        const btnTextColor=getComputedStyle(btnEls[activeBtn]).color;
-        joystick.textContent=btnEls[activeBtn].textContent;
-        joystick.style.background=btnColor;
-        joystick.style.color=btnTextColor;
+
+    // Update joystick appearance
+    if (activeBtn) {
+        const btnColor = window.getComputedStyle(btnEls[activeBtn]).backgroundColor;
+        const btnTextColor = window.getComputedStyle(btnEls[activeBtn]).color;
+        joystick.style.transform = 'translate(-50%,-50%) scale(1.3)';
+        joystick.textContent = btnEls[activeBtn].textContent;
+        joystick.style.background = btnColor;
+        joystick.style.color = btnTextColor;
     } else {
-        joystick.style.transform='translate(-50%,-50%) scale(1)';
-        joystick.textContent=''; joystick.style.background='rgba(64,64,64,1)';
-        joystick.style.color='#fff';
+        // Reset when no button is active
+        joystick.style.transform = 'translate(-50%,-50%) scale(1)';
+        joystick.textContent = '';
+        joystick.style.background = 'rgba(64,64,64,1)';
+        joystick.style.color = '#fff';
     }
 }
 
@@ -907,33 +945,60 @@ const colors = [
 const colorPanel = document.getElementById('colorPanel');
 // Create mode toggle
 const modeToggle = document.createElement("div"); modeToggle.className = 'modeToggle';
-const bgBtn = document.createElement("button"); bgBtn.textContent = "BACKGROUND"; bgBtn.style.font = "inherit"; bgBtn.style.padding="4px"; bgBtn.style.border="none"; bgBtn.style.cursor="pointer"; bgBtn.style.background="#444"; bgBtn.style.color="#ddd";
-const txtBtn = document.createElement("button"); txtBtn.textContent = "LABEL"; txtBtn.style.font = "inherit"; txtBtn.style.padding="4px"; txtBtn.style.border="none"; txtBtn.style.cursor="pointer"; txtBtn.style.background="#111"; txtBtn.style.color="#ddd";
+const bgBtn = document.createElement("button"); bgBtn.textContent = "BACKGROUND"; bgBtn.style.font = "inherit"; bgBtn.style.padding="4px"; bgBtn.style.border="none"; bgBtn.style.cursor="pointer"; bgBtn.style.background="#888"; bgBtn.style.color="#fff";
+const txtBtn = document.createElement("button"); txtBtn.textContent = "LABEL"; txtBtn.style.font = "inherit"; txtBtn.style.padding="4px"; txtBtn.style.border="none"; txtBtn.style.cursor="pointer"; txtBtn.style.background="#000"; txtBtn.style.color="#fff";
 modeToggle.appendChild(bgBtn); modeToggle.appendChild(txtBtn);
 colorPanel.appendChild(modeToggle);
 
 let colorMode = "background";
-bgBtn.addEventListener("click", () => { colorMode = "background"; bgBtn.style.background="#444"; txtBtn.style.background="#111"; });
-txtBtn.addEventListener("click", () => { colorMode = "text"; txtBtn.style.background="#555"; bgBtn.style.background="#333"; });
+bgBtn.addEventListener("click", () => { colorMode = "background"; bgBtn.style.background="#888"; txtBtn.style.background="#000"; });
+txtBtn.addEventListener("click", () => { colorMode = "text"; txtBtn.style.background="#888"; bgBtn.style.background="#000"; });
 
 colors.forEach(c => {
   const swatch = document.createElement("div");
   swatch.className = "swatch";
   swatch.style.backgroundColor = c;
-  swatch.addEventListener("click", () => {
-    if (colorPanel.targetBtn) {
-      const btnName = colorPanel.targetBtn.dataset.btn;
-      if (colorMode === "background") {
-        colorPanel.targetBtn.style.backgroundColor = c;
-        updateColor(btnName, c, appState.buttons[btnName]?.color);
-      } else {
-        colorPanel.targetBtn.style.color = c;
-        updateColor(btnName, appState.buttons[btnName]?.backgroundColor, c);
-      }
+
+  // Preview on hover
+  swatch.addEventListener("mouseenter", () => {
+    if (!colorPanel.targetBtn) return;
+    const btn = colorPanel.targetBtn;
+    const btnName = btn.dataset.btn;
+    if (colorMode === "background") {
+      btn.style.backgroundColor = c;
+    } else {
+      btn.style.color = c;
     }
   });
+
+  // Revert preview when hover ends
+  swatch.addEventListener("mouseleave", () => {
+    if (!colorPanel.targetBtn) return;
+    const btn = colorPanel.targetBtn;
+    const btnName = btn.dataset.btn;
+    if (colorMode === "background") {
+      btn.style.backgroundColor = appState.buttons[btnName]?.backgroundColor || "";
+    } else {
+      btn.style.color = appState.buttons[btnName]?.color || "";
+    }
+  });
+
+  // Apply on click
+  swatch.addEventListener("click", () => {
+    if (!colorPanel.targetBtn) return;
+    const btnName = colorPanel.targetBtn.dataset.btn;
+    if (colorMode === "background") {
+      colorPanel.targetBtn.style.backgroundColor = c;
+      updateColor(btnName, c, appState.buttons[btnName]?.color);
+    } else {
+      colorPanel.targetBtn.style.color = c;
+      updateColor(btnName, appState.buttons[btnName]?.backgroundColor, c);
+    }
+  });
+
   colorPanel.appendChild(swatch);
 });
+
 
 // open panel on right-click and also on left-click to select that's awaiting target
 Object.values(btnEls).forEach(btn => {
@@ -974,24 +1039,36 @@ colorPanel.style.display = "none";
    GAME ANIMATE LOOP
    ====================== */
 
-function animate(){
+function animate() {
+    // Always detect active gamepad each frame
     activeGamepadIndex = detectActiveGamepad();
-    const pad = navigator.getGamepads()[activeGamepadIndex];
-    updateButtons(pad);
-    handleDpadMovement(pad);
-    const {x,y}=getStickXY(pad);
-    const cx=canvas.width/2, cy=canvas.height/2;
-    const radius=canvas.width/2 - 25;
-    const jx=cx+x*radius, jy=cy+y*radius;
-    joystick.style.left=jx+'px';
-    joystick.style.top=jy+'px';
-    const deg=(Math.atan2(y,x)*180/Math.PI+360)%360;
-    let idx=-1;
-    if(Math.hypot(x,y)>0.5) idx=Math.round(deg/45)%8;
+    const pad = navigator.getGamepads()[activeGamepadIndex] || null;
+
+    updateButtons(pad);       // update button states
+    handleDpadMovement(pad);  // move selected element with D-pad
+
+    // Get stick coordinates
+    const { x, y } = getStickXY(pad);
+    const cx = canvas.width / 2;
+    const cy = canvas.height / 2;
+    const radius = canvas.width / 2 - 25;
+    const jx = cx + x * radius;
+    const jy = cy + y * radius;
+
+    joystick.style.left = jx + 'px';
+    joystick.style.top = jy + 'px';
+
+    // Update marker
+    const deg = (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+    let idx = -1;
+    if (Math.hypot(x, y) > 0.5) idx = Math.round(deg / 45) % 8;
     updateMarkers(idx);
-    // trail uses normalized values for drawTrail; keep previous behavior
-    trail.push({x:jx,y:jy}); if(trail.length>cfg.trail) trail.shift();
+
+    // Trail
+    trail.push({ x: jx, y: jy });
+    if (trail.length > cfg.trail) trail.shift();
     drawTrail();
+
     requestAnimationFrame(animate);
 }
 animate();
@@ -1063,6 +1140,108 @@ window.trailpad = {
 };
 
 // IMPORT/EXPORT
+
+// Reset
+function resetJoystick() {
+    // Recenter joystick head
+    resizeCanvas(); // ensures canvas size is up-to-date
+    joystick.style.left = (canvas.width / 2) + "px";
+    joystick.style.top = (canvas.height / 2) + "px";
+
+    // Reset marker positions
+    updateMarkers(-1);
+
+    // Reset base position
+    const baseComputed = window.getComputedStyle(base);
+    base.style.top = baseComputed.top;
+    base.style.left = baseComputed.left;
+    base.style.width = baseComputed.width;
+    base.style.height = baseComputed.height;
+    base.style.borderRadius = baseComputed.borderRadius;
+
+    updatePosition("base", base.style.top, base.style.left);
+    updateSize("base", base.style.width, base.style.height, base.style.borderRadius);
+
+    // Make sure joystick & base are visible
+    stickWrapper.style.display = "block";
+    base.style.display = "block";
+
+    appState.joystick.display = "block";
+    appState.base.display = "block";
+}
+
+function resetLayout() {
+    // Base
+    appState.base = {
+        top: "40px",
+        left: "30px",
+        width: "690px",
+        height: "250px",
+        borderRadius: "0px",
+        display: "block",
+        backgroundColor: "rgba(0,0,0,0.6)"
+    };
+    applyElementData(base, appState.base);
+
+    // Stick wrapper
+    appState.joystick = {
+        top: "50px",
+        left: "50px",
+        width: "230px",
+        height: "230px",
+        borderRadius: "0px",
+        display: "block"
+    };
+    applyElementData(stickWrapper, appState.joystick);
+
+    // Buttons
+    const defaults = {
+        Up: { top: "390px", left: "120px", width: "90px", height: "90px", borderRadius: "50%", fontSize: "40px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee" },
+        Down: { top: "290px", left: "120px", width: "90px", height: "90px", borderRadius: "50%", fontSize: "40px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee" },
+        Left: { top: "290px", left: "20px", width: "90px", height: "90px", borderRadius: "50%", fontSize: "40px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee" },
+        Right: { top: "290px", left: "220px", width: "90px", height: "90px", borderRadius: "50%", fontSize: "40px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee" },
+        A: { top: "170px", left: "300px", width: "90px", height: "90px", borderRadius: "50%", fontSize: "40px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee", label: "A" },
+        B: { top: "170px", left: "400px", width: "90px", height: "90px", borderRadius: "50%", fontSize: "40px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee", label: "B" },
+        X: { top: "70px", left: "300px", width: "90px", height: "90px", borderRadius: "50%", fontSize: "40px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee", label: "X" },
+        Y: { top: "70px", left: "400px", width: "90px", height: "90px", borderRadius: "50%", fontSize: "40px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee", label: "Y" },
+        LB: { top: "70px", left: "600px", width: "90px", height: "90px", borderRadius: "50%", fontSize: "40px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee", label: "LB" },
+        RB: { top: "70px", left: "500px", width: "90px", height: "90px", borderRadius: "50%", fontSize: "40px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee", label: "RB" },
+        LT: { top: "170px", left: "600px", width: "90px", height: "90px", borderRadius: "50%", fontSize: "40px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee", label: "LT" },
+        RT: { top: "170px", left: "500px", width: "90px", height: "90px", borderRadius: "50%", fontSize: "40px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee", label: "RT" },
+        LS: { top: "260px", left: "360px", width: "70px", height: "70px", borderRadius: "50%", fontSize: "40px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee", label: "LS" },
+        RS: { top: "260px", left: "560px", width: "70px", height: "70px", borderRadius: "50%", fontSize: "40px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee", label: "RS" },
+        View: { top: "20px", left: "300px", width: "90px", height: "40px", borderRadius: "30px", fontSize: "20px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee", label: "View" },
+        Menu: { top: "20px", left: "400px", width: "90px", height: "40px", borderRadius: "30px", fontSize: "20px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee", label: "Menu" }
+    };
+
+    for (const key in defaults) {
+        appState.buttons[key] = defaults[key];
+        applyElementData(btnEls[key], defaults[key]);
+    }
+
+    // reset trail color
+    // appState.trailColor = "#CEEC73";
+    // document.documentElement.style.setProperty('--trail-color', appState.trailColor);
+
+    // reset joystick & base positions
+    resetJoystick();
+
+    // clear hidden buttons
+    appState.hiddenButtons = [];
+    Object.values(btnEls).forEach(btn => btn.style.display = "flex");
+	
+	showToast("Layout Reset!");
+}
+
+// Add key listener for F5
+document.addEventListener("keydown", e => {
+    if(e.key === "F5") {
+        e.preventDefault();
+        resetLayout();
+    }
+});
+
+
 function saveLayout() {
     showToast("Layouts Saved");
 }
