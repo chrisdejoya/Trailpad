@@ -196,6 +196,8 @@
     <div class="btn" data-btn="Menu">Menu</div>
 </div>
 
+<textarea id="clipboardInput" style="position:fixed;top:-100px;left:-100px;opacity:0;" aria-hidden="true"></textarea>
+
 <!-- color panel -->
 <div id="colorPanel" aria-hidden="true"></div>
 <!-- toast -->
@@ -1270,24 +1272,180 @@ document.addEventListener("keydown", e => {
     }
 });
 
-// IMPORT/EXPORT TO-DO!
+/* ========== Copy current layout with Ctrl+C ========== */
+let lastLayoutFilename = "layout.json";
 
-function saveLayout() {
-    showToast("Layouts Saved");
-}
+function snapshotLayout() {
+    // Deep clone appState so we don't mutate it
+    const snapshot = JSON.parse(JSON.stringify(appState));
 
-function loadLayout() {
-	showToast("Layout Loaded");
-}
-
-document.addEventListener("keydown", e => {
-    if (e.ctrlKey && e.key === "s") {
-        e.preventDefault();
-        saveLayout();
+    // --- Base ---
+    if (base) {
+        const cs = window.getComputedStyle(base);
+        snapshot.base = {
+            top: base.style.top || cs.top,
+            left: base.style.left || cs.left,
+            width: base.style.width || cs.width,
+            height: base.style.height || cs.height,
+            borderRadius: base.style.borderRadius || cs.borderRadius,
+            display: cs.display,
+            visibility: cs.visibility,
+            backgroundColor: base.style.backgroundColor || cs.backgroundColor
+        };
     }
-    if (e.ctrlKey && e.key === "o") {
+
+    // --- Buttons ---
+    if (snapshot.buttons && btnEls) {
+        for (const key in btnEls) {
+            const el = btnEls[key];
+            if (!el) continue;
+            const cs = window.getComputedStyle(el);
+
+            if (!snapshot.buttons[key]) snapshot.buttons[key] = {};
+            snapshot.buttons[key].display = cs.display;
+            snapshot.buttons[key].visibility = cs.visibility;
+        }
+    }
+
+    // --- Joystick wrapper ---
+    if (stickWrapper) {
+        const cs = window.getComputedStyle(stickWrapper);
+        snapshot.joystick = {
+            ...snapshot.joystick,
+            display: cs.display,
+            visibility: cs.visibility
+        };
+    }
+
+    return snapshot;
+}
+
+function saveLayoutToFile() {
+    try {
+        const snapshot = snapshotLayout();
+        const json = JSON.stringify(snapshot, null, 2);
+        const blob = new Blob([json], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+
+        let filename = prompt(
+            "Name this layout:",
+            lastLayoutFilename || "layout.json"
+        );
+
+        if (filename === null) { // Cancel
+            URL.revokeObjectURL(url);
+            showToast("Save Cancelled!");
+            return;
+        }
+
+        if (filename.trim() === "") {
+            filename = "layout.json";
+        }
+
+        if (!filename.toLowerCase().endsWith(".json")) {
+            filename += ".json";
+        }
+
+        lastLayoutFilename = filename;
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        URL.revokeObjectURL(url);
+        showToast(`Layout saved as ${filename}`);
+    } catch (err) {
+        console.error("Save failed:", err);
+        showToast("Save not available from OBS!");
+    }
+}
+
+
+function copyLayoutToClipboard() {
+    try {
+        const snapshot = snapshotLayout();
+        const json = JSON.stringify(snapshot, null, 2);
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(json).then(() => {
+                showToast("Layout copied!");
+            }).catch(err => {
+                console.error("Clipboard API failed:", err);
+                fallbackCopy(json);
+            });
+        } else {
+            fallbackCopy(json); // OBS will use this
+        }
+    } catch (err) {
+        console.error("Copy failed:", err);
+        showToast("Copying from OBS not allowed!");
+    }
+}
+
+function importLayout(file) {
+    const reader = new FileReader();
+
+    reader.onload = e => {
+        try {
+            const imported = JSON.parse(e.target.result);
+
+            if (typeof imported === "object" && Object.keys(imported).length > 0) {
+                appState = imported;
+                applyState();
+                forceSave();
+
+                // Remember the filename for future exports
+                lastLayoutFilename = file.name || "trailpad_layout.json";
+
+                showToast(`Layout imported from ${lastLayoutFilename}`);
+            } else {
+                showToast("Invalid or empty file");
+            }
+        } catch (err) {
+            console.error("Invalid Layout:", err);
+            showToast("Invalid Layout!");
+        }
+        importInput.value = ""; // reset so same file can be picked again
+    };
+
+    reader.onerror = e => {
+        console.error("File read error:", e);
+        showToast("File read error");
+        importInput.value = "";
+    };
+
+    reader.readAsText(file);
+}
+
+/* Hidden file input for import */
+const importInput = document.createElement("input");
+importInput.type = "file";
+importInput.accept = ".json";
+importInput.style.display = "none";
+document.body.appendChild(importInput);
+
+importInput.addEventListener("change", e => {
+    if (e.target.files.length > 0) {
+        importLayout(e.target.files[0]);
+    }
+});
+
+/* ========== Hotkeys ========== */
+document.addEventListener("keydown", e => {
+    if (e.ctrlKey && e.key.toLowerCase() === "s") {
         e.preventDefault();
-        loadLayout();
+        saveLayoutToFile();
+    }
+    if (e.ctrlKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        copyLayoutToClipboard();
+    }
+    if (e.ctrlKey && e.key.toLowerCase() === "o") {
+        e.preventDefault();
+        importInput.click();
     }
 });
 
