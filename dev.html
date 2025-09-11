@@ -135,7 +135,7 @@
 		position: absolute; z-index: 100;
 		top: 25%; left: 50%;		
 		transform: translate(-50%, -25%) scale(0);
-		width: 400px; padding: 20px; padding-left: 30px; padding-right: 30px;
+		width: 90%; padding: 20px; padding-left: 50px; padding-right: 50px;
 		font-family: Swiss721, Arial, sans-serif; font-size: 30px;		
 		color:#fff; text-align: center;
 		transition: transform 0.1s ease;
@@ -517,7 +517,7 @@ function loadProfile(n) {
     if (n < 1 || n > PROFILE_COUNT) return;
     const snap = appState.profiles["profile" + n];
     if (!snap) {
-        showToast(`Profile ${n} not found`);
+        showToast(`Press ctrl-F${n} to save`);
         return;
     }
     // apply joystick
@@ -1296,22 +1296,23 @@ const UPDATE_KEY = "trailpadUpdateShown_v1";
 
 function showInitialUpdate(message) {
     const alreadySeen = localStorage.getItem(UPDATE_KEY);
-    if (alreadySeen) return; // skip if already acknowledged
+    if (alreadySeen) return;
 
-    toast.textContent = message;
+    toast.textContent = message; // keep \n in the string
+    toast.style.whiteSpace = "pre-line"; // let \n show as line breaks
     toast.style.transform = "translateX(-50%) scale(1)";
 
-    // Wait for user click to hide
     function hideOnClick() {
         toast.style.transform = "translateX(-50%) scale(0)";
         toast.removeEventListener("click", hideOnClick);
-        localStorage.setItem(UPDATE_KEY, "true"); // mark as seen
+        localStorage.setItem(UPDATE_KEY, "true");
+        window.open("https://twitter.com/chrisdejoya", "_blank");
     }
 
     toast.addEventListener("click", hideOnClick);
 }
 
-showInitialUpdate("Trailpad has been updated! Click here to see changes.");
+showInitialUpdate("Press Interact to customize\nPress F1 to F4 to switch profiles");
 
 </script>
 </body>
