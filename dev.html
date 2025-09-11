@@ -62,7 +62,7 @@
         transform: translate(-50%,-50%) scale(1);
         pointer-events: none;
         display: flex; align-items: center; justify-content: center;
-        font-weight: bold; font-size: 24px;
+        font-weight: bold; font-size: 28px;
         //transition: left 0.05s, top 0.05s, transform: 0.1;
         background: rgba(80,80,80,1); color: #000;
     }
@@ -86,9 +86,10 @@
         position: absolute; background: rgba(48,48,48,1);
         width: 90px; height: 90px;
         display: flex; align-items: center; justify-content: center;
-        font-size: 40px; transition: 0.05s;
-        border-radius: 50%; outline: 4px solid rgba(255,255,255,0.5);
-        outline-offset: -4px; box-shadow: 0 2px 0px 6px rgba(0,0,0,1);
+        font-size: 44px; transition: 0.05s;
+        border-radius: 50%;		
+		outline: 4px solid rgba(255,255,255,0.3); outline-offset: -4px; 
+        box-shadow: 0 2px 0px 6px rgba(0,0,0,1);
         filter: brightness(1);
         overflow: hidden; text-align: center; white-space: nowrap;
         color: #eee; cursor: pointer;
@@ -112,8 +113,8 @@
     .btn[data-btn="LT"] { top: 170px; left: 600px; }
     .btn[data-btn="RT"] { top: 170px; left: 500px; }
 
-    .btn[data-btn="LS"] { top: 260px; left: 360px; width: 70px; height: 70px; }
-    .btn[data-btn="RS"] { top: 260px; left: 560px; width: 70px; height: 70px; }
+    .btn[data-btn="LS"] { top: 280px; left: 360px; width: 70px; height: 70px; font-size: 36px }
+    .btn[data-btn="RS"] { top: 280px; left: 560px; width: 70px; height: 70px; font-size: 36px  }
     .btn[data-btn="View"] { top: 20px; left: 300px; width: 90px; height: 40px; border-radius: 30px; font-size: 20px; }
     .btn[data-btn="Menu"] { top: 20px; left: 400px; width: 90px; height: 40px; border-radius: 30px; font-size: 20px; }
 
@@ -128,7 +129,35 @@
     #colorPanel .swatch { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; }
 	#colorPanel .swatch:hover { outline: 4px solid #fff; outline-offset: -2px; }
     #colorPanel .modeToggle { width: 100%; display: flex; justify-content: center; gap:0; margin-bottom:0; }
-    #toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) scale(0); background: #000; color:#fff; padding:10px; z-index:9999; border-radius: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.5); transition: transform 0.1s ease; font-family: Swiss721, Arial, sans-serif; }
+    //#toast { position: absolute; top: 25%; left: 50%; transform: translate(-50%, -25%) scale(0); background: #222222ee; box-shadow: 0px 2px 0px 8px #000; color:#fff; text-align: center; width: 400px; padding: 15px; z-index:100; transition: transform 0.1s ease; font-family: Swiss721, Arial, sans-serif; font-size: 30px; outline: 4px solid #eeeeee88; }
+
+	#toast {
+		position: absolute; z-index: 100;
+		top: 25%; left: 50%;		
+		transform: translate(-50%, -25%) scale(0);
+		width: 400px; padding: 20px; padding-left: 30px; padding-right: 30px;
+		font-family: Swiss721, Arial, sans-serif; font-size: 30px;		
+		color:#fff; text-align: center;
+		transition: transform 0.1s ease;
+		text-shadow: 0 2px 2px rgba(0,0,0,2.0);		
+		background: rgba(0,0,0,0.8);
+		
+		/* fade edges */
+		-webkit-mask-image: linear-gradient(to right,
+						  rgba(0,0,0,0) 0%,
+						  rgba(0,0,0,1) 15%,
+						  rgba(0,0,0,1) 85%,
+						  rgba(0,0,0,0) 100%);
+		-webkit-mask-repeat: no-repeat;
+		-webkit-mask-size: 100% 100%;
+		mask-image: linear-gradient(to right,
+						  rgba(0,0,0,0) 0%,
+						  rgba(0,0,0,1) 15%,
+						  rgba(0,0,0,1) 85%,
+						  rgba(0,0,0,0) 100%);
+		mask-repeat: no-repeat;
+		mask-size: 100% 100%;	  
+		}
 </style>
 </head>
 <body>
@@ -177,8 +206,7 @@
    Unified appState and helpers
    =========================== */
 
-const STORAGE_KEY = "trailpadState_v1"; // bump version if schema changes
-
+const STORAGE_KEY = "trailpad_appState";
 const defaultTrailColor = getComputedStyle(document.documentElement).getPropertyValue('--trail-color').trim() || "#CEEC73";
 
 const defaultCfg = {
@@ -249,16 +277,15 @@ function forceSave() {
 
 /* Load state once */
 function loadState() {
-    try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (raw) {
-            const parsed = JSON.parse(raw);
-            // shallow merge to keep default fields if future schema adds them
-            appState = Object.assign({}, appState, parsed || {});
-        }
-    } catch (e) {
-        console.warn("Invalid saved state, ignoring.", e);
-    }
+	try {
+		const raw = localStorage.getItem(STORAGE_KEY);
+		if (raw) {
+			appState = { ...appState, ...JSON.parse(raw) };
+		}
+	} catch (err) {
+		console.warn("Failed to load saved state:", err);
+		appState = { ...defaultState }; // fallback
+	}
     applyState();
 }
 
@@ -481,7 +508,8 @@ function saveProfile(n) {
         };
     }
     appState.profiles["profile" + n] = snapshot;
-    scheduleSave();
+    //scheduleSave();
+	forceSave();
     showToast(`Profile ${n} saved!`);
 }
 
@@ -489,7 +517,7 @@ function loadProfile(n) {
     if (n < 1 || n > PROFILE_COUNT) return;
     const snap = appState.profiles["profile" + n];
     if (!snap) {
-        showToast(`Profile ${n} not found!`);
+        showToast(`Profile ${n} not found`);
         return;
     }
     // apply joystick
@@ -516,7 +544,8 @@ function loadProfile(n) {
     joystick.style.left = (canvas.width / 2) + "px";
     joystick.style.top = (canvas.height / 2) + "px";
     updateMarkers(-1);
-    scheduleSave();
+    //scheduleSave();
+	forceSave();
     showToast(`Profile ${n} loaded!`);
 }
 
@@ -526,24 +555,24 @@ function loadProfile(n) {
 
 const toast = document.getElementById('toast');
 function bounceToast() {
-    toast.style.transition = "transform 0.08s ease";
-    toast.style.transform = "translateX(-50%) scale(1.2)";
+    toast.style.transition = "transform 0.05s ease";
+    toast.style.transform = "translate(-50%, -25%) scale(1.1)";
     setTimeout(() => {
-        toast.style.transform = "translateX(-50%) scale(1)";
-        toast.style.transition = "transform 0.15s ease";
+        toast.style.transform = "translate(-50%, -25%) scale(1)";
+        toast.style.transition = "transform 0.1s ease";
     }, 80);
 }
 
-function showToast(message, duration = 1500) {
+function showToast(message, duration = 1000) {
     toast.textContent = message;
     if (toast.style.transform.includes("scale(0)")) {
-        toast.style.transform = "translateX(-50%) scale(1)";
+        toast.style.transform = "translate(-50%, -25%) scale(1)";
     } else {
         bounceToast();
     }
     clearTimeout(toast.hideTimeout);
     toast.hideTimeout = setTimeout(() => {
-        toast.style.transform = "translateX(-50%) scale(0)";
+        toast.style.transform = "translate(-50%, -25%) scale(100%, 0%)";
     }, duration);
 }
 
@@ -629,7 +658,7 @@ document.addEventListener("keydown", e => {
 			btn.style.display = "flex";
 			const btnKey = btn.getAttribute("data-btn");
 			if (appState.buttons[btnKey]) {
-				appState.buttons[btnKey].display = "block";
+				appState.buttons[btnKey].display = "flex";
 			}
 		});
 
@@ -646,7 +675,7 @@ document.addEventListener("keydown", e => {
 		appState.hiddenButtons = [];
 
 		forceSave();
-		showToast("Visible!");
+		showToast("Show All Widgets");
 	}
 
     const style = window.getComputedStyle(selectedElement);
@@ -1261,6 +1290,29 @@ document.addEventListener("keydown", e => {
         loadLayout();
     }
 });
+
+// Bulletin
+const UPDATE_KEY = "trailpadUpdateShown_v1";
+
+function showInitialUpdate(message) {
+    const alreadySeen = localStorage.getItem(UPDATE_KEY);
+    if (alreadySeen) return; // skip if already acknowledged
+
+    toast.textContent = message;
+    toast.style.transform = "translateX(-50%) scale(1)";
+
+    // Wait for user click to hide
+    function hideOnClick() {
+        toast.style.transform = "translateX(-50%) scale(0)";
+        toast.removeEventListener("click", hideOnClick);
+        localStorage.setItem(UPDATE_KEY, "true"); // mark as seen
+    }
+
+    toast.addEventListener("click", hideOnClick);
+}
+
+showInitialUpdate("Trailpad has been updated! Click here to see changes.");
+
 </script>
 </body>
 </html>
