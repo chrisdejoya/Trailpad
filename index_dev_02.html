@@ -237,7 +237,7 @@ const movableElements = {...btnEls, stickWrapper, base};
 /* appState schema:
 {
   buttons: {
-    A: { top, left, width, height, borderRadius, fontSize, display, backgroundColor, color, label },
+    A: { top, left, width, height, borderRadius, fontSize, display, backgroundColor, color, label, outline, outline-offset },
     ...
   },
   joystick: { top, left, width, height, borderRadius, display },
@@ -313,7 +313,8 @@ const SAVED_STYLE_PROPS = [
   "borderBottomLeftRadius", "borderBottomRightRadius",
   "fontSize",
   "display", "visibility",
-  "backgroundColor", "backgroundImage", "color"
+  "backgroundColor", "backgroundImage", "color",
+  "outline", "outline-offset", "box-shadow"
 ];
 
 // Capture style state of an element into JSON
