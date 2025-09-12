@@ -304,6 +304,7 @@ function applyElementData(el, data) {
     if (data.backgroundColor) el.style.backgroundColor = data.backgroundColor;
 	if (data.backgroundImage) el.style.backgroundImage = data.backgroundImage;
 	if (data.backgroundSize) el.style.backgroundSize = data.backgroundSize;
+	if (data.backgroundScale) el.style.backgroundScale = data.backgroundScale;
     if (data.color) el.style.color = data.color;
     if (data.label !== undefined && el.dataset?.btn) el.textContent = data.label;
 }
@@ -315,7 +316,7 @@ const SAVED_STYLE_PROPS = [
   "borderBottomLeftRadius", "borderBottomRightRadius",
   "fontSize",
   "display", "visibility",
-  "backgroundColor", "backgroundImage", "backgroundSize", "color",
+  "backgroundColor", "backgroundImage", "backgroundSize", "backgroundScale", "color",
   "outline", "outline-offset", "box-shadow"
 ];
 
