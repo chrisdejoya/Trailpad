@@ -1,0 +1,43 @@
+{
+  "base": {
+    "top": "40px",
+    "left": "30px",
+    "width": "690px",
+    "height": "250px",
+    "borderRadius": "0px",
+    "display": "block",
+    "backgroundColor": "rgba(0,0,0,0.6)"
+  },
+  "joystick": {
+    "top": "50px",
+    "left": "50px",
+    "width": "230px",
+    "height": "230px",
+    "borderRadius": "0px",
+    "display": "block"
+  },
+  "buttons": {
+    "Up":    { "top": "390px", "left": "120px", "width": "90px", "height": "90px", "borderRadius": "50%", "fontSize": "40px", "display": "flex", "backgroundColor": "rgba(48,48,48,1)", "color": "#eee" },
+    "Down":  { "top": "290px", "left": "120px", "width": "90px", "height": "90px", "borderRadius": "50%", "fontSize": "40px", "display": "flex", "backgroundColor": "rgba(48,48,48,1)", "color": "#eee" },
+    "Left":  { "top": "290px", "left": "20px",  "width": "90px", "height": "90px", "borderRadius": "50%", "fontSize": "40px", "display": "flex", "backgroundColor": "rgba(48,48,48,1)", "color": "#eee" },
+    "Right": { "top": "290px", "left": "220px", "width": "90px", "height": "90px", "borderRadius": "50%", "fontSize": "40px", "display": "flex", "backgroundColor": "rgba(48,48,48,1)", "color": "#eee" },
+
+    "A": { "top": "170px", "left": "300px", "width": "90px", "height": "90px", "borderRadius": "50%", "fontSize": "40px", "display": "flex", "backgroundColor": "rgba(48,48,48,1)", "color": "#eee", "label": "A" },
+    "B": { "top": "170px", "left": "400px", "width": "90px", "height": "90px", "borderRadius": "50%", "fontSize": "40px", "display": "flex", "backgroundColor": "rgba(48,48,48,1)", "color": "#eee", "label": "B" },
+    "X": { "top": "70px",  "left": "300px", "width": "90px", "height": "90px", "borderRadius": "50%", "fontSize": "40px", "display": "flex", "backgroundColor": "rgba(48,48,48,1)", "color": "#eee", "label": "X" },
+    "Y": { "top": "70px",  "left": "400px", "width": "90px", "height": "90px", "borderRadius": "50%", "fontSize": "40px", "display": "flex", "backgroundColor": "rgba(48,48,48,1)", "color": "#eee", "label": "Y" },
+
+    "LB": { "top": "70px",  "left": "600px", "width": "90px", "height": "90px", "borderRadius": "50%", "fontSize": "40px", "display": "flex", "backgroundColor": "rgba(48,48,48,1)", "color": "#eee", "label": "LB" },
+    "RB": { "top": "70px",  "left": "500px", "width": "90px", "height": "90px", "borderRadius": "50%", "fontSize": "40px", "display": "flex", "backgroundColor": "rgba(48,48,48,1)", "color": "#eee", "label": "RB" },
+    "LT": { "top": "170px", "left": "600px", "width": "90px", "height": "90px", "borderRadius": "50%", "fontSize": "40px", "display": "flex", "backgroundColor": "rgba(48,48,48,1)", "color": "#eee", "label": "LT" },
+    "RT": { "top": "170px", "left": "500px", "width": "90px", "height": "90px", "borderRadius": "50%", "fontSize": "40px", "display": "flex", "backgroundColor": "rgba(48,48,48,1)", "color": "#eee", "label": "RT" },
+
+    "LS": { "top": "260px", "left": "360px", "width": "70px", "height": "70px", "borderRadius": "50%", "fontSize": "40px", "display": "flex", "backgroundColor": "rgba(48,48,48,1)", "color": "#eee", "label": "LS" },
+    "RS": { "top": "260px", "left": "560px", "width": "70px", "height": "70px", "borderRadius": "50%", "fontSize": "40px", "display": "flex", "backgroundColor": "rgba(48,48,48,1)", "color": "#eee", "label": "RS" },
+
+    "View": { "top": "20px", "left": "300px", "width": "90px", "height": "40px", "borderRadius": "30px", "fontSize": "20px", "display": "flex", "backgroundColor": "rgba(48,48,48,1)", "color": "#eee", "label": "View" },
+    "Menu": { "top": "20px", "left": "400px", "width": "90px", "height": "40px", "borderRadius": "30px", "fontSize": "20px", "display": "flex", "backgroundColor": "rgba(48,48,48,1)", "color": "#eee", "label": "Menu" }
+  },
+  "trailColor": "#CEEC73",
+  "hiddenButtons": []
+}
