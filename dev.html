@@ -237,7 +237,7 @@ const movableElements = {...btnEls, stickWrapper, base};
 /* appState schema:
 {
   buttons: {
-    A: { top, left, width, height, borderRadius, fontSize, display, backgroundColor, color, label },
+    A: { top, left, width, height, borderRadius, fontSize, display, backgroundColor, color, label, outline, outline-offset },
     ...
   },
   joystick: { top, left, width, height, borderRadius, display },
@@ -306,83 +306,86 @@ function applyElementData(el, data) {
     if (data.label !== undefined && el.dataset?.btn) el.textContent = data.label;
 }
 
+// Which style properties should be persisted
+const SAVED_STYLE_PROPS = [
+  "top", "left", "width", "height",
+  "borderRadius", "borderTopLeftRadius", "borderTopRightRadius",
+  "borderBottomLeftRadius", "borderBottomRightRadius",
+  "fontSize",
+  "display", "visibility",
+  "backgroundColor", "backgroundImage", "color",
+  "outline", "outline-offset", "box-shadow"
+];
+
+// Capture style state of an element into JSON
+function captureElementData(el) {
+  if (!el) return {};
+  const cs = window.getComputedStyle(el);
+  const data = {};
+  SAVED_STYLE_PROPS.forEach(prop => {
+    data[prop] = el.style[prop] || cs[prop];
+  });
+  if (el.dataset?.btn) {
+    data.label = el.textContent || "";
+  }
+  return data;
+}
+
+// Apply JSON state back to element
+function applyElementData(el, data) {
+  if (!el || !data) return;
+  SAVED_STYLE_PROPS.forEach(prop => {
+    if (data[prop] !== undefined) el.style[prop] = data[prop];
+  });
+  if (data.label !== undefined && el.dataset?.btn) {
+    el.textContent = data.label;
+  }
+}
+
 function applyState() {
-    // buttons
-    for (const key in btnEls) {
-        const el = btnEls[key];
-        const data = appState.buttons[key] || {};
-        // apply defaults if not set
-        // Use computed style fallback if not present in state
-        const computed = window.getComputedStyle(el);
-        const fallback = {
-            top: el.style.top || computed.top || computed.getPropertyValue('top'),
-            left: el.style.left || computed.left || computed.getPropertyValue('left'),
-            width: el.style.width || computed.width,
-            height: el.style.height || computed.height,
-            borderRadius: el.style.borderRadius || computed.borderRadius,
-            fontSize: el.style.fontSize || computed.fontSize,
-            display: el.style.display || computed.display,
-            backgroundColor: el.style.backgroundColor || computed.backgroundColor,
-            color: el.style.color || computed.color,
-            label: (el.textContent || "").trim()
-        };
-        const merged = Object.assign({}, fallback, data);
-        applyElementData(el, merged);
-        // also write merged values back to state (so state contains every button after apply)
-        appState.buttons[key] = {...merged};
-    }
-	
-    // joystick/wrapper
-    const sw = appState.joystick || {};
-    const computedSW = window.getComputedStyle(stickWrapper);
-    const swFallback = {
-        top: stickWrapper.style.top || computedSW.top,
-        left: stickWrapper.style.left || computedSW.left,
-        width: stickWrapper.style.width || computedSW.width,
-        height: stickWrapper.style.height || computedSW.height,
-        borderRadius: stickWrapper.style.borderRadius || computedSW.borderRadius,
-        display: stickWrapper.style.display || computedSW.display
-    };
-    appState.joystick = Object.assign({}, swFallback, sw);
-    applyElementData(stickWrapper, appState.joystick);
-	
-	// base
-	const baseData = appState.base || {};
-	const computedBase = window.getComputedStyle(base);
-	const baseFallback = {
-		top: base.style.top || computedBase.top,
-		left: base.style.left || computedBase.left,
-		width: base.style.width || computedBase.width,
-		height: base.style.height || computedBase.height,
-		borderRadius: base.style.borderRadius || computedBase.borderRadius,
-		display: base.style.display || computedBase.display,
-		backgroundColor: base.style.backgroundColor || computedBase.backgroundColor
-	};
-	appState.base = Object.assign({}, baseFallback, baseData);
-	applyElementData(base, appState.base);
+  // Buttons
+  for (const key in btnEls) {
+    const el = btnEls[key];
+    const currentData = appState.buttons[key] || {};
+    const merged = Object.assign({}, captureElementData(el), currentData);
+    applyElementData(el, merged);
+    appState.buttons[key] = { ...merged };
+  }
 
-    // hidden buttons
-    if (Array.isArray(appState.hiddenButtons)) {
-        appState.hiddenButtons.forEach(btnName => {
-            if (btnEls[btnName]) {
-                btnEls[btnName].style.display = "none";
-                if (!cfg.ignoredForJoystick.includes(btnName)) cfg.ignoredForJoystick.push(btnName);
-            }
-        });
-    } else {
-        appState.hiddenButtons = [];
-    }
+  // Joystick wrapper
+  const mergedJoystick = Object.assign({}, captureElementData(stickWrapper), appState.joystick || {});
+  applyElementData(stickWrapper, mergedJoystick);
+  appState.joystick = { ...mergedJoystick };
 
-    // trail color
-    if (appState.trailColor) {
-        document.documentElement.style.setProperty('--trail-color', appState.trailColor);
-    }
+  // Base
+  const mergedBase = Object.assign({}, captureElementData(base), appState.base || {});
+  applyElementData(base, mergedBase);
+  appState.base = { ...mergedBase };
 
-    resizeCanvas();
-    joystick.style.left = (canvas.width / 2) + "px";
-    joystick.style.top = (canvas.height / 2) + "px";
-    updateMarkers(-1);
-    scheduleSave();
+  // Hidden buttons
+  if (Array.isArray(appState.hiddenButtons)) {
+    appState.hiddenButtons.forEach(btnName => {
+      if (btnEls[btnName]) {
+        btnEls[btnName].style.display = "none";
+        if (!cfg.ignoredForJoystick.includes(btnName)) cfg.ignoredForJoystick.push(btnName);
+      }
+    });
+  } else {
+    appState.hiddenButtons = [];
+  }
+
+  // Trail color
+  if (appState.trailColor) {
+    document.documentElement.style.setProperty("--trail-color", appState.trailColor);
+  }
+
+  // Update joystick + markers
+  resizeCanvas();
+  joystick.style.left = (canvas.width / 2) + "px";
+  joystick.style.top = (canvas.height / 2) + "px";
+  updateMarkers(-1);
+
+  scheduleSave();
 }
 
 /* Convenience getters for element state */
@@ -479,40 +482,21 @@ function setBaseHidden(hidden) {
 /* Profiles */
 const PROFILE_COUNT = 4;
 function saveProfile(n) {
-    if (n < 1 || n > PROFILE_COUNT) return;
-    // collect current live state snapshot
-    const snapshot = {
-        joystick: Object.assign({}, appState.joystick),
-        buttons: {},
-        base: {
-            top: base.style.top || window.getComputedStyle(base).top,
-            left: base.style.left || window.getComputedStyle(base).left,
-            width: base.style.width || window.getComputedStyle(base).width,
-            height: base.style.height || window.getComputedStyle(base).height,
-            borderRadius: base.style.borderRadius || window.getComputedStyle(base).borderRadius,
-            display: base.style.display || window.getComputedStyle(base).display,
-            backgroundColor: base.style.backgroundColor || window.getComputedStyle(base).backgroundColor
-        }
-    };
-    for (const key in btnEls) {
-        const el = btnEls[key];
-        snapshot.buttons[key] = {
-            top: el.style.top || window.getComputedStyle(el).top,
-            left: el.style.left || window.getComputedStyle(el).left,
-            width: el.style.width || window.getComputedStyle(el).width,
-            height: el.style.height || window.getComputedStyle(el).height,
-            borderRadius: el.style.borderRadius || window.getComputedStyle(el).borderRadius,
-            fontSize: el.style.fontSize || window.getComputedStyle(el).fontSize,
-            display: el.style.display || window.getComputedStyle(el).display,
-            backgroundColor: el.style.backgroundColor || window.getComputedStyle(el).backgroundColor,
-            color: el.style.color || window.getComputedStyle(el).color,
-            label: el.textContent || ""
-        };
-    }
-    appState.profiles["profile" + n] = snapshot;
-    //scheduleSave();
-	forceSave();
-    showToast(`Profile ${n} saved!`);
+  if (n < 1 || n > PROFILE_COUNT) return;
+
+  const snapshot = {
+    joystick: captureElementData(stickWrapper),
+    base: captureElementData(base),
+    buttons: {}
+  };
+
+  for (const key in btnEls) {
+    snapshot.buttons[key] = captureElementData(btnEls[key]);
+  }
+
+  appState.profiles["profile" + n] = snapshot;
+  forceSave();
+  showToast(`Profile ${n} saved!`);
 }
 
 function loadProfile(n) {
@@ -1202,66 +1186,43 @@ function resetJoystick() {
     appState.base.display = "block";
 }
 
-function resetLayout() { // Hard-coded defaults
-    // Base
-    appState.base = {
-        top: "40px",
-        left: "30px",
-        width: "690px",
-        height: "250px",
-        borderRadius: "0px",
-        display: "block",
-        backgroundColor: "rgba(0,0,0,0.6)"
-    };
+async function resetLayout() {
+  try {
+    const response = await fetch("layouts/default.json");
+    const defaultLayout = await response.json();
+
+    // Apply defaults using unified pipeline
+    appState.base = defaultLayout.base || {};
     applyElementData(base, appState.base);
 
-    // Stick wrapper
-    appState.joystick = {
-        top: "50px",
-        left: "50px",
-        width: "230px",
-        height: "230px",
-        borderRadius: "0px",
-        display: "block"
-    };
+    appState.joystick = defaultLayout.joystick || {};
     applyElementData(stickWrapper, appState.joystick);
 
-    // Buttons
-    const defaults = {
-        Up: { top: "390px", left: "120px", width: "90px", height: "90px", borderRadius: "50%", fontSize: "40px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee" },
-        Down: { top: "290px", left: "120px", width: "90px", height: "90px", borderRadius: "50%", fontSize: "40px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee" },
-        Left: { top: "290px", left: "20px", width: "90px", height: "90px", borderRadius: "50%", fontSize: "40px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee" },
-        Right: { top: "290px", left: "220px", width: "90px", height: "90px", borderRadius: "50%", fontSize: "40px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee" },
-        A: { top: "170px", left: "300px", width: "90px", height: "90px", borderRadius: "50%", fontSize: "40px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee", label: "A" },
-        B: { top: "170px", left: "400px", width: "90px", height: "90px", borderRadius: "50%", fontSize: "40px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee", label: "B" },
-        X: { top: "70px", left: "300px", width: "90px", height: "90px", borderRadius: "50%", fontSize: "40px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee", label: "X" },
-        Y: { top: "70px", left: "400px", width: "90px", height: "90px", borderRadius: "50%", fontSize: "40px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee", label: "Y" },
-        LB: { top: "70px", left: "600px", width: "90px", height: "90px", borderRadius: "50%", fontSize: "40px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee", label: "LB" },
-        RB: { top: "70px", left: "500px", width: "90px", height: "90px", borderRadius: "50%", fontSize: "40px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee", label: "RB" },
-        LT: { top: "170px", left: "600px", width: "90px", height: "90px", borderRadius: "50%", fontSize: "40px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee", label: "LT" },
-        RT: { top: "170px", left: "500px", width: "90px", height: "90px", borderRadius: "50%", fontSize: "40px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee", label: "RT" },
-        LS: { top: "260px", left: "360px", width: "70px", height: "70px", borderRadius: "50%", fontSize: "40px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee", label: "LS" },
-        RS: { top: "260px", left: "560px", width: "70px", height: "70px", borderRadius: "50%", fontSize: "40px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee", label: "RS" },
-        View: { top: "20px", left: "300px", width: "90px", height: "40px", borderRadius: "30px", fontSize: "20px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee", label: "View" },
-        Menu: { top: "20px", left: "400px", width: "90px", height: "40px", borderRadius: "30px", fontSize: "20px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee", label: "Menu" }
-    };
-
-    for (const key in defaults) {
-        appState.buttons[key] = defaults[key];
-        applyElementData(btnEls[key], defaults[key]);
+    for (const key in defaultLayout.buttons) {
+      if (btnEls[key]) {
+        appState.buttons[key] = defaultLayout.buttons[key];
+        applyElementData(btnEls[key], defaultLayout.buttons[key]);
+      }
     }
 
-    // reset trail color
-    appState.trailColor = "#CEEC73";
-    document.documentElement.style.setProperty('--trail-color', appState.trailColor);
+    // Reset trail color
+    appState.trailColor = defaultLayout.trailColor || "#CEEC73";
+    document.documentElement.style.setProperty("--trail-color", appState.trailColor);
+
+    // Reset hidden buttons
+    appState.hiddenButtons = Array.isArray(defaultLayout.hiddenButtons) ? defaultLayout.hiddenButtons : [];
+    Object.values(btnEls).forEach(btn => {
+      const name = btn.dataset.btn;
+      btn.style.display = appState.hiddenButtons.includes(name) ? "none" : "flex";
+    });
 
     resetJoystick();
-
-    // clear hidden buttons
-    appState.hiddenButtons = [];
-    Object.values(btnEls).forEach(btn => btn.style.display = "flex");
-	
-	showToast("Layout Reset!");
+    forceSave();
+    showToast("Layout Reset!");
+  } catch (err) {
+    console.error("Failed to load default.json:", err);
+    showToast("Reset failed (default.json missing)");
+  }
 }
 
 // Add key listener to reset layout to default
@@ -1276,49 +1237,29 @@ document.addEventListener("keydown", e => {
 let lastLayoutFilename = "layout.json";
 
 function snapshotLayout() {
-    // Deep clone appState so we don't mutate it
-    const snapshot = JSON.parse(JSON.stringify(appState));
+  // Deep clone appState so we don’t mutate it
+  const snapshot = JSON.parse(JSON.stringify(appState));
 
-    // --- Base ---
-    if (base) {
-        const cs = window.getComputedStyle(base);
-        snapshot.base = {
-            top: base.style.top || cs.top,
-            left: base.style.left || cs.left,
-            width: base.style.width || cs.width,
-            height: base.style.height || cs.height,
-            borderRadius: base.style.borderRadius || cs.borderRadius,
-            display: cs.display,
-            visibility: cs.visibility,
-            backgroundColor: base.style.backgroundColor || cs.backgroundColor
-        };
+  // Base
+  if (base) {
+    snapshot.base = captureElementData(base);
+  }
+
+  // Buttons
+  if (snapshot.buttons && btnEls) {
+    for (const key in btnEls) {
+      snapshot.buttons[key] = captureElementData(btnEls[key]);
     }
+  }
 
-    // --- Buttons ---
-    if (snapshot.buttons && btnEls) {
-        for (const key in btnEls) {
-            const el = btnEls[key];
-            if (!el) continue;
-            const cs = window.getComputedStyle(el);
+  // Joystick
+  if (stickWrapper) {
+    snapshot.joystick = captureElementData(stickWrapper);
+  }
 
-            if (!snapshot.buttons[key]) snapshot.buttons[key] = {};
-            snapshot.buttons[key].display = cs.display;
-            snapshot.buttons[key].visibility = cs.visibility;
-        }
-    }
-
-    // --- Joystick wrapper ---
-    if (stickWrapper) {
-        const cs = window.getComputedStyle(stickWrapper);
-        snapshot.joystick = {
-            ...snapshot.joystick,
-            display: cs.display,
-            visibility: cs.visibility
-        };
-    }
-
-    return snapshot;
+  return snapshot;
 }
+
 
 function saveLayoutToFile() {
     try {
@@ -1334,7 +1275,7 @@ function saveLayoutToFile() {
 
         if (filename === null) { // Cancel
             URL.revokeObjectURL(url);
-            showToast("Save Cancelled!");
+            // showToast("Save Cancelled!");
             return;
         }
 
@@ -1359,7 +1300,7 @@ function saveLayoutToFile() {
         showToast(`Layout saved as ${filename}`);
     } catch (err) {
         console.error("Save failed:", err);
-        showToast("Save not available from OBS!");
+        showToast("Save failed!");
     }
 }
 
@@ -1371,7 +1312,7 @@ function copyLayoutToClipboard() {
 
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(json).then(() => {
-                showToast("Layout copied!");
+                showToast("Copied layout to clipboard!");
             }).catch(err => {
                 console.error("Clipboard API failed:", err);
                 fallbackCopy(json);
@@ -1382,6 +1323,26 @@ function copyLayoutToClipboard() {
     } catch (err) {
         console.error("Copy failed:", err);
         showToast("Copying from OBS not allowed!");
+    }
+}
+
+let lastImportedFile = null;   // File object
+let lastImportedJSON = null;   // JSON string fallback
+
+function reloadLastLayout() {
+    if (lastImportedJSON) {
+        try {
+            const imported = JSON.parse(lastImportedJSON);
+            appState = imported;
+            applyState();
+            forceSave();
+            showToast(`Reloaded ${lastLayoutFilename}!`);
+        } catch (err) {
+            console.error("Reload error:", err);
+            showToast("Reload failed");
+        }
+    } else {
+        //showToast("No layout loaded yet");
     }
 }
 
@@ -1397,18 +1358,20 @@ function importLayout(file) {
                 applyState();
                 forceSave();
 
-                // Remember the filename for future exports
-                lastLayoutFilename = file.name || "trailpad_layout.json";
+                // Remember file + JSON
+                lastImportedFile = file;
+                lastImportedJSON = e.target.result;
 
+                lastLayoutFilename = file.name || "layout.json";
                 showToast(`Layout imported from ${lastLayoutFilename}`);
             } else {
                 showToast("Invalid or empty file");
             }
         } catch (err) {
-            console.error("Invalid Layout:", err);
-            showToast("Invalid Layout!");
+            console.error("Import error:", err);
+            showToast("Import failed (invalid JSON)");
         }
-        importInput.value = ""; // reset so same file can be picked again
+        importInput.value = "";
     };
 
     reader.onerror = e => {
@@ -1447,6 +1410,12 @@ document.addEventListener("keydown", e => {
         e.preventDefault();
         importInput.click();
     }
+	/* Disable reloading for now
+    if (e.ctrlKey && e.key.toLowerCase() === "r") {
+        e.preventDefault();
+        reloadLastLayout();
+    }
+	*/
 });
 
 // One-time Update
@@ -1470,7 +1439,7 @@ function showInitialUpdate(message) {
     toast.addEventListener("click", hideOnClick);
 }
 
-showInitialUpdate("Press Interact to customize\nPress F1 to F4 to switch profiles");
+// showInitialUpdate("Press Interact to customize\nPress F1 to F4 to switch profiles");
 
 </script>
 </body>
