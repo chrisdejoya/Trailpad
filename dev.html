@@ -302,6 +302,8 @@ function applyElementData(el, data) {
     if (data.fontSize) el.style.fontSize = data.fontSize;
     if (data.display) el.style.display = data.display;
     if (data.backgroundColor) el.style.backgroundColor = data.backgroundColor;
+	if (data.backgroundImage) el.style.backgroundImage = data.backgroundImage;
+	if (data.backgroundSize) el.style.backgroundSize = data.backgroundSize;
     if (data.color) el.style.color = data.color;
     if (data.label !== undefined && el.dataset?.btn) el.textContent = data.label;
 }
