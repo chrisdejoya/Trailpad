@@ -1185,70 +1185,43 @@ function resetJoystick() {
     appState.base.display = "block";
 }
 
-function resetLayout() {
-  // Define defaults once as JSON schema
-  const defaultLayout = {
-    base: {
-      top: "40px",
-      left: "30px",
-      width: "690px",
-      height: "250px",
-      borderRadius: "0px",
-      display: "block",
-      backgroundColor: "rgba(0,0,0,0.6)"
-    },
-    joystick: {
-      top: "50px",
-      left: "50px",
-      width: "230px",
-      height: "230px",
-      borderRadius: "0px",
-      display: "block"
-    },
-    buttons: {
-      Up:    { top: "390px", left: "120px", width: "90px", height: "90px", borderRadius: "50%", fontSize: "40px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee" },
-      Down:  { top: "290px", left: "120px", width: "90px", height: "90px", borderRadius: "50%", fontSize: "40px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee" },
-      Left:  { top: "290px", left: "20px",  width: "90px", height: "90px", borderRadius: "50%", fontSize: "40px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee" },
-      Right: { top: "290px", left: "220px", width: "90px", height: "90px", borderRadius: "50%", fontSize: "40px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee" },
-      A: { top: "170px", left: "300px", width: "90px", height: "90px", borderRadius: "50%", fontSize: "40px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee", label: "A" },
-      B: { top: "170px", left: "400px", width: "90px", height: "90px", borderRadius: "50%", fontSize: "40px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee", label: "B" },
-      X: { top: "70px",  left: "300px", width: "90px", height: "90px", borderRadius: "50%", fontSize: "40px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee", label: "X" },
-      Y: { top: "70px",  left: "400px", width: "90px", height: "90px", borderRadius: "50%", fontSize: "40px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee", label: "Y" },
-      LB:{ top: "70px",  left: "600px", width: "90px", height: "90px", borderRadius: "50%", fontSize: "40px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee", label: "LB" },
-      RB:{ top: "70px",  left: "500px", width: "90px", height: "90px", borderRadius: "50%", fontSize: "40px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee", label: "RB" },
-      LT:{ top: "170px", left: "600px", width: "90px", height: "90px", borderRadius: "50%", fontSize: "40px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee", label: "LT" },
-      RT:{ top: "170px", left: "500px", width: "90px", height: "90px", borderRadius: "50%", fontSize: "40px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee", label: "RT" },
-      LS:{ top: "260px", left: "360px", width: "70px", height: "70px", borderRadius: "50%", fontSize: "40px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee", label: "LS" },
-      RS:{ top: "260px", left: "560px", width: "70px", height: "70px", borderRadius: "50%", fontSize: "40px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee", label: "RS" },
-      View:{ top: "20px", left: "300px", width: "90px", height: "40px", borderRadius: "30px", fontSize: "20px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee", label: "View" },
-      Menu:{ top: "20px", left: "400px", width: "90px", height: "40px", borderRadius: "30px", fontSize: "20px", display: "flex", backgroundColor: "rgba(48,48,48,1)", color: "#eee", label: "Menu" }
-    },
-    trailColor: "#CEEC73",
-    hiddenButtons: []
-  };
+async function resetLayout() {
+  try {
+    const response = await fetch("layouts/default.json");
+    const defaultLayout = await response.json();
 
-  // Apply defaults through the same system
-  appState.base = defaultLayout.base;
-  applyElementData(base, appState.base);
+    // Apply defaults using unified pipeline
+    appState.base = defaultLayout.base || {};
+    applyElementData(base, appState.base);
 
-  appState.joystick = defaultLayout.joystick;
-  applyElementData(stickWrapper, appState.joystick);
+    appState.joystick = defaultLayout.joystick || {};
+    applyElementData(stickWrapper, appState.joystick);
 
-  for (const key in defaultLayout.buttons) {
-    appState.buttons[key] = defaultLayout.buttons[key];
-    applyElementData(btnEls[key], defaultLayout.buttons[key]);
+    for (const key in defaultLayout.buttons) {
+      if (btnEls[key]) {
+        appState.buttons[key] = defaultLayout.buttons[key];
+        applyElementData(btnEls[key], defaultLayout.buttons[key]);
+      }
+    }
+
+    // Reset trail color
+    appState.trailColor = defaultLayout.trailColor || "#CEEC73";
+    document.documentElement.style.setProperty("--trail-color", appState.trailColor);
+
+    // Reset hidden buttons
+    appState.hiddenButtons = Array.isArray(defaultLayout.hiddenButtons) ? defaultLayout.hiddenButtons : [];
+    Object.values(btnEls).forEach(btn => {
+      const name = btn.dataset.btn;
+      btn.style.display = appState.hiddenButtons.includes(name) ? "none" : "flex";
+    });
+
+    resetJoystick();
+    forceSave();
+    showToast("Layout Reset!");
+  } catch (err) {
+    console.error("Failed to load default.json:", err);
+    showToast("Reset failed (default.json missing)");
   }
-
-  // Reset trail color
-  appState.trailColor = defaultLayout.trailColor;
-  document.documentElement.style.setProperty("--trail-color", appState.trailColor);
-
-  // Clear hidden buttons
-  appState.hiddenButtons = [];
-  Object.values(btnEls).forEach(btn => (btn.style.display = "flex"));
-
-  resetJoystick();
-  showToast("Layout Reset!");
 }
 
 // Add key listener to reset layout to default
