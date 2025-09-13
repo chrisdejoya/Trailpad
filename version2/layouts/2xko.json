@@ -1,0 +1,188 @@
+{
+  "base": {
+    "top": "20px",
+    "left": "20px",
+    "width": "720px",
+    "height": "270px",
+    "borderRadius": "0px",
+    "outline": "rgba(0, 0, 0, 0.3) solid 6px",
+    "outlineOffset": "-6px",
+    "boxShadow": "none",
+    "display": "block",
+    "backgroundColor": "rgba(0, 0, 0, 0.25)",
+    "backgroundImage": "none",
+    "color": "rgb(0, 0, 0)",
+    "fontSize": "16px",
+    "label": ""
+  },
+  "joystick": {
+    "top": "30px",
+    "left": "30px",
+    "width": "250px",
+    "height": "250px",
+    "borderRadius": "10px",
+    "outline": "rgb(0, 0, 0) none 0px",
+    "outlineOffset": "0px",
+    "boxShadow": "none",
+    "display": "block",
+    "backgroundColor": "rgba(0, 0, 0, 0)",
+    "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/images/gate_strive.svg\")",
+    "color": "rgb(0, 0, 0)",
+    "fontSize": "16px",
+    "label": ""
+  },
+  "buttons": {
+    "Up": {
+      "display": "none"
+    },
+    "Down": {
+      "display": "none"
+    },
+    "Left": {
+      "display": "none"
+    },
+    "Right": {
+      "display": "none"
+    },
+    "A": {
+      "top": "160px",
+      "left": "300px",
+      "width": "90px",
+      "height": "90px",
+      "borderRadius": "50px",
+      "outline": "rgba(255, 255, 255, 0.3) solid 4px",
+      "outlineOffset": "-4px",
+      "boxShadow": "rgb(0, 0, 0) 0px 2px 0px 6px",
+      "display": "flex",
+      "backgroundColor": "rgb(26, 26, 26)",
+      "backgroundImage": "none",
+      "color": "rgb(148, 77, 255)",
+      "fontSize": "40px",
+      "label": "s1"
+    },
+    "B": {
+      "top": "160px",
+      "left": "410px",
+      "width": "90px",
+      "height": "90px",
+      "borderRadius": "50px",
+      "outline": "rgba(255, 255, 255, 0.3) solid 4px",
+      "outlineOffset": "-4px",
+      "boxShadow": "rgb(0, 0, 0) 0px 2px 0px 6px",
+      "display": "flex",
+      "backgroundColor": "rgb(26, 26, 26)",
+      "backgroundImage": "none",
+      "color": "rgb(230, 0, 0)",
+      "fontSize": "40px",
+      "label": "s2"
+    },
+    "X": {
+      "top": "50px",
+      "left": "300px",
+      "width": "90px",
+      "height": "90px",
+      "borderRadius": "50px",
+      "outline": "rgba(255, 255, 255, 0.3) solid 4px",
+      "outlineOffset": "-4px",
+      "boxShadow": "rgb(0, 0, 0) 0px 2px 0px 6px",
+      "display": "flex",
+      "backgroundColor": "rgb(179, 204, 255)",
+      "backgroundImage": "none",
+      "color": "rgb(0, 0, 0)",
+      "fontSize": "40px",
+      "label": "l"
+    },
+    "Y": {
+      "top": "50px",
+      "left": "410px",
+      "width": "90px",
+      "height": "90px",
+      "borderRadius": "50px",
+      "outline": "rgba(255, 255, 255, 0.3) solid 4px",
+      "outlineOffset": "-4px",
+      "boxShadow": "rgb(0, 0, 0) 0px 2px 0px 6px",
+      "display": "flex",
+      "backgroundColor": "rgb(77, 102, 255)",
+      "backgroundImage": "none",
+      "color": "rgb(0, 0, 0)",
+      "fontSize": "40px",
+      "label": "m"
+    },
+    "LB": {
+      "top": "50px",
+      "left": "630px",
+      "width": "90px",
+      "height": "90px",
+      "borderRadius": "50px",
+      "outline": "rgba(255, 255, 255, 0.3) solid 4px",
+      "outlineOffset": "-4px",
+      "boxShadow": "rgb(0, 0, 0) 0px 2px 0px 6px",
+      "display": "flex",
+      "backgroundColor": "rgb(255, 102, 0)",
+      "backgroundImage": "none",
+      "color": "rgb(0, 0, 0)",
+      "fontSize": "40px",
+      "label": "d"
+    },
+    "RB": {
+      "top": "50px",
+      "left": "520px",
+      "width": "90px",
+      "height": "90px",
+      "borderRadius": "50px",
+      "outline": "rgba(255, 255, 255, 0.3) solid 4px",
+      "outlineOffset": "-4px",
+      "boxShadow": "rgb(0, 0, 0) 0px 2px 0px 6px",
+      "display": "flex",
+      "backgroundColor": "rgb(0, 51, 255)",
+      "backgroundImage": "none",
+      "color": "rgb(0, 0, 0)",
+      "fontSize": "40px",
+      "label": "h"
+    },
+    "LT": {
+      "top": "160px",
+      "left": "630px",
+      "width": "90px",
+      "height": "90px",
+      "borderRadius": "50px",
+      "outline": "rgba(255, 255, 255, 0.3) solid 4px",
+      "outlineOffset": "-4px",
+      "boxShadow": "rgb(0, 0, 0) 0px 2px 0px 6px",
+      "display": "flex",
+      "backgroundColor": "rgb(204, 0, 136)",
+      "backgroundImage": "none",
+      "color": "rgb(0, 0, 0)",
+      "fontSize": "40px",
+      "label": "p"
+    },
+    "RT": {
+      "top": "160px",
+      "left": "520px",
+      "width": "90px",
+      "height": "90px",
+      "borderRadius": "50px",
+      "outline": "rgba(255, 255, 255, 0.3) solid 4px",
+      "outlineOffset": "-4px",
+      "boxShadow": "rgb(0, 0, 0) 0px 2px 0px 6px",
+      "display": "flex",
+      "backgroundColor": "rgb(255, 215, 0)",
+      "backgroundImage": "none",
+      "color": "rgb(0, 0, 0)",
+      "fontSize": "40px",
+      "label": "t"
+    },
+    "LS": {
+      "display": "none"
+    },
+    "RS": {
+      "display": "none"
+    },
+    "View": {
+      "display": "none"
+    },
+    "Menu": {
+      "display": "none"
+    }
+  }
+}
