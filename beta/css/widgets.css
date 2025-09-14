@@ -1,0 +1,69 @@
+  #base{position:absolute;width:690px;height:250px;left:30px;top:40px;background:rgba(0,0,0,0.6);outline:6px solid rgba(0,0,0,0.3);outline-offset:-6px;z-index:0;cursor:move}
+  
+  #stickWrapper {
+    width: 230px; height: 230px;
+	position: absolute; top: 50px; left: 50px;
+	background-image: url("../images/gate_strive.svg");
+	background-size: cover; background-repeat: no-repeat;
+	cursor: move;
+  }
+  #stickCanvas{ position:absolute;left:0;top:0;width:100%;height:100%;display:block;z-index:0 }
+  .joystickHead {
+    position: absolute; left: 50%; top: 50%; width:60px; height:60px; border-radius: 50%; transform: translate(-50%,-50%);
+	display: flex; align-items: center; justify-content: center;
+	background:rgba(64,64,64,1); color:#000;
+	box-shadow: 0 1px 0px 4px rgba(0,0,0,1);
+	font-size: 30px; font-weight: bold;
+	z-index:3; pointer-events:none
+	}
+  #directionMarkers { position: absolute; left:0; top:0; width:100%; height:100%; pointer-events:none; z-index:2}
+  .marker {
+    position: absolute; width: 8px; height: 8px; border-radius: 50%;
+	background: rgba(255,255,255,0.08);
+	transform: translate(-50%,-50%); transition:all .08s
+	}
+  .marker.active { background:rgba(255,255,255,1) }
+  .btn {
+    position: absolute; width: 90px; height: 90px; display: flex;
+	background: rgba(48,48,48,1); filter:brightness(1);	
+	align-items: center; justify-content: center; font-size: 44px;
+	overflow: hidden; text-align: center; white-space: nowrap;	
+	transition: 0.1s; border-radius: 50%;
+	outline: 4px solid rgba(255,255,255,0.18); outline-offset: -4px;
+	box-shadow: 0 2px 0px 6px rgba(0,0,0,1); color: #eee;
+	cursor: pointer; z-index:4;
+	}
+  .btn.active { filter: brightness(2.0); transform:scale(1.08); z-index:5}
+  .btn.selected { box-shadow: 0px 2px 0px 6px rgba(255,255,255,1) }
+  .btn {
+    background-image: none;
+    background-size: auto 75%;
+	background-position: center;
+	background-repeat: no-repeat;
+  }
+  .selectedOutline{box-shadow:0 0 0 6px rgba(255,255,255,0.6) inset}
+  
+  /* placement (original positions) */
+  .btn[data-btn="Up"]{top:390px;left:120px; background-image: url("../images/up.svg")}
+  .btn[data-btn="Down"]{top:290px;left:120px; background-image: url("../images/down.svg")}
+  .btn[data-btn="Left"]{top:290px;left:20px; background-image: url("../images/left.svg")}
+  .btn[data-btn="Right"]{top:290px;left:220px; background-image: url("../images/right.svg")}
+  .btn[data-btn="A"]{top:170px;left:300px}
+  .btn[data-btn="B"]{top:170px;left:400px}
+  .btn[data-btn="X"]{top:70px;left:300px}
+  .btn[data-btn="Y"]{top:70px;left:400px}
+  .btn[data-btn="LB"]{top:70px;left:600px}
+  .btn[data-btn="RB"]{top:70px;left:500px}
+  .btn[data-btn="LT"]{top:170px;left:600px}
+  .btn[data-btn="RT"]{top:170px;left:500px}
+  .btn[data-btn="LS"]{top:280px;left:360px;width:70px;height:70px;font-size:36px}
+  .btn[data-btn="RS"]{top:280px;left:560px;width:70px;height:70px;font-size:36px}
+  .btn[data-btn="View"]{top:20px;left:300px;width:90px;height:40px;border-radius:30px;font-size:20px}
+  .btn[data-btn="Menu"]{top:20px;left:400px;width:90px;height:40px;border-radius:30px;font-size:20px}
+  
+#base, #stickWrapper, .btn {
+  transition: filter 0.1s ease-out, top 0.05 ease-in, left 0.05 ease-in, width 0.03 east, height 0.03 ease;
+}
+#base:hover, #stickWrapper:hover, .btn:hover {
+  filter: brightness(2.0);
+}

@@ -1,0 +1,47 @@
+@import url('https://db.onlinewebfonts.com/c/aef9b111c5dbb6ed6cb40376e42ee322?family=Swis721+Ex+BT+Bold');
+
+@font-face {
+  font-family: "Swiss";
+  src: url("https://db.onlinewebfonts.com/t/aef9b111c5dbb6ed6cb40376e42ee322.eot");
+  src: url("https://db.onlinewebfonts.com/t/aef9b111c5dbb6ed6cb40376e42ee322.eot?#iefix") format("embedded-opentype"),
+       url("https://db.onlinewebfonts.com/t/aef9b111c5dbb6ed6cb40376e42ee322.woff2") format("woff2"),
+       url("https://db.onlinewebfonts.com/t/aef9b111c5dbb6ed6cb40376e42ee322.woff") format("woff"),
+       url("https://db.onlinewebfonts.com/t/aef9b111c5dbb6ed6cb40376e42ee322.ttf") format("truetype"),
+       url("https://db.onlinewebfonts.com/t/aef9b111c5dbb6ed6cb40376e42ee322.svg#Swis721 Ex BT Bold") format("svg");
+}
+
+:root {
+  --trail-color: #CEEC73;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: "Swiss", Arial, Helvetica, sans-serif;
+  background: transparent; /* Transparent for OBS */
+  color: #eee;
+  text-transform: uppercase;
+}
+
+#app {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+input.btn-edit {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: inherit;
+  text-align: center;
+  text-transform: uppercase;
+  outline: none;
+}

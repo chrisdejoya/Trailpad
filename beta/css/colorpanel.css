@@ -1,0 +1,62 @@
+#colorPanel {
+    position: fixed;
+	width: 600px;
+    display: none;
+    z-index: 200;
+    background: rgba(0.1,0.1,0.1,0.85);
+    border: 2px solid #333;
+    padding: 10px;
+    pointer: block;
+}
+
+.swatchContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(24px, 1fr));
+    gap: 8px;
+}
+
+.swatch {
+    width: 100%;
+    padding-top: 100%; /* maintain square */
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.1s;
+	border-radius: 50%;
+}
+
+.swatch::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border-radius: 5px;
+}
+
+.swatch:hover {
+    transform: scale(1.5);
+    border-color: #fff;
+	z-index: 2;
+}
+
+.modeToggle {
+    display: flex;
+	justify-content: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.modeBtn {
+    padding: 4px 8px;
+    cursor: pointer;
+    user-select: none;
+    text-align: center;
+    font-weight: bold;
+    transition: background 0.2s, transform 0.1s;
+    background: #222;
+    color: #aaa;
+}
+
+.modeBtn.active {
+    outline: 4px solid #fff;
+	outline-offset: -2px;
+	color: #fff;
+}

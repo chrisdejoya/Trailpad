@@ -1,0 +1,19 @@
+#helpPanel {
+        display:none;
+        position:fixed;
+        top:0;
+        left:50%;
+        transform:translateX(-50%);
+        width:90%;
+        max-height:100%;
+        overflow:auto;
+        background:rgba(0,0,0,0.9);
+		outline: 4px solid rgba(255,255,255,0.1);
+		outline-offset: -4px;
+        color:white; 
+		padding-bottom: 40px;
+		padding-left: 40px;
+		padding-right: 40px;
+        z-index:9999;
+		text-shadow: 2px 2px 6px black;
+}
