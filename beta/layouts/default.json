@@ -225,10 +225,10 @@
       "label": "RT"
     },
     "LS": {
-      "top": "365px",
-      "left": "505px",
-      "width": "80px",
-      "height": "80px",
+      "top": "370px",
+      "left": "500px",
+      "width": "90px",
+      "height": "90px",
       "borderRadius": "50%",
       "outline": "rgba(255, 255, 255, 0.18) solid 4px",
       "outlineOffset": "-4px",
@@ -241,7 +241,7 @@
       "label": "LS"
     },
     "RS": {
-      "top": "360px",
+      "top": "370px",
       "left": "600px",
       "width": "90px",
       "height": "90px",
