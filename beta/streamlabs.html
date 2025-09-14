@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link href="https://db.onlinewebfonts.com/c/aef9b111c5dbb6ed6cb40376e42ee322?family=Swis721+Ex+BT+Bold" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/widgets.css">
+<link rel="stylesheet" href="css/toast.css">
+<link rel="stylesheet" href="css/colorpanel.css">
+<link rel="stylesheet" href="css/helpPanel.css">
+<title>Trailpad</title>
+<style>
+</style>
+</head>
+<body>
+<div id="base"></div>
+<div id="app">
+    <div id="stickWrapper" class="stickHighlight" aria-label="joystick area">
+        <div id="directionMarkers">
+            <div class="marker" id="marker0"></div>
+            <div class="marker" id="marker1"></div>
+            <div class="marker" id="marker2"></div>
+            <div class="marker" id="marker3"></div>
+            <div class="marker" id="marker4"></div>
+            <div class="marker" id="marker5"></div>
+            <div class="marker" id="marker6"></div>
+            <div class="marker" id="marker7"></div>
+        </div>
+        <canvas id="stickCanvas" width="230" height="230"></canvas>
+        <div class="joystickHead" id="joystickHead"></div>
+    </div>
+	
+	
+
+    <div class="btn" data-btn="Up"></div>
+    <div class="btn" data-btn="Down"></div>
+    <div class="btn" data-btn="Left"></div>
+    <div class="btn" data-btn="Right"></div>
+    <div class="btn" data-btn="A" contenteditable="true">A</div>
+    <div class="btn" data-btn="B" contenteditable="true">B</div>
+    <div class="btn" data-btn="X" contenteditable="true">X</div>
+    <div class="btn" data-btn="Y" contenteditable="true">Y</div>
+    <div class="btn" data-btn="LB" contenteditable="true">LB</div>
+    <div class="btn" data-btn="RB" contenteditable="true">RB</div>
+    <div class="btn" data-btn="LT" contenteditable="true">LT</div>
+    <div class="btn" data-btn="RT" contenteditable="true">RT</div>
+    <div class="btn" data-btn="LS" contenteditable="true">LS</div>
+    <div class="btn" data-btn="RS" contenteditable="true">RS</div>
+    <div class="btn" data-btn="View" contenteditable="true">View</div>
+    <div class="btn" data-btn="Menu" contenteditable="true">Menu</div>
+</div>
+
+<textarea id="clipboardInput" style="position: fixed; top:-100px; left:-100px; opacity:0;" aria-hidden="true"></textarea>
+<div id="helpPanel">
+	<h2 style="text-align:center; font-size: 30px;">Trailpad Shortcut Keys</h2>
+	<table style="width:100%; height: 100%; border-collapse:collapse; padding-bottom: 20px;">
+	  <tr>
+		<td style="padding:5px 10px; font-weight:bold; white-space:nowrap;">Tab</td>
+		<td style="padding:5px 10px;">Quick Help</td>
+	  </tr>
+	  <tr>
+		<td style="padding:5px 10px; font-weight:bold; white-space:nowrap;">F1 to F8</td>
+		<td style="padding:5px 10px;">Load Profile</td>
+	  </tr>
+	  <tr>
+		<td style="padding:5px 10px; font-weight:bold; white-space:nowrap;">Ctrl F1 to F8</td>
+		<td style="padding:5px 10px;">Save Profile</td>
+	  </tr>
+	  <tr>
+		<td style="padding:5px 10px; font-weight:bold; white-space:nowrap;">Ctrl + O</td>
+		<td style="padding:5px 10px;">Load Layout from File</td>
+	  </tr>
+	  <tr>
+		<td style="padding:5px 10px; font-weight:bold; white-space:nowrap;">Ctrl + C</td>
+		<td style="padding:5px 10px;">Copy Layout to Clipboard</td>
+	  </tr>
+	  <tr>
+		<td style="padding:5px 10px; font-weight:bold; white-space:nowrap;">Left Click</td>
+		<td style="padding:5px 10px;">Select object</td>
+	  </tr>
+	  <tr>
+		<td style="padding:5px 10px; font-weight:bold; white-space:nowrap;">↑ ↓ ← →</td>
+		<td style="padding:5px 10px;">Move selected object</td>
+	  </tr>
+	  <tr>
+		<td style="padding:5px 10px; font-weight:bold; white-space:nowrap;">Shift ↑ ↓ ← →</td>
+		<td style="padding:5px 10px;">Adjust size of selected object</td>
+	  </tr>
+	  <tr>
+		<td style="padding:5px 10px; font-weight:bold; white-space:nowrap;">Ctrl [ ]</td>
+		<td style="padding:5px 10px;">Increase / Decrease Font Size</td>
+	  </tr>
+	  <tr>
+		<td style="padding:5px 10px; font-weight:bold; white-space:nowrap;">[ ]</td>
+		<td style="padding:5px 10px;">Increase / Decrease Corner Roundness</td>
+	  </tr>
+	  <tr>
+		<td style="padding:5px 10px; font-weight:bold; white-space:nowrap;">Double Click</td>
+		<td style="padding:5px 10px;">Edit button label</td>
+	  </tr>
+	  <tr>
+		<td style="padding:5px 10px; font-weight:bold; white-space:nowrap;">Right Click</td>
+		<td style="padding:5px 10px;">Edit Colors</td>
+	  </tr>
+	  <tr>
+		<td style="padding:5px 10px; font-weight:bold; white-space:nowrap;">Delete</td>
+		<td style="padding:5px 10px;">Hide Selected Object</td>
+	  </tr>
+	  <tr>
+		<td style="padding:5px 10px; font-weight:bold; white-space:nowrap;">Home</td>
+		<td style="padding:5px 10px;">Unhide All Objects</td>
+	  </tr>
+	</table>
+	<p style="padding-top: 20px; text-align: center; color: #CEEC73; font-size: 18px;">Download layouts at trailpad.carrd.co</p>
+</div>
+<div id="colorPanel" aria-hidden="true"></div>
+<div id="toast" aria-hidden="true"></div>
+
+<script src="main.js"></script>
+</body>
+</html>
