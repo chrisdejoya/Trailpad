@@ -728,41 +728,58 @@ let outlineWidth = 4; // default thickness
         return null;
     }
 
-    function updateButtonsFromPad(pad) {
-        if (!pad || !pad.buttons) {
-            joystick.style.transform = 'translate(-50%,-50%) scale(1)';
-            joystick.textContent = '';
-            Object.values(btnEls).forEach(b => b.classList.remove('active'));
-            return;
-        }
-        for (const key in btnEls) {
-            const idx = map[key];
-            if (idx === undefined) continue;
-            const pressed = !!pad.buttons[idx]?.pressed;
-            btnEls[key].classList.toggle('active', pressed);
-            lastPressedTimes[key] = pressed ? performance.now() : lastPressedTimes[key] || 0;
-        }
-        let active = null,
-            latest = -1;
-        for (const k in lastPressedTimes) {
-            if (btnEls[k].classList.contains('active') && !cfg.ignoredForJoystick.includes(k) && lastPressedTimes[k] > latest) {
-                latest = lastPressedTimes[k];
-                active = k;
-            }
-        }
-        if (active) {
-            const cs = getComputedStyle(btnEls[active]);
-            joystick.style.transform = 'translate(-50%,-50%) scale(1.25)';
-            joystick.textContent = btnEls[active].textContent || active;
-            joystick.style.background = cs.backgroundColor;
-            joystick.style.color = cs.color;
-        } else {
-            joystick.style.transform = 'translate(-50%,-50%) scale(1)';
-            joystick.textContent = '';
-            joystick.style.background = 'rgba(120,120,120,1)';
-            joystick.style.color = '#000';
-        }
-    }
+	function updateButtonsFromPad(pad) {
+		if (!pad || !pad.buttons) {
+			resetJoystick();
+			Object.values(btnEls).forEach(b => b.classList.remove('active'));
+			return;
+		}
+
+		let anyPressed = false;
+
+		for (const key in btnEls) {
+			const idx = map[key];
+			if (idx === undefined) continue;
+			const pressed = !!pad.buttons[idx]?.pressed;
+			btnEls[key].classList.toggle('active', pressed);
+
+			if (pressed && !cfg.ignoredForJoystick.includes(key)) {
+				anyPressed = true;
+				lastPressedTimes[key] = performance.now();
+			}
+		}
+
+		// Decide what the joystick should show
+		if (anyPressed) {
+			let active = null, latest = -1;
+			for (const k in lastPressedTimes) {
+				if (btnEls[k].classList.contains('active') &&
+					!cfg.ignoredForJoystick.includes(k) &&
+					lastPressedTimes[k] > latest) {
+					latest = lastPressedTimes[k];
+					active = k;
+				}
+			}
+			if (active) {
+				const cs = getComputedStyle(btnEls[active]);
+				joystick.style.transform = 'translate(-50%,-50%) scale(1.25)';
+				joystick.textContent = btnEls[active].textContent || active;
+				joystick.style.background = cs.backgroundColor;
+				joystick.style.color = cs.color;
+				return;
+			}
+		}
+
+		// Fallback if nothing is pressed
+		resetJoystick();
+	}
+
+	function resetJoystick() {
+		joystick.style.transform = 'translate(-50%,-50%) scale(1)';
+		joystick.textContent = '';
+		joystick.style.background = 'rgba(120,120,120,1)'; // default
+		joystick.style.color = '#000';
+	}
 
     function resizeCanvas() {
         canvas.width = stickWrapper.clientWidth;
