@@ -1,9 +1,9 @@
 #helpPanel {
         display:none;
         position:fixed;
-        top:0;
+        top:50%;
         left:50%;
-        transform:translateX(-50%);
+        transform:translateX(-50%) translateY(-50%);
         width:90%;
         max-height:100%;
         overflow:auto;
@@ -16,4 +16,5 @@
 		padding-right: 40px;
         z-index:9999;
 		text-shadow: 2px 2px 6px black;
+		pointer-events: auto;
 }

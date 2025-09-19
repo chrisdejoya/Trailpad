@@ -21,7 +21,7 @@
     position: relative;
     cursor: pointer;
     transition: transform 0.1s;
-	border-radius: 50%;
+	border-radius: 50%;	
 }
 
 .swatch::after {
