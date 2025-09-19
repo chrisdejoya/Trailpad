@@ -129,6 +129,9 @@ window.addEventListener('DOMContentLoaded', () => {
                     el.style.backgroundSize = data.backgroundSize;
                 }
             }
+			if (data.label !== undefined && el.dataset && el.dataset.btn) {
+		        el.textContent = data.label;
+		    }
         });
         if (appState.joystick) {
             applyElement(stickWrapper, appState.joystick);
@@ -1475,4 +1478,5 @@ window.addEventListener('DOMContentLoaded', () => {
         loadState,
         copyLayoutToClipboard
     };
+
 });
