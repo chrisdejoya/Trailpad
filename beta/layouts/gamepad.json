@@ -182,7 +182,7 @@
       "outline": "rgba(0, 0, 0, 0) solid 4px",
       "outlineOffset": "-4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"http://absolute/D:/Documents/Trailpad/images/ps/ps-triangle.svg\")",
+      "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/images/ps/ps-triangle.svg\")",
       "backgroundSize": "auto",
       "color": "rgb(238, 238, 238)",
       "fontSize": "40px",
@@ -325,4 +325,5 @@
       "label": ""
     }
   }
+
 }
