@@ -1470,6 +1470,7 @@ window.addEventListener('DOMContentLoaded', () => {
         ro.observe(stickWrapper);
     }
     animate();
+	window.addEventListener('saveOnExit', saveState);
     showToast('Click Interact to start customizing', 5000);
 
     // expose some helpers
