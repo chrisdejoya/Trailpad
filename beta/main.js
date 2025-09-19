@@ -1461,8 +1461,6 @@ window.addEventListener('DOMContentLoaded', () => {
     resizeCanvas();
     joystick.style.left = (canvas.width / 2) + 'px';
     joystick.style.top = (canvas.height / 2) + 'px';
-
-	window.addEventListener('saveOnExit', saveState);
     // Resize Observer to recenter joystick when stickWrapper size changes
     if (window.ResizeObserver) {
         const ro = new ResizeObserver(() => {
@@ -1481,6 +1479,7 @@ window.addEventListener('DOMContentLoaded', () => {
         loadState,
         copyLayoutToClipboard
     };
-
+	window.addEventListener('saveOnExit', saveState);
 });
+
 
