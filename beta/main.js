@@ -1088,6 +1088,8 @@ window.addEventListener('DOMContentLoaded', () => {
         joystick.textContent = '';
         joystick.style.background = 'rgba(120,120,120,1)'; // default
         joystick.style.color = '#000';
+		appState.joystick = captureElement(stickWrapper);
+		saveState();
     }
 
     function resizeCanvas() {
@@ -1460,6 +1462,7 @@ window.addEventListener('DOMContentLoaded', () => {
     joystick.style.left = (canvas.width / 2) + 'px';
     joystick.style.top = (canvas.height / 2) + 'px';
 
+	window.addEventListener('saveOnExit', saveState);
     // Resize Observer to recenter joystick when stickWrapper size changes
     if (window.ResizeObserver) {
         const ro = new ResizeObserver(() => {
@@ -1470,7 +1473,6 @@ window.addEventListener('DOMContentLoaded', () => {
         ro.observe(stickWrapper);
     }
     animate();
-	window.addEventListener('saveOnExit', saveState);
     showToast('Click Interact to start customizing', 5000);
 
     // expose some helpers
@@ -1481,3 +1483,4 @@ window.addEventListener('DOMContentLoaded', () => {
     };
 
 });
+
