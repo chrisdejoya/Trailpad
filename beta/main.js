@@ -1479,7 +1479,8 @@ window.addEventListener('DOMContentLoaded', () => {
         loadState,
         copyLayoutToClipboard
     };
-	window.addEventListener('saveOnExit', saveState);
+	setInterval(saveState, 5000);
 });
+
 
 
