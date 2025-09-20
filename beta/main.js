@@ -92,14 +92,16 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function loadState() {
-        try {
-            const raw = localStorage.getItem(STORAGE_KEY);
-            if (raw) appState = Object.assign(appState, JSON.parse(raw));
-        } catch (e) {
-            console.warn(e);
-        }
-    }
+	function loadState() {
+		try {
+			const raw = localStorage.getItem(STORAGE_KEY);
+			if (raw) {
+				appState = JSON.parse(raw);
+			}
+		} catch (e) {
+			console.warn(e);
+		}
+	}
 	
     function applyState() {
         Object.entries(btnEls).forEach(([k, el]) => {
@@ -130,8 +132,8 @@ window.addEventListener('DOMContentLoaded', () => {
                 }
             }
 			if (data.label !== undefined && el.dataset && el.dataset.btn) {
-		        el.textContent = data.label;
-		    }
+				el.textContent = data.label;
+			}
         });
         if (appState.joystick) {
             applyElement(stickWrapper, appState.joystick);
@@ -354,24 +356,15 @@ window.addEventListener('DOMContentLoaded', () => {
         outlineDiv.className = 'modeBtn outlineBtn';
         outlineDiv.textContent = 'STROKE';
 
-		/*
-        // EXPERIMENTAL
-        const keybindDiv = document.createElement('div');
-        keybindDiv.className = 'modeBtn outlineBtn';
-        keybindDiv.textContent = 'KEY BINDING';
-		*/
-
         toggle.appendChild(bgDiv);
         toggle.appendChild(txtDiv);
         toggle.appendChild(outlineDiv);
-        //toggle.appendChild(keybindDiv);
         colorPanel.appendChild(toggle);
 
         let mode = colorMode;
         if (mode === 'bg') bgDiv.classList.add('active');
         if (mode === 'text') txtDiv.classList.add('active');
         if (mode === 'outline') outlineDiv.classList.add('active');
-        //if (mode === 'keybind') keybindDiv.classList.add('active');
 
         bgDiv.addEventListener('click', () => {
             mode = 'bg';
@@ -379,7 +372,6 @@ window.addEventListener('DOMContentLoaded', () => {
             bgDiv.classList.add('active');
             txtDiv.classList.remove('active');
             outlineDiv.classList.remove('active');
-            //keybindDiv.classList.remove('active');
         });
 
         txtDiv.addEventListener('click', () => {
@@ -388,7 +380,6 @@ window.addEventListener('DOMContentLoaded', () => {
             txtDiv.classList.add('active');
             bgDiv.classList.remove('active');
             outlineDiv.classList.remove('active');
-            //keybindDiv.classList.remove('active');
         });
 
         outlineDiv.addEventListener('click', () => {
@@ -397,19 +388,7 @@ window.addEventListener('DOMContentLoaded', () => {
             outlineDiv.classList.add('active');
             bgDiv.classList.remove('active');
             txtDiv.classList.remove('active');
-            //keybindDiv.classList.remove('active');
         });
-
-		/*
-        keybindDiv.addEventListener('click', () => {
-            mode = 'outline';
-            colorMode = 'outline';
-            outlineDiv.classList.remove('active');
-            bgDiv.classList.remove('active');
-            txtDiv.classList.remove('active');
-            keybindDiv.classList.add('active');
-        });
-		*/
 
         // Swatch container
         const swatchContainer = document.createElement('div');
@@ -489,12 +468,14 @@ window.addEventListener('DOMContentLoaded', () => {
 		// Snap to Grid
         if (e.ctrlKey && e.key.toLowerCase() === 't') {
             snapLayoutToGrid(10);
+			saveState();
         }
 		
 		// Reset to Default
         if (e.ctrlKey && e.key.toLowerCase() === "r") {
             e.preventDefault();
             resetToDefault();
+			saveState();
         }
 
         // Unhide all
@@ -572,6 +553,7 @@ window.addEventListener('DOMContentLoaded', () => {
                     appState.buttons[selected.dataset.btn] =
                         appState.buttons[selected.dataset.btn] || {};
                     appState.buttons[selected.dataset.btn].fontSize = selected.style.fontSize;
+					saveState();
 					showToast("Font size: " + fs, 1000);
 
                     // optional background scaling
@@ -580,6 +562,7 @@ window.addEventListener('DOMContentLoaded', () => {
                         const newBgSize = Math.max(10, bgSize + (e.key === "]" ? 2 : -2));
                         selected.style.backgroundSize = newBgSize + "px auto";
                         appState.buttons[selected.dataset.btn].backgroundSize = selected.style.backgroundSize;
+						saveState();
 						showToast("Symbol size: " + newBgSize, 1000);
                     }
                     saveState();                    
@@ -683,7 +666,8 @@ window.addEventListener('DOMContentLoaded', () => {
                 selected.style.height = height + 'px';
                 selected.style.left = (centerX - width / 2) + 'px';
                 selected.style.top = (centerY - height / 2) + 'px';
-
+				
+				saveState();
                 showToast(`height: ${height}, width: ${width}`, 1000);
                 updated = true;
 
@@ -709,6 +693,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 if (updated) {
                     selected.style.top = Math.max(0, top) + 'px';
                     selected.style.left = Math.max(0, left) + 'px';
+					saveState();
                     showToast(`x: ${left}, y: ${top}`, 1000);
                 }
             }
@@ -773,7 +758,6 @@ window.addEventListener('DOMContentLoaded', () => {
                 }
             });
         }
-
         saveState();
     }
 
@@ -1078,7 +1062,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 return;
             }
         }
-
+		saveState();
         resetJoystick();
     }
 
@@ -1088,8 +1072,6 @@ window.addEventListener('DOMContentLoaded', () => {
         joystick.textContent = '';
         joystick.style.background = 'rgba(120,120,120,1)'; // default
         joystick.style.color = '#000';
-		appState.joystick = captureElement(stickWrapper);
-		saveState();
     }
 
     function resizeCanvas() {
@@ -1136,6 +1118,7 @@ window.addEventListener('DOMContentLoaded', () => {
         };
         Object.keys(btnEls).forEach(k => snap.buttons[k] = captureElement(btnEls[k]));
         appState.profiles['profile' + n] = snap;
+		appState.lastProfile = n;
         saveState();
     }
 
@@ -1173,6 +1156,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 if (snap.buttons[k].display !== undefined) btnEls[k].style.display = snap.buttons[k].display;
             }
         });
+		appState.lastProfile = n; 
         showToast('Profile ' + n + ' loaded', 1000);
         saveState();
     }
@@ -1243,6 +1227,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 showToast('Copy failed', 1000);
             }
         }
+		saveState();
     }
 
     // Import (file input + drag drop)
@@ -1456,11 +1441,16 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     // Boot
-    loadState();
-    applyState();
+	loadState();
+	if (appState.lastProfile) {
+		loadProfile(appState.lastProfile);
+	} else {
+		applyState();
+	}
     resizeCanvas();
     joystick.style.left = (canvas.width / 2) + 'px';
     joystick.style.top = (canvas.height / 2) + 'px';
+
     // Resize Observer to recenter joystick when stickWrapper size changes
     if (window.ResizeObserver) {
         const ro = new ResizeObserver(() => {
@@ -1481,6 +1471,3 @@ window.addEventListener('DOMContentLoaded', () => {
     };
 	setInterval(saveState, 5000);
 });
-
-
-
