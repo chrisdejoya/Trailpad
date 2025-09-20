@@ -1013,33 +1013,38 @@ window.addEventListener('DOMContentLoaded', () => {
         }
 
         let anyPressed = false;
+		for (const key in btnEls) {
+			const idx = map[key];
+			if (idx === undefined) continue;
+			const DEADZONE = 0.45;
 
-        for (const key in btnEls) {
-            const idx = map[key];
-            if (idx === undefined) continue;
+			let raw = pad.buttons[idx]?.value || 0;
+			let val = raw < DEADZONE ? 0 : raw;
 
-            // For LT / RT, use value (0–1)
-            if (key === "LT" || key === "RT") {
-                const val = pad.buttons[idx]?.value || 0;
-                btnEls[key].classList.toggle('active', val > 0.05);
-
-				// Reflect pressure sensitivity visually (brightness/scale)
-				btnEls[key].style.filter = `brightness(${1.0 + val * 2.0})`; // Adjust range as needed
-				btnEls[key].style.transform = `scale(${1 + val * 0.08})`;
-
-                if (val > 0.05) {
-                    anyPressed = true;
-                    lastPressedTimes[key] = performance.now();
-                }
-            } else {
-                const pressed = !!pad.buttons[idx]?.pressed;
-                btnEls[key].classList.toggle('active', pressed);
-                if (pressed && !cfg.ignoredForJoystick.includes(key)) {
-                    anyPressed = true;
-                    lastPressedTimes[key] = performance.now();
-                }
-            }
-        }
+			if (key === "LT" || key === "RT") {
+				const isActive = val > DEADZONE;
+				btnEls[key].classList.toggle('active', isActive);
+				
+				if (val < DEADZONE) {
+					btnEls[key].style.filter = "brightness(1.0)";
+					btnEls[key].style.transform = "scale(1)";								
+				} else {
+					btnEls[key].style.filter = `brightness(${1.0 + val * 2.5})`;
+					btnEls[key].style.transform = `scale(${1 + val * 0.08})`;
+				}
+				if (isActive) {
+					anyPressed = true;
+					lastPressedTimes[key] = performance.now();
+				}				
+			} else {
+				const pressed = !!pad.buttons[idx]?.pressed;
+				btnEls[key].classList.toggle('active', pressed);
+				if (pressed && !cfg.ignoredForJoystick.includes(key)) {
+					anyPressed = true;
+					lastPressedTimes[key] = performance.now();
+				}
+			}
+		}
 
         // Joystick display logic (unchanged)
         if (anyPressed) {
@@ -1471,3 +1476,4 @@ window.addEventListener('DOMContentLoaded', () => {
     };
 	setInterval(saveState, 5000);
 });
+
