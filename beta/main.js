@@ -1021,7 +1021,7 @@ window.addEventListener('DOMContentLoaded', () => {
 			let raw = pad.buttons[idx]?.value || 0;
 			let val = raw < DEADZONE ? 0 : raw;
 
-			if (key === "LT" || key === "RT") {
+			if (key === "LTTRIGGER" || key === "RTTRIGGER") {
 				const isActive = val > DEADZONE;
 				btnEls[key].classList.toggle('active', isActive);
 				
@@ -1476,4 +1476,5 @@ window.addEventListener('DOMContentLoaded', () => {
     };
 	setInterval(saveState, 5000);
 });
+
 
