@@ -38,7 +38,7 @@ window.addEventListener('DOMContentLoaded', () => {
         // Grayscale
         "#000000", "#333333", "#666666", "#999999", "#CCCCCC", "#FFFFFF",
         // Transparent
-        "#00000000"
+        "#00000000", "#ffffff20", "#ffffff40", "#ffffff60", "#ffffff80"
     ];
 
     // DOM
@@ -1476,5 +1476,6 @@ window.addEventListener('DOMContentLoaded', () => {
     };
 	setInterval(saveState, 5000);
 });
+
 
 
