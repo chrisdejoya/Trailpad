@@ -86,23 +86,38 @@ window.addEventListener('DOMContentLoaded', () => {
 
     function saveState() {
         try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));            
+			console.debug("Saving state:", JSON.stringify(appState.buttons, null, 2));
         } catch (e) {
             console.warn(e);
         }
     }
 
-	function loadState() {
-		try {
-			const raw = localStorage.getItem(STORAGE_KEY);
-			if (raw) {
-				appState = JSON.parse(raw);
-			}
-		} catch (e) {
-			console.warn(e);
-		}
-	}
-	
+    function loadState() {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (raw) {
+                const parsed = JSON.parse(raw);
+
+                // Merge top-level values safely so existing references remain valid
+                // Merge objects (buttons, profiles, joystick, base, eightWayWrapper)
+                appState.buttons = Object.assign({}, appState.buttons || {}, parsed.buttons || {});
+                appState.profiles = Object.assign({}, appState.profiles || {}, parsed.profiles || {});
+                appState.joystick = Object.assign({}, appState.joystick || {}, parsed.joystick || {});
+                appState.base = Object.assign({}, appState.base || {}, parsed.base || {});
+                appState.eightWayWrapper = Object.assign({}, appState.eightWayWrapper || {}, parsed.eightWayWrapper || {});
+                // Arrays and primitives: override if present
+                if (parsed.hiddenButtons !== undefined) appState.hiddenButtons = parsed.hiddenButtons;
+                if (parsed.trailColor !== undefined) appState.trailColor = parsed.trailColor;
+                if (parsed.lastProfile !== undefined) appState.lastProfile = parsed.lastProfile;
+
+                console.debug('[Trailpad] state loaded');
+            }
+        } catch (e) {
+            console.warn(e);
+        }
+    }
+
     function applyState() {
         Object.entries(btnEls).forEach(([k, el]) => {
             const data = appState.buttons[k] || {};
@@ -131,9 +146,9 @@ window.addEventListener('DOMContentLoaded', () => {
                     el.style.backgroundSize = data.backgroundSize;
                 }
             }
-			if (data.label !== undefined && el.dataset && el.dataset.btn) {
-				el.textContent = data.label;
-			}
+            if (data.label !== undefined && el.dataset && el.dataset.btn) {
+                el.textContent = data.label;
+            }
         });
         if (appState.joystick) {
             applyElement(stickWrapper, appState.joystick);
@@ -178,7 +193,6 @@ window.addEventListener('DOMContentLoaded', () => {
         if (data.borderRadius !== undefined) el.style.borderRadius = data.borderRadius;
         if (data.outline !== undefined) el.style.outline = data.outline;
         if (data.outlineOffset !== undefined) el.style.outlineOffset = data.outlineOffset;
-        // if (data.boxShadow !== undefined) el.style.boxShadow = data.boxShadow;
 
         if (data.backgroundColor !== undefined) el.style.backgroundColor = data.backgroundColor;
         if (data.backgroundImage !== undefined) el.style.backgroundImage = data.backgroundImage;
@@ -207,7 +221,17 @@ window.addEventListener('DOMContentLoaded', () => {
             color: cs.color,
             fontSize: cs.fontSize,
             label: (el.textContent || '').trim()
-        };
+		};
+
+		if (el.dataset && el.dataset.btn) {
+			const key = el.dataset.btn;
+			if (appState.buttons?.[key]?.label !== undefined) {
+				snap.label = appState.buttons[key].label;
+			} else {
+				snap.label = (el.textContent || '').trim();
+			}
+		}
+		
         if (el === eightWayWrapper && appState.eightWayWrapper?.arrowSize !== undefined) {
             snap.arrowSize = appState.eightWayWrapper.arrowSize;
         }
@@ -273,13 +297,13 @@ window.addEventListener('DOMContentLoaded', () => {
             return;
         }
         deselect();
-		
-		// Hide color panel by clicking out
+
+        // Hide color panel by clicking out
         if (!colorPanel.contains(e.target)) {
             colorPanel.style.display = 'none';
             revertPreview();
         }
-    });	
+    });
 
     [base, stickWrapper, eightWayWrapper].forEach(el => {
         el.addEventListener('mousedown', e => {
@@ -312,21 +336,26 @@ window.addEventListener('DOMContentLoaded', () => {
             input.focus();
             input.select();
 
-            function save() {
-                btn.textContent = input.value.trim();
-                btn.removeChild(input);
-                appState.buttons[btn.dataset.btn] = appState.buttons[btn.dataset.btn] || {};
-                appState.buttons[btn.dataset.btn].label = btn.textContent;
-                saveState();
-            }
+			function save() {
+				const newLabel = input.value.trim();				
+				if (btn.contains(input)) {
+					btn.removeChild(input);
+				}
+				btn.textContent = newLabel;				
+				appState.buttons[btn.dataset.btn] = appState.buttons[btn.dataset.btn] || {};
+				appState.buttons[btn.dataset.btn].label = newLabel;
+				saveState();
+			}
             input.addEventListener('blur', save);
-            input.addEventListener('keydown', ev => {
-                if (ev.key === 'Enter') save();
-                if (ev.key === 'Escape') {
-                    btn.removeChild(input);
-                    btn.textContent = old;
-                }
-            });
+			input.addEventListener('keydown', ev => {
+				if (ev.key === 'Enter') {
+					save();
+				}
+				if (ev.key === 'Escape') {
+					if (btn.contains(input)) btn.removeChild(input);
+					btn.textContent = old;
+				}
+			});
             e.stopPropagation();
         });
     });
@@ -413,10 +442,6 @@ window.addEventListener('DOMContentLoaded', () => {
                         appState.buttons[applyTarget.dataset.btn] = appState.buttons[applyTarget.dataset.btn] || {};
                         appState.buttons[applyTarget.dataset.btn].backgroundColor = c;
                     }
-				/*
-				else if (applyTarget === stickWrapper) appState.joystick.backgroundColor = c;
-                else if (applyTarget === base) appState.base.backgroundColor = c;
-				*/
                 } else if (mode === 'text') {
                     applyTarget.style.color = c;
                     if (applyTarget.dataset && applyTarget.dataset.btn) {
@@ -465,17 +490,17 @@ window.addEventListener('DOMContentLoaded', () => {
     // Keyboard & Hotkeys
     document.addEventListener('keydown', (e) => {
 
-		// Snap to Grid
+        // Snap to Grid
         if (e.ctrlKey && e.key.toLowerCase() === 't') {
             snapLayoutToGrid(10);
-			saveState();
+            saveState();
         }
-		
-		// Reset to Default
+
+        // Reset to Default
         if (e.ctrlKey && e.key.toLowerCase() === "r") {
             e.preventDefault();
             resetToDefault();
-			saveState();
+            saveState();
         }
 
         // Unhide all
@@ -509,15 +534,6 @@ window.addEventListener('DOMContentLoaded', () => {
                 }
             }
         }
-
-        // Save layout to file
-        /*
-        if (e.ctrlKey && e.key.toLowerCase() === 's') {
-        	e.preventDefault();
-        	saveLayoutToFile();
-        	return;
-        }
-        */
 
         // Load layout from file
         if (e.ctrlKey && e.key.toLowerCase() === 'o') {
@@ -553,8 +569,8 @@ window.addEventListener('DOMContentLoaded', () => {
                     appState.buttons[selected.dataset.btn] =
                         appState.buttons[selected.dataset.btn] || {};
                     appState.buttons[selected.dataset.btn].fontSize = selected.style.fontSize;
-					saveState();
-					showToast("Font size: " + fs, 1000);
+                    saveState();
+                    showToast("Font size: " + fs, 1000);
 
                     // optional background scaling
                     if (selected.style.backgroundImage && selected.style.backgroundImage !== "none") {
@@ -562,10 +578,10 @@ window.addEventListener('DOMContentLoaded', () => {
                         const newBgSize = Math.max(10, bgSize + (e.key === "]" ? 2 : -2));
                         selected.style.backgroundSize = newBgSize + "px auto";
                         appState.buttons[selected.dataset.btn].backgroundSize = selected.style.backgroundSize;
-						saveState();
-						showToast("Symbol size: " + newBgSize, 1000);
+                        saveState();
+                        showToast("Symbol size: " + newBgSize, 1000);
                     }
-                    saveState();                    
+                    saveState();
                 }
             }
             e.preventDefault();
@@ -606,24 +622,24 @@ window.addEventListener('DOMContentLoaded', () => {
                     if (selected === base) {
                         selected.style.display = 'none';
                         appState.base.display = 'none';
-						showToast("Base hidden", 1000);
+                        showToast("Base hidden", 1000);
                     } else if (selected === stickWrapper) {
                         selected.style.display = 'none';
                         appState.joystick.display = 'none';
-						showToast("Joystick hidden", 1000);
+                        showToast("Joystick hidden", 1000);
                     } else if (selected === eightWayWrapper) {
                         selected.style.display = 'none';
                         appState.eightWayWrapper.display = 'none';
-						showToast("8-way direction hidden", 1000);
+                        showToast("8-way direction hidden", 1000);
                     } else if (selected.classList && selected.classList.contains('btn')) {
                         selected.style.display = 'none';
                         const name = selected.dataset.btn;
                         if (!appState.hiddenButtons.includes(name)) appState.hiddenButtons.push(name);
                         appState.buttons[name] = appState.buttons[name] || {};
                         appState.buttons[name].display = 'none';
-						showToast("Button hidden", 1000);
-                    }					
-                    deselect();					
+                        showToast("Button hidden", 1000);
+                    }
+                    deselect();
                     saveState();
                 }
             }
@@ -666,8 +682,18 @@ window.addEventListener('DOMContentLoaded', () => {
                 selected.style.height = height + 'px';
                 selected.style.left = (centerX - width / 2) + 'px';
                 selected.style.top = (centerY - height / 2) + 'px';
-				
-				saveState();
+
+                // Persist size/position for buttons as well
+                if (selected.classList && selected.classList.contains('btn')) {
+                    const name = selected.dataset.btn;
+                    appState.buttons[name] = appState.buttons[name] || {};
+                    appState.buttons[name].width = selected.style.width;
+                    appState.buttons[name].height = selected.style.height;
+                    appState.buttons[name].top = selected.style.top;
+                    appState.buttons[name].left = selected.style.left;
+                }
+
+                saveState();
                 showToast(`height: ${height}, width: ${width}`, 1000);
                 updated = true;
 
@@ -693,7 +719,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 if (updated) {
                     selected.style.top = Math.max(0, top) + 'px';
                     selected.style.left = Math.max(0, left) + 'px';
-					saveState();
+                    saveState();
                     showToast(`x: ${left}, y: ${top}`, 1000);
                 }
             }
@@ -714,6 +740,12 @@ window.addEventListener('DOMContentLoaded', () => {
                     appState.eightWayWrapper.left = selected.style.left;
                     appState.eightWayWrapper.width = selected.style.width;
                     appState.eightWayWrapper.height = selected.style.height;
+                } else if (selected.classList && selected.classList.contains('btn')) {
+                    // Persist button position for normal arrow-key moves
+                    const name = selected.dataset.btn;
+                    appState.buttons[name] = appState.buttons[name] || {};
+                    appState.buttons[name].top = selected.style.top;
+                    appState.buttons[name].left = selected.style.left;
                 }
                 saveState();
             }
@@ -786,27 +818,7 @@ window.addEventListener('DOMContentLoaded', () => {
     function handleDpadMovement(pad) {
         if (!selected || !pad) return;
         const now = performance.now();
-        const dirs = [{
-            btn: 12,
-            dx: 0,
-            dy: -moveStep,
-            key: 'up'
-        }, {
-            btn: 13,
-            dx: 0,
-            dy: moveStep,
-            key: 'down'
-        }, {
-            btn: 14,
-            dx: -moveStep,
-            dy: 0,
-            key: 'left'
-        }, {
-            btn: 15,
-            dx: moveStep,
-            dy: 0,
-            key: 'right'
-        }];
+        const dirs = [{ btn: 12, dx: 0, dy: -moveStep, key: 'up' }, { btn: 13, dx: 0, dy: moveStep, key: 'down' }, { btn: 14, dx: -moveStep, dy: 0, key: 'left' }, { btn: 15, dx: moveStep, dy: 0, key: 'right' }];
         dirs.forEach(d => {
             if (pad.buttons[d.btn]?.pressed && now - elementMoveTimers[d.key] > moveDelay) {
                 const cs = window.getComputedStyle(selected);
@@ -830,72 +842,45 @@ window.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-	
-	// Analog stick
-	function getAnalogStick(pad, stick = 'left', deadzone = 0.1, invertY = false) {
-		if (!pad) return {
-			x: 0,
-			y: 0
-		};
 
-		const axisOffset = stick === 'left' ? 0 : 2;
-		let x = pad.axes[axisOffset] || 0;
-		let y = pad.axes[axisOffset + 1] || 0;
-		if (invertY) y = -y;
+    // Analog stick
+    function getAnalogStick(pad, stick = 'left', deadzone = 0.1, invertY = false) {
+        if (!pad) return { x: 0, y: 0 };
 
-		const mag = Math.hypot(x, y);
-		if (mag < deadzone) return {
-			x: 0,
-			y: 0
-		}; // inside deadzone
+        const axisOffset = stick === 'left' ? 0 : 2;
+        let x = pad.axes[axisOffset] || 0;
+        let y = pad.axes[axisOffset + 1] || 0;
+        if (invertY) y = -y;
 
-		// Normalize stick to range 0-1 outside deadzone
-		const scale = (mag - deadzone) / (1 - deadzone);
-		return {
-			x: (x / mag) * scale,
-			y: (y / mag) * scale
-		};
-	}
+        const mag = Math.hypot(x, y);
+        if (mag < deadzone) return { x: 0, y: 0 }; // inside deadzone
+
+        // Normalize stick to range 0-1 outside deadzone
+        const scale = (mag - deadzone) / (1 - deadzone);
+        return { x: (x / mag) * scale, y: (y / mag) * scale };
+    }
 
     // Gamepad helpers, canvas, trail, markers
     function radialDeadzone(x, y, dz) {
         const mag = Math.hypot(x, y);
-        if (mag < dz) return {
-            x: 0,
-            y: 0
-        };
+        if (mag < dz) return { x: 0, y: 0 };
         const s = (mag - dz) / (1 - dz);
-        return {
-            x: x * s / mag,
-            y: y * s / mag
-        };
+        return { x: x * s / mag, y: y * s / mag };
     }
 
     function clampRoundedSquare(x, y, n = 8) {
         const mag = Math.pow(Math.abs(x), n) + Math.pow(Math.abs(y), n);
         if (mag > 1) {
             const scale = Math.pow(mag, -1 / n);
-            return {
-                x: x * scale,
-                y: y * scale
-            };
+            return { x: x * scale, y: y * scale };
         }
-        return {
-            x,
-            y
-        };
+        return { x, y };
     }
 
     function getStickXY(pad) {
-        if (!pad) return {
-            x: 0,
-            y: 0
-        };
+        if (!pad) return { x: 0, y: 0 };
         let a = radialDeadzone(pad.axes[0] || 0, pad.axes[1] || 0, cfg.deadzone);
-        let {
-            x,
-            y
-        } = a;
+        let { x, y } = a;
         const up = pad.buttons[12]?.pressed ? 1 : 0;
         const down = pad.buttons[13]?.pressed ? 1 : 0;
         const leftBtn = pad.buttons[14]?.pressed ? 1 : 0;
@@ -963,19 +948,19 @@ window.addEventListener('DOMContentLoaded', () => {
             store.top = el.style.top;
             store.left = el.style.left;
 
-			// Snap border-radius
-			let br = parseInt(cs.borderRadius) || 0;
-			if (br > 0) {
-				const maxBr = Math.max(el.offsetWidth, el.offsetHeight) / 2;
-				br = Math.min(br, maxBr);
+            // Snap border-radius
+            let br = parseInt(cs.borderRadius) || 0;
+            if (br > 0) {
+                const maxBr = Math.max(el.offsetWidth, el.offsetHeight) / 2;
+                br = Math.min(br, maxBr);
 
-				// Snap to grid
-				br = Math.round(br / grid) * grid;
-				br = Math.min(br, maxBr); // ensure we don't exceed max after snapping
+                // Snap to grid
+                br = Math.round(br / grid) * grid;
+                br = Math.min(br, maxBr); // ensure we don't exceed max after snapping
 
-				el.style.borderRadius = br + "px";
-				store.borderRadius = el.style.borderRadius;
-			}
+                el.style.borderRadius = br + "px";
+                store.borderRadius = el.style.borderRadius;
+            }
         }
 
         // Snap all buttons
@@ -1013,38 +998,38 @@ window.addEventListener('DOMContentLoaded', () => {
         }
 
         let anyPressed = false;
-		for (const key in btnEls) {
-			const idx = map[key];
-			if (idx === undefined) continue;
-			const DEADZONE = 0.45;
+        for (const key in btnEls) {
+            const idx = map[key];
+            if (idx === undefined) continue;
+            const DEADZONE = 0.45;
 
-			let raw = pad.buttons[idx]?.value || 0;
-			let val = raw < DEADZONE ? 0 : raw;
+            let raw = pad.buttons[idx]?.value || 0;
+            let val = raw < DEADZONE ? 0 : raw;
 
-			if (key === "LTTRIGGER" || key === "RTTRIGGER") {
-				const isActive = val > DEADZONE;
-				btnEls[key].classList.toggle('active', isActive);
-				
-				if (val < DEADZONE) {
-					btnEls[key].style.filter = "brightness(1.0)";
-					btnEls[key].style.transform = "scale(1)";								
-				} else {
-					btnEls[key].style.filter = `brightness(${1.0 + val * 2.5})`;
-					btnEls[key].style.transform = `scale(${1 + val * 0.08})`;
-				}
-				if (isActive) {
-					anyPressed = true;
-					lastPressedTimes[key] = performance.now();
-				}				
-			} else {
-				const pressed = !!pad.buttons[idx]?.pressed;
-				btnEls[key].classList.toggle('active', pressed);
-				if (pressed && !cfg.ignoredForJoystick.includes(key)) {
-					anyPressed = true;
-					lastPressedTimes[key] = performance.now();
-				}
-			}
-		}
+            if (key === "LTTRIGGER" || key === "RTTRIGGER") {
+                const isActive = val > DEADZONE;
+                btnEls[key].classList.toggle('active', isActive);
+
+                if (val < DEADZONE) {
+                    btnEls[key].style.filter = "brightness(1.0)";
+                    btnEls[key].style.transform = "scale(1)";
+                } else {
+                    btnEls[key].style.filter = `brightness(${1.0 + val * 2.5})`;
+                    btnEls[key].style.transform = `scale(${1 + val * 0.08})`;
+                }
+                if (isActive) {
+                    anyPressed = true;
+                    lastPressedTimes[key] = performance.now();
+                }
+            } else {
+                const pressed = !!pad.buttons[idx]?.pressed;
+                btnEls[key].classList.toggle('active', pressed);
+                if (pressed && !cfg.ignoredForJoystick.includes(key)) {
+                    anyPressed = true;
+                    lastPressedTimes[key] = performance.now();
+                }
+            }
+        }
 
         // Joystick display logic (unchanged)
         if (anyPressed) {
@@ -1067,7 +1052,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 return;
             }
         }
-		saveState();
+        saveState();
         resetJoystick();
     }
 
@@ -1123,7 +1108,7 @@ window.addEventListener('DOMContentLoaded', () => {
         };
         Object.keys(btnEls).forEach(k => snap.buttons[k] = captureElement(btnEls[k]));
         appState.profiles['profile' + n] = snap;
-		appState.lastProfile = n;
+        appState.lastProfile = n;
         saveState();
     }
 
@@ -1154,14 +1139,13 @@ window.addEventListener('DOMContentLoaded', () => {
                 applyArrowSize();
             }
         }
-        if (snap.buttons) Object.keys(snap.buttons).forEach(k => {
-            if (btnEls[k]) {
-                applyElement(btnEls[k], snap.buttons[k]);
-                appState.buttons[k] = Object.assign(appState.buttons[k] || {}, snap.buttons[k]);
-                if (snap.buttons[k].display !== undefined) btnEls[k].style.display = snap.buttons[k].display;
-            }
-        });
-		appState.lastProfile = n; 
+		if (snap.buttons) Object.keys(snap.buttons).forEach(k => {
+			if (btnEls[k]) {
+				applyElement(btnEls[k], snap.buttons[k]);
+				appState.buttons[k] = Object.assign(appState.buttons[k] || {}, snap.buttons[k]);
+			}
+		});
+        appState.lastProfile = n;
         showToast('Profile ' + n + ' loaded', 1000);
         saveState();
     }
@@ -1176,9 +1160,7 @@ window.addEventListener('DOMContentLoaded', () => {
         };
         Object.keys(btnEls).forEach(k => snap.buttons[k] = captureElement(btnEls[k]));
         const json = JSON.stringify(snap, null, 2);
-        const blob = new Blob([json], {
-            type: 'application/json'
-        });
+        const blob = new Blob([json], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -1203,9 +1185,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
             if (style.display === "none") {
                 // Only export the display property
-                snap.buttons[k] = {
-                    display: "none"
-                };
+                snap.buttons[k] = { display: "none" };
             } else {
                 snap.buttons[k] = captureElement(el);
             }
@@ -1232,7 +1212,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 showToast('Copy failed', 1000);
             }
         }
-		saveState();
+        saveState();
     }
 
     // Import (file input + drag drop)
@@ -1264,13 +1244,7 @@ window.addEventListener('DOMContentLoaded', () => {
                     appState.eightWayWrapper = appState.eightWayWrapper || {};
                     Object.assign(appState.eightWayWrapper, parsed.eightWayWrapper);
                     applyElement(eightWayWrapper, parsed.eightWayWrapper);
-                    if (parsed.eightWayWrapper.display !== undefined) {
-                        eightWayWrapper.style.display = parsed.eightWayWrapper.display;
-                    }
-                    if (parsed.eightWayWrapper.arrowSize !== undefined) {
-                        arrowSize = parsed.eightWayWrapper.arrowSize;
-                        applyArrowSize();
-                    }
+                    if (parsed.eightWayWrapper.display !== undefined) eightWayWrapper.style.display = parsed.eightWayWrapper.display;
                 }
                 if (parsed.buttons) {
                     Object.keys(parsed.buttons).forEach(k => {
@@ -1370,10 +1344,7 @@ window.addEventListener('DOMContentLoaded', () => {
         const pad = (navigator.getGamepads && activeGamepadIndex !== null) ? navigator.getGamepads()[activeGamepadIndex] : null;
         updateButtonsFromPad(pad);
         handleDpadMovement(pad);
-        const {
-            x,
-            y
-        } = getStickXY(pad);
+        const { x, y } = getStickXY(pad);
         const cx = canvas.width / 2,
             cy = canvas.height / 2,
             radius = canvas.width / 2 - 25;
@@ -1386,57 +1357,19 @@ window.addEventListener('DOMContentLoaded', () => {
         const deg = (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
         let idx = -1;
         if (Math.hypot(x, y) > 0.5) idx = Math.round(deg / 45) % 8;
-        const dirs = [{
-                x: 1,
-                y: 0
-            }, // →
-            {
-                x: 0.95,
-                y: 0.95
-            }, // ↘
-            {
-                x: 0,
-                y: 1
-            }, // ↓
-            {
-                x: -0.95,
-                y: 0.95
-            }, // ↙
-            {
-                x: -1,
-                y: 0
-            }, // ←
-            {
-                x: -0.95,
-                y: -0.95
-            }, // ↖
-            {
-                x: 0,
-                y: -1
-            }, // ↑
-            {
-                x: 0.95,
-                y: -0.95
-            } // ↗
-        ];
+        const dirs = [{ x: 1, y: 0 }, { x: 0.95, y: 0.95 }, { x: 0, y: 1 }, { x: -0.95, y: 0.95 }, { x: -1, y: 0 }, { x: -0.95, y: -0.95 }, { x: 0, y: -1 }, { x: 0.95, y: -0.95 }];
         const radiusPct = 38;
         const n = 4;
         dirs.forEach((d, i) => {
             const m = markers[i];
             if (!m) return;
             const mag = Math.pow(Math.abs(d.x), n) + Math.pow(Math.abs(d.y), n);
-            const clamped = mag > 1 ? {
-                x: d.x / Math.pow(mag, 1 / n),
-                y: d.y / Math.pow(mag, 1 / n)
-            } : d;
+            const clamped = mag > 1 ? { x: d.x / Math.pow(mag, 1 / n), y: d.y / Math.pow(mag, 1 / n) } : d;
             m.style.left = (50 + clamped.x * radiusPct) + '%';
             m.style.top = (50 + clamped.y * radiusPct) + '%';
             m.classList.toggle('active', i === idx);
         });
-        trail.push({
-            x,
-            y
-        });
+        trail.push({ x, y });
         if (trail.length > cfg.trail) trail.shift();
         drawTrail(trail);
         LS.style.transform = `translate(${leftStick.x * 22}px, ${leftStick.y * 22}px)`;
@@ -1446,12 +1379,9 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     // Boot
-	loadState();
-	if (appState.lastProfile) {
-		loadProfile(appState.lastProfile);
-	} else {
-		applyState();
-	}
+    loadState();
+    applyState(); 
+
     resizeCanvas();
     joystick.style.left = (canvas.width / 2) + 'px';
     joystick.style.top = (canvas.height / 2) + 'px';
@@ -1474,8 +1404,5 @@ window.addEventListener('DOMContentLoaded', () => {
         loadState,
         copyLayoutToClipboard
     };
-	setInterval(saveState, 5000);
+    setInterval(saveState, 5000);
 });
-
-
-
