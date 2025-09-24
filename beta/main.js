@@ -98,9 +98,6 @@ window.addEventListener('DOMContentLoaded', () => {
             const raw = localStorage.getItem(STORAGE_KEY);
             if (raw) {
                 const parsed = JSON.parse(raw);
-
-                // Merge top-level values safely so existing references remain valid
-                // Merge objects (buttons, profiles, joystick, base, eightWayWrapper)
                 appState.buttons = Object.assign({}, appState.buttons || {}, parsed.buttons || {});
                 appState.profiles = Object.assign({}, appState.profiles || {}, parsed.profiles || {});
                 appState.joystick = Object.assign({}, appState.joystick || {}, parsed.joystick || {});
@@ -110,7 +107,6 @@ window.addEventListener('DOMContentLoaded', () => {
                 if (parsed.hiddenButtons !== undefined) appState.hiddenButtons = parsed.hiddenButtons;
                 if (parsed.trailColor !== undefined) appState.trailColor = parsed.trailColor;
                 if (parsed.lastProfile !== undefined) appState.lastProfile = parsed.lastProfile;
-
                 console.debug('[Trailpad] state loaded');
             }
         } catch (e) {
@@ -815,36 +811,143 @@ window.addEventListener('DOMContentLoaded', () => {
     const moveDelay = 120;
     const moveStep = 10;
 
-    function handleDpadMovement(pad) {
-        if (!selected || !pad) return;
-        const now = performance.now();
-        const dirs = [{ btn: 12, dx: 0, dy: -moveStep, key: 'up' }, { btn: 13, dx: 0, dy: moveStep, key: 'down' }, { btn: 14, dx: -moveStep, dy: 0, key: 'left' }, { btn: 15, dx: moveStep, dy: 0, key: 'right' }];
-        dirs.forEach(d => {
-            if (pad.buttons[d.btn]?.pressed && now - elementMoveTimers[d.key] > moveDelay) {
-                const cs = window.getComputedStyle(selected);
-                let top = parseInt(cs.top) || 0,
-                    left = parseInt(cs.left) || 0;
-                top = Math.max(0, top + d.dy);
-                left = Math.max(0, left + d.dx);
-                selected.style.top = Math.round(top / 10) * 10 + 'px';
-                selected.style.left = Math.round(left / 10) * 10 + 'px';
-                if (selected.classList && selected.classList.contains('btn')) {
-                    appState.buttons[selected.dataset.btn] = appState.buttons[selected.dataset.btn] || {};
-                    appState.buttons[selected.dataset.btn].top = selected.style.top;
-                    appState.buttons[selected.dataset.btn].left = selected.style.left;
-                } else if (selected === stickWrapper) {
-                    appState.joystick.top = selected.style.top;
-                    appState.joystick.left = selected.style.left;
-                }
-                saveState();
-                showToast("X: " + left + ", Y: " + top, 1000);
-                elementMoveTimers[d.key] = now;
-            }
-        });
-    }
+	function handleDpadMovement(pad) {
+		if (!pad) return -1; // neutral
+		const now = performance.now();
+
+		function moveSelected(dx, dy, key) {
+			if (!selected) return;
+			const cs = window.getComputedStyle(selected);
+			let top = parseInt(cs.top) || 0;
+			let left = parseInt(cs.left) || 0;
+			top = Math.max(0, top + dy);
+			left = Math.max(0, left + dx);
+			selected.style.top = top + "px";
+			selected.style.left = left + "px";
+
+			if (selected.classList.contains('btn')) {
+				const name = selected.dataset.btn;
+				appState.buttons[name] = appState.buttons[name] || {};
+				appState.buttons[name].top = selected.style.top;
+				appState.buttons[name].left = selected.style.left;
+			} else if (selected === stickWrapper) {
+				appState.joystick.top = selected.style.top;
+				appState.joystick.left = selected.style.left;
+			} else if (selected === eightWayWrapper) {
+				appState.eightWayWrapper.top = selected.style.top;
+				appState.eightWayWrapper.left = selected.style.left;
+			}
+
+			saveState();
+			showToast(`x:${left}, y:${top}`, 500);
+			elementMoveTimers[key] = now;
+		}
+		// default to neutral
+		let direction = -1;
+
+		// XInput
+		const dirs = [
+			{ btn: 12, dx: 0, dy: -moveStep, key: 'up', idx: 6 },  // ↑
+			{ btn: 13, dx: 0, dy:  moveStep, key: 'down', idx: 2 }, // ↓
+			{ btn: 14, dx: -moveStep, dy: 0, key: 'left', idx: 4 }, // ←
+			{ btn: 15, dx:  moveStep, dy: 0, key: 'right', idx: 0 } // →
+		];
+		const pressed = {};
+		dirs.forEach(d => {
+			if (pad.buttons[d.btn]?.pressed) {
+				pressed[d.key] = true;
+				if (now - elementMoveTimers[d.key] > moveDelay) {
+					moveSelected(d.dx, d.dy, d.key);
+				}
+			}
+		});
+		// detect diagonals for XInput (combo presses)
+		if (pressed.up && pressed.left) direction = 5;   // ↖
+		else if (pressed.up && pressed.right) direction = 7; // ↗
+		else if (pressed.down && pressed.left) direction = 3; // ↙
+		else if (pressed.down && pressed.right) direction = 1; // ↘
+		else if (pressed.up) direction = 6;
+		else if (pressed.down) direction = 2;
+		else if (pressed.left) direction = 4;
+		else if (pressed.right) direction = 0;
+
+		// PS / DirectInput fallback: axes[9] hat
+		if (direction === -1 && pad.axes && pad.axes.length > 9) {
+			const hat = pad.axes[9];
+			if (typeof hat === "number") {
+				if (now - elementMoveTimers['hat'] > moveDelay) {
+					// Typical mapping:
+					// -1 = up, -0.714 = up-right, -0.428 = right, -0.142 = down-right,
+					// 0.142 = down, 0.428 = down-left, 0.714 = left, 1.0 = up-left
+					const rounded = Math.round(hat * 7); // scale to -7..7
+					switch (rounded) {
+						case -7: direction = 6; moveSelected(0, -moveStep, 'hat'); break; // ↑
+						case -5: direction = 7; moveSelected(moveStep, -moveStep, 'hat'); break; // ↗
+						case -3: direction = 0; moveSelected(moveStep, 0, 'hat'); break; // →
+						case -1: direction = 1; moveSelected(moveStep, moveStep, 'hat'); break; // ↘
+						case 1:  direction = 2; moveSelected(0, moveStep, 'hat'); break; // ↓
+						case 3:  direction = 3; moveSelected(-moveStep, moveStep, 'hat'); break; // ↙
+						case 5:  direction = 4; moveSelected(-moveStep, 0, 'hat'); break; // ←
+						case 7:  direction = 5; moveSelected(-moveStep, -moveStep, 'hat'); break; // ↖
+					}
+				}
+			}
+		}
+		  const lx = pad.axes[0], ly = pad.axes[1];
+		  if (Math.abs(lx) > 0.3 || Math.abs(ly) > 0.3) {
+			const angle = Math.atan2(ly, lx); // radians
+			const oct = Math.round(8 * angle / (2 * Math.PI) + 8) % 8;
+			direction = oct; // 0=→, 2=↓, 4=←, 6=↑, odd=diagonals
+		  }
+		return direction; // -1 = neutral, 0–7 = 8-way
+	}
+	
+	function handleStickMovement(pad) {
+	  if (!pad) return;
+	  const now = performance.now();
+
+	  const lx = pad.axes[0] || 0;
+	  const ly = pad.axes[1] || 0;
+	  const rx = pad.axes[2] || 0;
+	  const ry = pad.axes[3] || 0;
+
+	  // --- element movement (deadzone, throttled) ---
+	  if (selected) {
+		if (Math.abs(lx) > 0.15 || Math.abs(ly) > 0.15) {
+		  if (now - (elementMoveTimers['ls'] || 0) > moveDelay) {
+			moveSelected(lx * moveStep, ly * moveStep, 'ls');
+		  }
+		}
+		if (Math.abs(rx) > 0.15 || Math.abs(ry) > 0.15) {
+		  if (now - (elementMoveTimers['rs'] || 0) > moveDelay) {
+			moveSelected(rx * moveStep, ry * moveStep, 'rs');
+		  }
+		}
+	  }
+		// Use normalized stick values
+		const ls = getAnalogStick(pad, 'left', cfg.deadzone, cfg.invertY);
+		const rs = getAnalogStick(pad, 'right', cfg.deadzone, cfg.invertY);
+
+		// Force tiny values to absolute 0 so they recenter
+		const lsX = clampToZero(ls.x) * 8;
+		const lsY = clampToZero(ls.y) * 8;
+		if (btnEls['LS']) {
+		  btnEls['LS'].style.transform = `translate(${lsX}px, ${lsY}px)`;
+		}
+
+		const rsX = clampToZero(rs.x) * 8;
+		const rsY = clampToZero(rs.y) * 8;
+		if (btnEls['RS']) {
+		  btnEls['RS'].style.transform = `translate(${rsX}px, ${rsY}px)`;
+		}
+	}
+	
+	function clampToZero(val, eps = 0.001) {
+	  return Math.abs(val) < eps ? 0 : val;
+	}
 
     // Analog stick
-    function getAnalogStick(pad, stick = 'left', deadzone = 0.1, invertY = false) {
+    function getAnalogStick(pad, stick = 'left', deadzone = 0.05, invertY = false) {
         if (!pad) return { x: 0, y: 0 };
 
         const axisOffset = stick === 'left' ? 0 : 2;
@@ -1076,7 +1179,7 @@ window.addEventListener('DOMContentLoaded', () => {
         if (!tr || tr.length < 2) return;
         const cx = canvas.width / 2,
             cy = canvas.height / 2,
-            cr = Math.min(canvas.width, canvas.height) / 2 - 10;
+            cr = Math.min(canvas.width, canvas.height) / 2 - 12;
         const trailColor = getComputedStyle(document.documentElement).getPropertyValue('--trail-color')?.trim() || appState.trailColor || '#CEEC73';
         for (let i = 1; i < tr.length; i++) {
             const p0 = tr[i - 1],
@@ -1339,44 +1442,34 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 
     // Animation Loop
-    function animate() {
-        activeGamepadIndex = detectActiveGamepad();
-        const pad = (navigator.getGamepads && activeGamepadIndex !== null) ? navigator.getGamepads()[activeGamepadIndex] : null;
-        updateButtonsFromPad(pad);
-        handleDpadMovement(pad);
-        const { x, y } = getStickXY(pad);
-        const cx = canvas.width / 2,
-            cy = canvas.height / 2,
-            radius = canvas.width / 2 - 25;
-        const jx = cx + x * radius,
-            jy = cy + y * radius;
-        joystick.style.left = jx + 'px';
-        joystick.style.top = jy + 'px';
-        const leftStick = getAnalogStick(pad, 'left', cfg.deadzone, cfg.invertY);
-        const rightStick = getAnalogStick(pad, 'right', cfg.deadzone, cfg.invertY);
-        const deg = (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
-        let idx = -1;
-        if (Math.hypot(x, y) > 0.5) idx = Math.round(deg / 45) % 8;
-        const dirs = [{ x: 1, y: 0 }, { x: 0.95, y: 0.95 }, { x: 0, y: 1 }, { x: -0.95, y: 0.95 }, { x: -1, y: 0 }, { x: -0.95, y: -0.95 }, { x: 0, y: -1 }, { x: 0.95, y: -0.95 }];
-        const radiusPct = 38;
-        const n = 4;
-        dirs.forEach((d, i) => {
-            const m = markers[i];
-            if (!m) return;
-            const mag = Math.pow(Math.abs(d.x), n) + Math.pow(Math.abs(d.y), n);
-            const clamped = mag > 1 ? { x: d.x / Math.pow(mag, 1 / n), y: d.y / Math.pow(mag, 1 / n) } : d;
-            m.style.left = (50 + clamped.x * radiusPct) + '%';
-            m.style.top = (50 + clamped.y * radiusPct) + '%';
-            m.classList.toggle('active', i === idx);
-        });
-        trail.push({ x, y });
-        if (trail.length > cfg.trail) trail.shift();
-        drawTrail(trail);
-        LS.style.transform = `translate(${leftStick.x * 22}px, ${leftStick.y * 22}px)`;
-        RS.style.transform = `translate(${rightStick.x * 22}px, ${rightStick.y * 22}px)`;
-        updateArrowHighlights(idx);
-        requestAnimationFrame(animate);
-    }
+	function animate() {
+		activeGamepadIndex = detectActiveGamepad();
+		const pad = (navigator.getGamepads && activeGamepadIndex !== null) 
+			? navigator.getGamepads()[activeGamepadIndex] 
+			: null;
+		updateButtonsFromPad(pad);
+		const dpadDir = handleDpadMovement(pad);
+		updateArrowHighlights(dpadDir);		
+
+		// Stick movement
+		const { x, y } = getStickXY(pad);
+		const cx = canvas.width / 2, cy = canvas.height / 2;
+		const radius = canvas.width / 2 - 25;
+		const jx = cx + x * radius, jy = cy + y * radius;
+		joystick.style.left = jx + 'px';
+		joystick.style.top = jy + 'px';
+
+		// Trail drawing
+		trail.push({ x, y });
+		if (trail.length > cfg.trail) trail.shift();
+		drawTrail(trail);
+handleStickMovement(pad);
+		// Update markers (0–7 = 8 directions)
+		for (let i = 0; i < markers.length; i++) {
+			markers[i].classList.toggle('active', i === dpadDir);
+		}
+		requestAnimationFrame(animate);
+	}
 
     // Boot
     loadState();
