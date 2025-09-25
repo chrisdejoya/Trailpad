@@ -228,6 +228,13 @@ window.addEventListener('DOMContentLoaded', () => {
 			}
 		}
 		
+		if (snap.backgroundSize && snap.backgroundSize !== "auto") {
+			const num = parseInt(snap.backgroundSize);
+			if (!isNaN(num)) {
+				snap.backgroundSize = num + "px auto";
+			}
+		}
+		
         if (el === eightWayWrapper && appState.eightWayWrapper?.arrowSize !== undefined) {
             snap.arrowSize = appState.eightWayWrapper.arrowSize;
         }
@@ -906,48 +913,48 @@ window.addEventListener('DOMContentLoaded', () => {
 	  if (!pad) return;
 	  const now = performance.now();
 
-	  const lx = pad.axes[0] || 0;
-	  const ly = pad.axes[1] || 0;
-	  const rx = pad.axes[2] || 0;
-	  const ry = pad.axes[3] || 0;
-
-	  // --- element movement (deadzone, throttled) ---
+	  // --- element movement (throttled) ---
 	  if (selected) {
-		if (Math.abs(lx) > 0.15 || Math.abs(ly) > 0.15) {
-		  if (now - (elementMoveTimers['ls'] || 0) > moveDelay) {
-			moveSelected(lx * moveStep, ly * moveStep, 'ls');
-		  }
-		}
-		if (Math.abs(rx) > 0.15 || Math.abs(ry) > 0.15) {
-		  if (now - (elementMoveTimers['rs'] || 0) > moveDelay) {
-			moveSelected(rx * moveStep, ry * moveStep, 'rs');
-		  }
-		}
-	  }
-		// Use normalized stick values
 		const ls = getAnalogStick(pad, 'left', cfg.deadzone, cfg.invertY);
 		const rs = getAnalogStick(pad, 'right', cfg.deadzone, cfg.invertY);
 
-		// Force tiny values to absolute 0 so they recenter
-		const lsX = clampToZero(ls.x) * 8;
-		const lsY = clampToZero(ls.y) * 8;
-		if (btnEls['LS']) {
-		  btnEls['LS'].style.transform = `translate(${lsX}px, ${lsY}px)`;
+		if ((Math.abs(ls.x) > 0.15 || Math.abs(ls.y) > 0.15) &&
+			now - (elementMoveTimers['ls'] || 0) > moveDelay) {
+		  moveSelected(ls.x * moveStep, ls.y * moveStep, 'ls');
 		}
+		if ((Math.abs(rs.x) > 0.15 || Math.abs(rs.y) > 0.15) &&
+			now - (elementMoveTimers['rs'] || 0) > moveDelay) {
+		  moveSelected(rs.x * moveStep, rs.y * moveStep, 'rs');
+		}
+	  }
 
-		const rsX = clampToZero(rs.x) * 8;
-		const rsY = clampToZero(rs.y) * 8;
-		if (btnEls['RS']) {
-		  btnEls['RS'].style.transform = `translate(${rsX}px, ${rsY}px)`;
-		}
+	  // --- LS visual feedback ---
+	  let ls = getAnalogStick(pad, 'left', cfg.deadzone, cfg.invertY);
+	  if (ls.x === 0 && ls.y === 0) {
+		// force reset
+		if (btnEls['LS']) btnEls['LS'].style.transform = `translate(0px, 0px)`;
+	  } else {
+		if (btnEls['LS']) btnEls['LS'].style.transform = `translate(${ls.x * 8}px, ${ls.y * 8}px)`;
+	  }
+
+	  // --- RS visual feedback ---
+	  let rs = getAnalogStick(pad, 'right', cfg.deadzone, cfg.invertY);
+	  if (rs.x === 0 && rs.y === 0) {
+		// force reset
+		if (btnEls['RS']) btnEls['RS'].style.transform = `translate(0px, 0px)`;
+	  } else {
+		if (btnEls['RS']) btnEls['RS'].style.transform = `translate(${rs.x * 8}px, ${rs.y * 8}px)`;
+	  }
 	}
 	
-	function clampToZero(val, eps = 0.001) {
-	  return Math.abs(val) < eps ? 0 : val;
+	function stickToCenter(x, y, deadzone = cfg.deadzone) {
+		const mag = Math.hypot(x, y);
+		if (mag < deadzone) return { x: 0, y: 0 }; // snap to center
+		return { x, y };
 	}
-
+	
     // Analog stick
-    function getAnalogStick(pad, stick = 'left', deadzone = 0.05, invertY = false) {
+    function getAnalogStick(pad, stick = 'left', deadzone = 0.1, invertY = false) {
         if (!pad) return { x: 0, y: 0 };
 
         const axisOffset = stick === 'left' ? 0 : 2;
@@ -999,35 +1006,50 @@ window.addEventListener('DOMContentLoaded', () => {
         return clampRoundedSquare(x, cfg.invertY ? -y : y);
     }
 
-    function positionEightWayArrows() {
-        const rect = eightWayWrapper.getBoundingClientRect();
-        const cx = rect.width / 2;
-        const cy = rect.height / 2;
-        const radius = Math.min(cx, cy) - 45; // 45 = half arrow size
+	function positionEightWayArrows() {
+		const rect = eightWayWrapper.getBoundingClientRect();
+		const cx = rect.width / 2;
+		const cy = rect.height / 2;
 
-        for (let i = 0; i < 8; i++) {
-            const angle = (i * 45) * Math.PI / 180;
-            const x = cx + radius * Math.cos(angle);
-            const y = cy + radius * Math.sin(angle);
-            const arrow = document.getElementById("arrow" + i);
-            if (arrow) {
-                arrow.style.left = x + "px";
-                arrow.style.top = y + "px";
-                arrow.style.transform = `translate(-50%, -50%) rotate(${i * 45}deg)`;
-            }
-        }
-    }
+		// Put tips along the perimeter. Keep a tiny margin so things don't get cut off.
+		const radius = Math.min(cx, cy) - 4;
 
-    function applyArrowSize() {
-        for (let i = 0; i < 8; i++) {
-            const arrow = document.getElementById("arrow" + i);
-            if (arrow) {
-                arrow.style.width = arrowSize + "px";
-                arrow.style.height = arrowSize + "px";
-                arrow.style.transform = `translate(-50%, -50%) rotate(${i * 45}deg)`;
-            }
-        }
-    }
+		for (let i = 0; i < 8; i++) {
+			const angle = (i * 45) * Math.PI / 180;
+			// target point on circumference where the TIP should be
+			const tx = cx + radius * Math.cos(angle);
+			const ty = cy + radius * Math.sin(angle);
+
+			const arrow = document.getElementById("arrow" + i);
+			if (!arrow) continue;
+
+			// If the arrow's tip is the element's right-center (100% 50%),
+			// the element's top-left should be placed at (tx - width, ty - height/2).
+			const left = tx - arrowSize;
+			const top  = ty - (arrowSize / 2);
+
+			arrow.style.left = left + "px";
+			arrow.style.top  = top  + "px";
+
+			// Rotate so arrows point outward (keeps your original rotate mapping)
+			arrow.style.transformOrigin = "100% 50%"; // tip is right-center
+			arrow.style.transform = `rotate(${i * 45}deg)`;
+		}
+	}
+
+	function applyArrowSize() {
+		for (let i = 0; i < 8; i++) {
+			const arrow = document.getElementById("arrow" + i);
+			if (!arrow) continue;
+			arrow.style.width = arrowSize + "px";
+			arrow.style.height = arrowSize + "px";
+			// keep transform origin consistent with positionEightWayArrows
+			arrow.style.transformOrigin = "100% 50%";
+			arrow.style.transform = `rotate(${i * 45}deg)`;
+		}
+		// reposition after resizing so tip-perimeter alignment stays correct
+		positionEightWayArrows();
+	}
 
     if (window.ResizeObserver) {
         const ro = new ResizeObserver(() => {
@@ -1093,72 +1115,73 @@ window.addEventListener('DOMContentLoaded', () => {
         return null;
     }
 
-    function updateButtonsFromPad(pad) {
-        if (!pad || !pad.buttons) {
-            resetJoystick();
-            Object.values(btnEls).forEach(b => b.classList.remove('active'));
-            return;
-        }
+	function updateButtonsFromPad(pad) {
+		if (!pad || !pad.buttons) {
+			resetJoystick();
+			Object.values(btnEls).forEach(b => b.classList.remove('active'));
+			return;
+		}
 
-        let anyPressed = false;
-        for (const key in btnEls) {
-            const idx = map[key];
-            if (idx === undefined) continue;
-            const DEADZONE = 0.45;
+		let anyPressed = false;
+		for (const key in btnEls) {
+			// 🚫 Skip LS and RS — handled only by handleStickMovement
+			if (key === "LS" || key === "RS") continue;
 
-            let raw = pad.buttons[idx]?.value || 0;
-            let val = raw < DEADZONE ? 0 : raw;
+			const idx = map[key];
+			if (idx === undefined) continue;
+			const DEADZONE = 0.45;
 
-            if (key === "LTTRIGGER" || key === "RTTRIGGER") {
-                const isActive = val > DEADZONE;
-                btnEls[key].classList.toggle('active', isActive);
+			let raw = pad.buttons[idx]?.value || 0;
+			let val = raw < DEADZONE ? 0 : raw;
 
-                if (val < DEADZONE) {
-                    btnEls[key].style.filter = "brightness(1.0)";
-                    btnEls[key].style.transform = "scale(1)";
-                } else {
-                    btnEls[key].style.filter = `brightness(${1.0 + val * 2.5})`;
-                    btnEls[key].style.transform = `scale(${1 + val * 0.08})`;
-                }
-                if (isActive) {
-                    anyPressed = true;
-                    lastPressedTimes[key] = performance.now();
-                }
-            } else {
-                const pressed = !!pad.buttons[idx]?.pressed;
-                btnEls[key].classList.toggle('active', pressed);
-                if (pressed && !cfg.ignoredForJoystick.includes(key)) {
-                    anyPressed = true;
-                    lastPressedTimes[key] = performance.now();
-                }
-            }
-        }
+			if (key === "LTTRIGGER" || key === "RTTRIGGER") {
+				const isActive = val > DEADZONE;
+				btnEls[key].classList.toggle('active', isActive);
 
-        // Joystick display logic (unchanged)
-        if (anyPressed) {
-            let active = null,
-                latest = -1;
-            for (const k in lastPressedTimes) {
-                if (btnEls[k].classList.contains('active') &&
-                    !cfg.ignoredForJoystick.includes(k) &&
-                    lastPressedTimes[k] > latest) {
-                    latest = lastPressedTimes[k];
-                    active = k;
-                }
-            }
-            if (active) {
-                const cs = getComputedStyle(btnEls[active]);
-                joystick.style.transform = 'translate(-50%,-50%) scale(1.25)';
-                joystick.textContent = btnEls[active].textContent || active;
-                joystick.style.background = cs.backgroundColor;
-                joystick.style.color = cs.color;
-                return;
-            }
-        }
-        saveState();
-        resetJoystick();
-    }
+				if (val < DEADZONE) {
+					btnEls[key].style.filter = "brightness(1.0)";
+					btnEls[key].style.transform = "scale(1)";
+				} else {
+					btnEls[key].style.filter = `brightness(${1.0 + val * 2.5})`;
+					btnEls[key].style.transform = `scale(${1 + val * 0.08})`;
+				}
+				if (isActive) {
+					anyPressed = true;
+					lastPressedTimes[key] = performance.now();
+				}
+			} else {
+				const pressed = !!pad.buttons[idx]?.pressed;
+				btnEls[key].classList.toggle('active', pressed);
+				if (pressed && !cfg.ignoredForJoystick.includes(key)) {
+					anyPressed = true;
+					lastPressedTimes[key] = performance.now();
+				}
+			}
+		}
 
+		// Joystick display logic (unchanged)
+		if (anyPressed) {
+			let active = null, latest = -1;
+			for (const k in lastPressedTimes) {
+				if (btnEls[k].classList.contains('active') &&
+					!cfg.ignoredForJoystick.includes(k) &&
+					lastPressedTimes[k] > latest) {
+					latest = lastPressedTimes[k];
+					active = k;
+				}
+			}
+			if (active) {
+				const cs = getComputedStyle(btnEls[active]);
+				joystick.style.transform = 'translate(-50%,-50%) scale(1.25)';
+				joystick.textContent = btnEls[active].textContent || active;
+				joystick.style.background = cs.backgroundColor;
+				joystick.style.color = cs.color;
+				return;
+			}
+		}
+		saveState();
+		resetJoystick();
+	}
 
     function resetJoystick() {
         joystick.style.transform = 'translate(-50%,-50%) scale(1)';
@@ -1443,32 +1466,38 @@ window.addEventListener('DOMContentLoaded', () => {
 
     // Animation Loop
 	function animate() {
-		activeGamepadIndex = detectActiveGamepad();
-		const pad = (navigator.getGamepads && activeGamepadIndex !== null) 
-			? navigator.getGamepads()[activeGamepadIndex] 
-			: null;
-		updateButtonsFromPad(pad);
-		const dpadDir = handleDpadMovement(pad);
-		updateArrowHighlights(dpadDir);		
+	  activeGamepadIndex = detectActiveGamepad();
+	  const pad = (navigator.getGamepads && activeGamepadIndex !== null) 
+		? navigator.getGamepads()[activeGamepadIndex] 
+		: null;
 
-		// Stick movement
-		const { x, y } = getStickXY(pad);
-		const cx = canvas.width / 2, cy = canvas.height / 2;
-		const radius = canvas.width / 2 - 25;
-		const jx = cx + x * radius, jy = cy + y * radius;
-		joystick.style.left = jx + 'px';
-		joystick.style.top = jy + 'px';
+	  updateButtonsFromPad(pad);
 
-		// Trail drawing
-		trail.push({ x, y });
-		if (trail.length > cfg.trail) trail.shift();
-		drawTrail(trail);
-handleStickMovement(pad);
-		// Update markers (0–7 = 8 directions)
-		for (let i = 0; i < markers.length; i++) {
-			markers[i].classList.toggle('active', i === dpadDir);
-		}
-		requestAnimationFrame(animate);
+	  // D-pad highlights
+	  const dpadDir = handleDpadMovement(pad);
+	  updateArrowHighlights(dpadDir);
+
+	  // --- Joystick head + trail (use getStickXY to merge LS + Dpad) ---
+	  const { x, y } = getStickXY(pad);
+	  const cx = canvas.width / 2, cy = canvas.height / 2;
+	  const radius = canvas.width / 2 - 25;
+	  const jx = cx + x * radius, jy = cy + y * radius;
+	  joystick.style.left = jx + 'px';
+	  joystick.style.top = jy + 'px';
+
+	  trail.push({ x, y });
+	  if (trail.length > cfg.trail) trail.shift();
+	  drawTrail(trail);
+
+	  // --- LS/RS button transforms + element movement ---
+	  handleStickMovement(pad);
+
+	  // Marker highlights (0–7 = 8-way)
+	  for (let i = 0; i < markers.length; i++) {
+		markers[i].classList.toggle('active', i === dpadDir);
+	  }
+
+	  requestAnimationFrame(animate);
 	}
 
     // Boot
