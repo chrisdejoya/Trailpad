@@ -29,7 +29,7 @@
     "outlineOffset": "0px",
     "boxShadow": "none",
     "backgroundColor": "rgba(0, 0, 0, 0)",
-    "backgroundImage": "url(\"http://absolute/D:/Documents/Trailpad/images/gate_strive.svg\")",
+    "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/gate_strive.svg\")",
     "backgroundSize": "cover",
     "color": "rgb(238, 238, 238)",
     "fontSize": "16px",
@@ -67,7 +67,7 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"http://absolute/D:/Documents/Trailpad/images/up.svg\")",
+      "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/up.svg\")",
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "44px",
@@ -85,7 +85,7 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"http://absolute/D:/Documents/Trailpad/images/down.svg\")",
+      "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/down.svg\")",
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "44px",
@@ -103,7 +103,7 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"http://absolute/D:/Documents/Trailpad/images/left.svg\")",
+      "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/left.svg\")",
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "44px",
@@ -121,7 +121,7 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"http://absolute/D:/Documents/Trailpad/images/right.svg\")",
+      "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/right.svg\")",
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "44px",
@@ -345,3 +345,4 @@
     }
   }
 }
+
