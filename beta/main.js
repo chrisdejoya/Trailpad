@@ -1333,7 +1333,7 @@ window.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Joystick display logic (unchanged)
+        // Joystick display logic
         if (anyPressed) {
             let active = null, latest = -1;
             for (const k in lastPressedTimes) {
@@ -1348,7 +1348,12 @@ window.addEventListener('DOMContentLoaded', () => {
                 const cs = getComputedStyle(btnEls[active]);
                 joystick.style.transform = 'translate(-50%,-50%) scale(1.25)';
                 joystick.textContent = btnEls[active].textContent || active;
-                joystick.style.background = cs.backgroundColor;
+                if (rgbComponentsMatch) {
+                    const rgb = rgbComponentsMatch[0];
+                    joystick.style.background = `rgba(${rgb}, 1.0)`;
+                } else {
+                    joystick.style.background = originalColor;
+                }
                 joystick.style.color = cs.color;
                 return;
             }
@@ -1702,3 +1707,4 @@ window.addEventListener('DOMContentLoaded', () => {
     };
 });
     setInterval(saveState, 5000);
+
