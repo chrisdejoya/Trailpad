@@ -1299,7 +1299,7 @@ window.addEventListener('DOMContentLoaded', () => {
         let anyPressed = false;
         for (const key in btnEls) {
             // 🚫 Skip LS and RS — handled only by handleStickMovement
-            if (key === "LS" || key === "RS") continue;
+            // if (key === "LS" || key === "RS") continue;
 
             const idx = map[key];
             if (idx === undefined) continue;
@@ -1702,3 +1702,4 @@ window.addEventListener('DOMContentLoaded', () => {
     };
 });
     setInterval(saveState, 5000);
+
