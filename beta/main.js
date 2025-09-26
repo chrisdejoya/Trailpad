@@ -86,8 +86,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
     function saveState() {
         try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));            
-			console.debug("Saving state:", JSON.stringify(appState.buttons, null, 2));
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+            console.debug("Saving state:", JSON.stringify(appState.buttons, null, 2));
         } catch (e) {
             console.warn(e);
         }
@@ -114,68 +114,68 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-	function applyState() {
-		Object.entries(btnEls).forEach(([k, el]) => {
-			const data = appState.buttons[k] || {};
-			applyElement(el, data);
+    function applyState() {
+        Object.entries(btnEls).forEach(([k, el]) => {
+            const data = appState.buttons[k] || {};
+            applyElement(el, data);
 
-			// Existing properties...
-			let display = data.display;
-			if (display === undefined) {
-				display = appState.hiddenButtons?.includes(k) ? "none" : "flex";
-			}
-			if (el.style.display !== display) el.style.display = display;
-			if (data.zIndex !== undefined && el.style.zIndex !== data.zIndex) el.style.zIndex = data.zIndex;
-			if (data.backgroundImage !== undefined && el.style.backgroundImage !== data.backgroundImage)
-				el.style.backgroundImage = data.backgroundImage;
-			if (data.backgroundSize !== undefined) {
-				if (el === eightWayWrapper) {
-					const arrows = eightWayWrapper.querySelectorAll(".arrow");
-					arrows.forEach(arrow => {
-						arrow.style.backgroundSize = data.backgroundSize;
-					});
-				} else if (el.style.backgroundSize !== data.backgroundSize) {
-					el.style.backgroundSize = data.backgroundSize;
-				}
-			}
-			if (data.label !== undefined && el.dataset?.btn) el.textContent = data.label;
+            // Existing properties...
+            let display = data.display;
+            if (display === undefined) {
+                display = appState.hiddenButtons?.includes(k) ? "none" : "flex";
+            }
+            if (el.style.display !== display) el.style.display = display;
+            if (data.zIndex !== undefined && el.style.zIndex !== data.zIndex) el.style.zIndex = data.zIndex;
+            if (data.backgroundImage !== undefined && el.style.backgroundImage !== data.backgroundImage)
+                el.style.backgroundImage = data.backgroundImage;
+            if (data.backgroundSize !== undefined) {
+                if (el === eightWayWrapper) {
+                    const arrows = eightWayWrapper.querySelectorAll(".arrow");
+                    arrows.forEach(arrow => {
+                        arrow.style.backgroundSize = data.backgroundSize;
+                    });
+                } else if (el.style.backgroundSize !== data.backgroundSize) {
+                    el.style.backgroundSize = data.backgroundSize;
+                }
+            }
+            if (data.label !== undefined && el.dataset?.btn) el.textContent = data.label;
 
-			if (data.outlineWidth != null || data.outlineColor != null) {
-				const width = data.outlineWidth ?? 0;
-				const color = data.outlineColor ?? "black";
-				el.style.outline = `${width}px solid ${color}`;
-				el.style.outlineOffset = `-${width}px`;
-			}
-			if (data.boxShadowSpread != null) {
-				const spread = data.boxShadowSpread;
-				el.style.boxShadow = `0 0 0 ${spread}px black`;
-			}
-		});
+            if (data.outlineWidth != null || data.outlineColor != null) {
+                const width = data.outlineWidth ?? 0;
+                const color = data.outlineColor ?? "black";
+                el.style.outline = `${width}px solid ${color}`;
+                el.style.outlineOffset = `-${width}px`;
+            }
+            if (data.boxShadowSpread != null) {
+                const spread = data.boxShadowSpread;
+                el.style.boxShadow = `0 0 0 ${spread}px black`;
+            }
+        });
 
-		// Existing logic for joystick, base, eightWayWrapper...
-		if (appState.joystick) {
-			applyElement(stickWrapper, appState.joystick);
-			if (appState.joystick.display !== undefined) stickWrapper.style.display = appState.joystick.display;
-		}
-		if (appState.base) {
-			applyElement(base, appState.base);
-			if (appState.base.display !== undefined) base.style.display = appState.base.display;
-		}
-		if (appState.eightWayWrapper) {
-			applyElement(eightWayWrapper, appState.eightWayWrapper);
-			if (appState.eightWayWrapper.display !== undefined) eightWayWrapper.style.display = appState.eightWayWrapper.display;
-			if (appState.eightWayWrapper.arrowSize !== undefined) {
-				arrowSize = appState.eightWayWrapper.arrowSize;
-				applyArrowSize();
-			}
-		}
-		if (appState.trailColor) {
-			document.documentElement.style.setProperty("--trail-color", appState.trailColor);
-		}
-		resizeCanvas();
-		joystick.style.left = canvas.width / 2 + "px";
-		joystick.style.top = canvas.height / 2 + "px";
-	}
+        // Existing logic for joystick, base, eightWayWrapper...
+        if (appState.joystick) {
+            applyElement(stickWrapper, appState.joystick);
+            if (appState.joystick.display !== undefined) stickWrapper.style.display = appState.joystick.display;
+        }
+        if (appState.base) {
+            applyElement(base, appState.base);
+            if (appState.base.display !== undefined) base.style.display = appState.base.display;
+        }
+        if (appState.eightWayWrapper) {
+            applyElement(eightWayWrapper, appState.eightWayWrapper);
+            if (appState.eightWayWrapper.display !== undefined) eightWayWrapper.style.display = appState.eightWayWrapper.display;
+            if (appState.eightWayWrapper.arrowSize !== undefined) {
+                arrowSize = appState.eightWayWrapper.arrowSize;
+                applyArrowSize();
+            }
+        }
+        if (appState.trailColor) {
+            document.documentElement.style.setProperty("--trail-color", appState.trailColor);
+        }
+        resizeCanvas();
+        joystick.style.left = canvas.width / 2 + "px";
+        joystick.style.top = canvas.height / 2 + "px";
+    }
 
     function applyElement(el, data) {
         if (!el || !data) return;
@@ -190,7 +190,7 @@ window.addEventListener('DOMContentLoaded', () => {
         if (data.borderRadius !== undefined) el.style.borderRadius = data.borderRadius;
         if (data.outline !== undefined) el.style.outline = data.outline;
         if (data.outlineOffset !== undefined) el.style.outlineOffset = data.outlineOffset;
-		if (data.boxShadow !== undefined) el.style.boxShadow = data.boxShadow;
+        if (data.boxShadow !== undefined) el.style.boxShadow = data.boxShadow;
 
         if (data.backgroundColor !== undefined) el.style.backgroundColor = data.backgroundColor;
         if (data.backgroundImage !== undefined) el.style.backgroundImage = data.backgroundImage;
@@ -213,31 +213,31 @@ window.addEventListener('DOMContentLoaded', () => {
             borderRadius: cs.borderRadius,
             outline: cs.outline,
             outlineOffset: cs.outlineOffset,
-			boxShadow: cs.boxShadow,
+            boxShadow: cs.boxShadow,
             backgroundColor: cs.backgroundColor,
             backgroundImage: cs.backgroundImage,
             backgroundSize: cs.backgroundSize,
             color: cs.color,
             fontSize: cs.fontSize,
             label: (el.textContent || '').trim()
-		};
+        };
 
-		if (el.dataset && el.dataset.btn) {
-			const key = el.dataset.btn;
-			if (appState.buttons?.[key]?.label !== undefined) {
-				snap.label = appState.buttons[key].label;
-			} else {
-				snap.label = (el.textContent || '').trim();
-			}
-		}
-		
-		if (snap.backgroundSize && snap.backgroundSize !== "auto") {
-			const num = parseInt(snap.backgroundSize);
-			if (!isNaN(num)) {
-				snap.backgroundSize = num + "px auto";
-			}
-		}
-		
+        if (el.dataset && el.dataset.btn) {
+            const key = el.dataset.btn;
+            if (appState.buttons?.[key]?.label !== undefined) {
+                snap.label = appState.buttons[key].label;
+            } else {
+                snap.label = (el.textContent || '').trim();
+            }
+        }
+
+        if (snap.backgroundSize && snap.backgroundSize !== "auto") {
+            const num = parseInt(snap.backgroundSize);
+            if (!isNaN(num)) {
+                snap.backgroundSize = num + "px auto";
+            }
+        }
+
         if (el === eightWayWrapper && appState.eightWayWrapper?.arrowSize !== undefined) {
             snap.arrowSize = appState.eightWayWrapper.arrowSize;
         }
@@ -261,7 +261,7 @@ window.addEventListener('DOMContentLoaded', () => {
         selected = el;
         selected.classList.add('selected');
         selected.classList.add('selectedOutline');
-		updatePanelForSelection()
+        updatePanelForSelection()
         if (colorPanel.style.display === 'block' || colorPanel.style.display === 'flex') panelAnchorTarget = selected;
     }
 
@@ -282,7 +282,7 @@ window.addEventListener('DOMContentLoaded', () => {
         currentPreviewTarget = null;
     }
 
-    // 8-way direction	
+    // 8-way direction
     function updateArrowHighlights(idx) {
         for (let i = 0; i < 8; i++) {
             const arrow = document.getElementById('arrow' + i);
@@ -343,26 +343,26 @@ window.addEventListener('DOMContentLoaded', () => {
             input.focus();
             input.select();
 
-			function save() {
-				const newLabel = input.value.trim();				
-				if (btn.contains(input)) {
-					btn.removeChild(input);
-				}
-				btn.textContent = newLabel;				
-				appState.buttons[btn.dataset.btn] = appState.buttons[btn.dataset.btn] || {};
-				appState.buttons[btn.dataset.btn].label = newLabel;
-				saveState();
-			}
+            function save() {
+                const newLabel = input.value.trim();
+                if (btn.contains(input)) {
+                    btn.removeChild(input);
+                }
+                btn.textContent = newLabel;
+                appState.buttons[btn.dataset.btn] = appState.buttons[btn.dataset.btn] || {};
+                appState.buttons[btn.dataset.btn].label = newLabel;
+                saveState();
+            }
             input.addEventListener('blur', save);
-			input.addEventListener('keydown', ev => {
-				if (ev.key === 'Enter') {
-					save();
-				}
-				if (ev.key === 'Escape') {
-					if (btn.contains(input)) btn.removeChild(input);
-					btn.textContent = old;
-				}
-			});
+            input.addEventListener('keydown', ev => {
+                if (ev.key === 'Enter') {
+                    save();
+                }
+                if (ev.key === 'Escape') {
+                    if (btn.contains(input)) btn.removeChild(input);
+                    btn.textContent = old;
+                }
+            });
             e.stopPropagation();
         });
     });
@@ -371,295 +371,295 @@ window.addEventListener('DOMContentLoaded', () => {
     let colorMode = localStorage.getItem('colorMode') || 'bg';
     let outlineWidth = 4;
 
-	function openColorPanel(anchorTarget, x, y) {
-		panelAnchorTarget = anchorTarget;
-		revertPreview();
-		colorPanel.innerHTML = '';
+    function openColorPanel(anchorTarget, x, y) {
+        panelAnchorTarget = anchorTarget;
+        revertPreview();
+        colorPanel.innerHTML = '';
 
-		// --- Mode toggle row ---
-		const toggle = document.createElement('div');
-		toggle.className = 'modeToggle';
-		toggle.style.display = "flex";
-		toggle.style.alignItems = "center";
-		toggle.style.justifyContent = "space-between";
-		toggle.style.gap = "8px";
+        // --- Mode toggle row ---
+        const toggle = document.createElement('div');
+        toggle.className = 'modeToggle';
+        toggle.style.display = "flex";
+        toggle.style.alignItems = "center";
+        toggle.style.justifyContent = "space-between";
+        toggle.style.gap = "8px";
 
-		const leftGroup = document.createElement('div');
-		leftGroup.style.display = "flex";
-		leftGroup.style.gap = "8px";
+        const leftGroup = document.createElement('div');
+        leftGroup.style.display = "flex";
+        leftGroup.style.gap = "8px";
 
-		const bgDiv = document.createElement('div');
-		bgDiv.className = 'modeBtn bgBtn';
-		bgDiv.textContent = 'FILL';
+        const bgDiv = document.createElement('div');
+        bgDiv.className = 'modeBtn bgBtn';
+        bgDiv.textContent = 'FILL';
 
-		const txtDiv = document.createElement('div');
-		txtDiv.className = 'modeBtn txtBtn';
-		txtDiv.textContent = 'TEXT';
+        const txtDiv = document.createElement('div');
+        txtDiv.className = 'modeBtn txtBtn';
+        txtDiv.textContent = 'TEXT';
 
-		const outlineDiv = document.createElement('div');
-		outlineDiv.className = 'modeBtn outlineBtn';
-		outlineDiv.textContent = 'STROKE';
+        const outlineDiv = document.createElement('div');
+        outlineDiv.className = 'modeBtn outlineBtn';
+        outlineDiv.textContent = 'STROKE';
 
-		leftGroup.appendChild(bgDiv);
-		leftGroup.appendChild(txtDiv);
-		leftGroup.appendChild(outlineDiv);
-		toggle.appendChild(leftGroup);
+        leftGroup.appendChild(bgDiv);
+        leftGroup.appendChild(txtDiv);
+        leftGroup.appendChild(outlineDiv);
+        toggle.appendChild(leftGroup);
 
-		// --- Sliders wrapper ---
-		const sliderWrapper = document.createElement('div');
-		sliderWrapper.style.display = "none";
-		sliderWrapper.style.alignItems = "center";
-		sliderWrapper.style.gap = "10px";
+        // --- Sliders wrapper ---
+        const sliderWrapper = document.createElement('div');
+        sliderWrapper.style.display = "none";
+        sliderWrapper.style.alignItems = "center";
+        sliderWrapper.style.gap = "10px";
 
-		// Inner slider (outline width)
-		const innerLabel = document.createElement('span');
-		innerLabel.textContent = "In";
+        // Inner slider (outline width)
+        const innerLabel = document.createElement('span');
+        innerLabel.textContent = "In";
 
-		const innerSlider = document.createElement('input');
-		innerSlider.type = 'range';
-		innerSlider.min = 0;
-		innerSlider.max = 15;
-		innerSlider.step = 1;
-		innerSlider.style.width = "80px";
+        const innerSlider = document.createElement('input');
+        innerSlider.type = 'range';
+        innerSlider.min = 0;
+        innerSlider.max = 15;
+        innerSlider.step = 1;
+        innerSlider.style.width = "80px";
 
-		const innerValue = document.createElement('span');
+        const innerValue = document.createElement('span');
 
-		// Outer slider (box-shadow spread)
-		const outerLabel = document.createElement('span');
-		outerLabel.textContent = "Out";
+        // Outer slider (box-shadow spread)
+        const outerLabel = document.createElement('span');
+        outerLabel.textContent = "Out";
 
-		const outerSlider = document.createElement('input');
-		outerSlider.type = 'range';
-		outerSlider.min = 0;
-		outerSlider.max = 15;
-		outerSlider.step = 1;
-		outerSlider.style.width = "80px";
+        const outerSlider = document.createElement('input');
+        outerSlider.type = 'range';
+        outerSlider.min = 0;
+        outerSlider.max = 15;
+        outerSlider.step = 1;
+        outerSlider.style.width = "80px";
 
-		const outerValue = document.createElement('span');
+        const outerValue = document.createElement('span');
 
-		sliderWrapper.appendChild(innerLabel);
-		sliderWrapper.appendChild(innerSlider);
-		sliderWrapper.appendChild(innerValue);
-		sliderWrapper.appendChild(outerLabel);
-		sliderWrapper.appendChild(outerSlider);
-		sliderWrapper.appendChild(outerValue);
-		toggle.appendChild(sliderWrapper);
-		colorPanel.appendChild(toggle);
+        sliderWrapper.appendChild(innerLabel);
+        sliderWrapper.appendChild(innerSlider);
+        sliderWrapper.appendChild(innerValue);
+        sliderWrapper.appendChild(outerLabel);
+        sliderWrapper.appendChild(outerSlider);
+        sliderWrapper.appendChild(outerValue);
+        toggle.appendChild(sliderWrapper);
+        colorPanel.appendChild(toggle);
 
-		// --- Mode toggles ---
-		let mode = colorMode;
-		if (mode === 'bg') bgDiv.classList.add('active');
-		if (mode === 'text') txtDiv.classList.add('active');
-		if (mode === 'outline') {
-			outlineDiv.classList.add('active');
-			sliderWrapper.style.display = "flex";
-			updatePanelForSelection();
-		}
+        // --- Mode toggles ---
+        let mode = colorMode;
+        if (mode === 'bg') bgDiv.classList.add('active');
+        if (mode === 'text') txtDiv.classList.add('active');
+        if (mode === 'outline') {
+            outlineDiv.classList.add('active');
+            sliderWrapper.style.display = "flex";
+            updatePanelForSelection();
+        }
 
-		bgDiv.addEventListener('click', () => {
-			mode = 'bg';
-			colorMode = 'bg';
-			bgDiv.classList.add('active');
-			txtDiv.classList.remove('active');
-			outlineDiv.classList.remove('active');
-			sliderWrapper.style.display = "none";
-		});
+        bgDiv.addEventListener('click', () => {
+            mode = 'bg';
+            colorMode = 'bg';
+            bgDiv.classList.add('active');
+            txtDiv.classList.remove('active');
+            outlineDiv.classList.remove('active');
+            sliderWrapper.style.display = "none";
+        });
 
-		txtDiv.addEventListener('click', () => {
-			mode = 'text';
-			colorMode = 'text';
-			txtDiv.classList.add('active');
-			bgDiv.classList.remove('active');
-			outlineDiv.classList.remove('active');
-			sliderWrapper.style.display = "none";
-		});
+        txtDiv.addEventListener('click', () => {
+            mode = 'text';
+            colorMode = 'text';
+            txtDiv.classList.add('active');
+            bgDiv.classList.remove('active');
+            outlineDiv.classList.remove('active');
+            sliderWrapper.style.display = "none";
+        });
 
-		outlineDiv.addEventListener('click', () => {
-			mode = 'outline';
-			colorMode = 'outline';
-			outlineDiv.classList.add('active');
-			bgDiv.classList.remove('active');
-			txtDiv.classList.remove('active');
-			sliderWrapper.style.display = "flex";
-			updatePanelForSelection();
-		});
+        outlineDiv.addEventListener('click', () => {
+            mode = 'outline';
+            colorMode = 'outline';
+            outlineDiv.classList.add('active');
+            bgDiv.classList.remove('active');
+            txtDiv.classList.remove('active');
+            sliderWrapper.style.display = "flex";
+            updatePanelForSelection();
+        });
 
-		// --- Slider input events ---
-		innerSlider.addEventListener('input', () => {
-			const applyTarget = selected || panelAnchorTarget;
-			if (!applyTarget) return;
-			const btnId = applyTarget.dataset?.btn;
+        // --- Slider input events ---
+        innerSlider.addEventListener('input', () => {
+            const applyTarget = selected || panelAnchorTarget;
+            if (!applyTarget) return;
+            const btnId = applyTarget.dataset?.btn;
 
-			let width = Math.max(0, Math.min(15, parseInt(innerSlider.value)));
-			innerSlider.nextElementSibling.textContent = width;
+            let width = Math.max(0, Math.min(15, parseInt(innerSlider.value)));
+            innerSlider.nextElementSibling.textContent = width;
 
-			// Get current outline color
-			let color = "black";
-			if (btnId && appState.buttons[btnId]?.outlineColor) color = appState.buttons[btnId].outlineColor;
-			else {
-				const cs = window.getComputedStyle(applyTarget);
-				color = cs.outlineColor && cs.outlineColor !== "invert" ? cs.outlineColor : "black";
-			}
+            // Get current outline color
+            let color = "black";
+            if (btnId && appState.buttons[btnId]?.outlineColor) color = appState.buttons[btnId].outlineColor;
+            else {
+                const cs = window.getComputedStyle(applyTarget);
+                color = cs.outlineColor && cs.outlineColor !== "invert" ? cs.outlineColor : "black";
+            }
 
-			applyTarget.style.outline = `${width}px solid ${color}`;
-			applyTarget.style.outlineOffset = `-${width}px`;
+            applyTarget.style.outline = `${width}px solid ${color}`;
+            applyTarget.style.outlineOffset = `-${width}px`;
 
-			if (btnId) {
-				appState.buttons[btnId] = appState.buttons[btnId] || {};
-				appState.buttons[btnId].outlineWidth = width;
-				appState.buttons[btnId].outlineColor = color;
-			}
+            if (btnId) {
+                appState.buttons[btnId] = appState.buttons[btnId] || {};
+                appState.buttons[btnId].outlineWidth = width;
+                appState.buttons[btnId].outlineColor = color;
+            }
 
-			saveState();
-		});
+            saveState();
+        });
 
-		outerSlider.addEventListener('input', () => {
-			const applyTarget = selected || panelAnchorTarget;
-			if (!applyTarget) return;
-			const btnId = applyTarget.dataset?.btn;
+        outerSlider.addEventListener('input', () => {
+            const applyTarget = selected || panelAnchorTarget;
+            if (!applyTarget) return;
+            const btnId = applyTarget.dataset?.btn;
 
-			let spread = Math.max(0, Math.min(15, parseInt(outerSlider.value)));
-			outerSlider.nextElementSibling.textContent = spread;
+            let spread = Math.max(0, Math.min(15, parseInt(outerSlider.value)));
+            outerSlider.nextElementSibling.textContent = spread;
 
-			applyTarget.style.boxShadow = `0 0 0 ${spread}px black`;
+            applyTarget.style.boxShadow = `0 0 0 ${spread}px black`;
 
-			if (btnId) {
-				appState.buttons[btnId] = appState.buttons[btnId] || {};
-				appState.buttons[btnId].boxShadowSpread = spread;
-			}
+            if (btnId) {
+                appState.buttons[btnId] = appState.buttons[btnId] || {};
+                appState.buttons[btnId].boxShadowSpread = spread;
+            }
 
-			saveState();
-		});
+            saveState();
+        });
 
-		// --- Swatch container ---
-		const swatchContainer = document.createElement('div');
-		swatchContainer.className = 'swatchContainer';
+        // --- Swatch container ---
+        const swatchContainer = document.createElement('div');
+        swatchContainer.className = 'swatchContainer';
 
-		palette.forEach(c => {
-			const s = document.createElement('div');
-			s.className = 'swatch';
-			s.dataset.color = c;
-			s.title = c;
-			s.style.background = c;
+        palette.forEach(c => {
+            const s = document.createElement('div');
+            s.className = 'swatch';
+            s.dataset.color = c;
+            s.title = c;
+            s.style.background = c;
 
-			s.addEventListener('click', () => {
-				const applyTarget = selected || panelAnchorTarget;
-				if (!applyTarget) return;
-				const btnId = applyTarget.dataset?.btn;
+            s.addEventListener('click', () => {
+                const applyTarget = selected || panelAnchorTarget;
+                if (!applyTarget) return;
+                const btnId = applyTarget.dataset?.btn;
 
-				if (mode === 'bg') {
-					applyTarget.style.backgroundColor = c;
-					if (btnId) {
-						appState.buttons[btnId] = appState.buttons[btnId] || {};
-						appState.buttons[btnId].backgroundColor = c;
-					}
-				} else if (mode === 'text') {
-					applyTarget.style.color = c;
-					if (btnId) {
-						appState.buttons[btnId] = appState.buttons[btnId] || {};
-						appState.buttons[btnId].color = c;
-					} else if (applyTarget === base) {
-						appState.base.color = c;
-					}
-				} else if (mode === 'outline') {
-					const width = parseInt(innerSlider.value) || 0;
-					const spread = parseInt(outerSlider.value) || 0;
+                if (mode === 'bg') {
+                    applyTarget.style.backgroundColor = c;
+                    if (btnId) {
+                        appState.buttons[btnId] = appState.buttons[btnId] || {};
+                        appState.buttons[btnId].backgroundColor = c;
+                    }
+                } else if (mode === 'text') {
+                    applyTarget.style.color = c;
+                    if (btnId) {
+                        appState.buttons[btnId] = appState.buttons[btnId] || {};
+                        appState.buttons[btnId].color = c;
+                    } else if (applyTarget === base) {
+                        appState.base.color = c;
+                    }
+                } else if (mode === 'outline') {
+                    const width = parseInt(innerSlider.value) || 0;
+                    const spread = parseInt(outerSlider.value) || 0;
 
-					applyTarget.style.outline = `${width}px solid ${c}`;
-					applyTarget.style.outlineOffset = `-${width}px`;
-					applyTarget.style.boxShadow = `0 0 0 ${spread}px black`;
+                    applyTarget.style.outline = `${width}px solid ${c}`;
+                    applyTarget.style.outlineOffset = `-${width}px`;
+                    applyTarget.style.boxShadow = `0 0 0 ${spread}px black`;
 
-					if (btnId) {
-						appState.buttons[btnId] = appState.buttons[btnId] || {};
-						appState.buttons[btnId].outlineWidth = width;
-						appState.buttons[btnId].outlineColor = c;
-						appState.buttons[btnId].boxShadowSpread = spread;
-					}
-				}
-				saveState();
-			});
+                    if (btnId) {
+                        appState.buttons[btnId] = appState.buttons[btnId] || {};
+                        appState.buttons[btnId].outlineWidth = width;
+                        appState.buttons[btnId].outlineColor = c;
+                        appState.buttons[btnId].boxShadowSpread = spread;
+                    }
+                }
+                saveState();
+            });
 
-			swatchContainer.appendChild(s);
-		});
+            swatchContainer.appendChild(s);
+        });
 
-		colorPanel.appendChild(swatchContainer);
+        colorPanel.appendChild(swatchContainer);
 
-		// --- Clamp panel to viewport ---
-		colorPanel.style.display = 'block';
-		colorPanel.style.left = '0px';
-		colorPanel.style.top = '0px';
+        // --- Clamp panel to viewport ---
+        colorPanel.style.display = 'block';
+        colorPanel.style.left = '0px';
+        colorPanel.style.top = '0px';
 
-		const panelRect = colorPanel.getBoundingClientRect();
-		const viewportWidth = window.innerWidth;
-		const viewportHeight = window.innerHeight;
+        const panelRect = colorPanel.getBoundingClientRect();
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
 
-		let left = x;
-		let top = y + 40;
+        let left = x;
+        let top = y + 40;
 
-		if (left + panelRect.width > viewportWidth) {
-			left = Math.max(8, viewportWidth - panelRect.width - 10);
-		}
-		if (top + panelRect.height > viewportHeight) {
-			top = Math.max(8, viewportHeight - panelRect.height - 10);
-		}
+        if (left + panelRect.width > viewportWidth) {
+            left = Math.max(8, viewportWidth - panelRect.width - 10);
+        }
+        if (top + panelRect.height > viewportHeight) {
+            top = Math.max(8, viewportHeight - panelRect.height - 10);
+        }
 
-		colorPanel.style.left = left + 'px';
-		colorPanel.style.top = top + 'px';
-	}
+        colorPanel.style.left = left + 'px';
+        colorPanel.style.top = top + 'px';
+    }
 
-	function updatePanelForSelection() {
-		if (!colorPanel || colorMode !== 'outline') return;
+    function updatePanelForSelection() {
+        if (!colorPanel || colorMode !== 'outline') return;
 
-		const sliders = colorPanel.querySelectorAll('input[type="range"]');
-		if (sliders.length < 2) return;
+        const sliders = colorPanel.querySelectorAll('input[type="range"]');
+        if (sliders.length < 2) return;
 
-		const innerSlider = sliders[0];
-		const innerValue = innerSlider.nextElementSibling;
+        const innerSlider = sliders[0];
+        const innerValue = innerSlider.nextElementSibling;
 
-		const outerSlider = sliders[1];
-		const outerValue = outerSlider.nextElementSibling;
+        const outerSlider = sliders[1];
+        const outerValue = outerSlider.nextElementSibling;
 
-		const applyTarget = selected || panelAnchorTarget;
-		if (!applyTarget) return;
+        const applyTarget = selected || panelAnchorTarget;
+        if (!applyTarget) return;
 
-		const btnId = applyTarget.dataset?.btn;
-		const cs = window.getComputedStyle(applyTarget);
+        const btnId = applyTarget.dataset?.btn;
+        const cs = window.getComputedStyle(applyTarget);
 
-		// --- Outline width ---
-		let outlineWidth = 0;
-		let outlineColor = "black";
-		if (btnId && appState.buttons[btnId]?.outlineWidth != null) {
-			outlineWidth = appState.buttons[btnId].outlineWidth;
-			outlineColor = appState.buttons[btnId].outlineColor ?? "black";
-		} else {
-			outlineWidth = parseInt(cs.outlineWidth) || 0;
-			outlineColor = cs.outlineColor && cs.outlineColor !== "invert" ? cs.outlineColor : "black";
-		}
-		outlineWidth = Math.max(0, Math.min(10, outlineWidth));
+        // --- Outline width ---
+        let outlineWidth = 0;
+        let outlineColor = "black";
+        if (btnId && appState.buttons[btnId]?.outlineWidth != null) {
+            outlineWidth = appState.buttons[btnId].outlineWidth;
+            outlineColor = appState.buttons[btnId].outlineColor ?? "black";
+        } else {
+            outlineWidth = parseInt(cs.outlineWidth) || 0;
+            outlineColor = cs.outlineColor && cs.outlineColor !== "invert" ? cs.outlineColor : "black";
+        }
+        outlineWidth = Math.max(0, Math.min(10, outlineWidth));
 
-		// --- Box-shadow spread ---
-		let spread = 0;
-		if (btnId && appState.buttons[btnId]?.boxShadowSpread != null) {
-			spread = appState.buttons[btnId].boxShadowSpread;
-		} else {
-			// Parse computed boxShadow string
-			const boxShadow = cs.boxShadow; // e.g., "0 0 0 4px black"
-			if (boxShadow && boxShadow !== "none") {
-				const parts = boxShadow.match(/-?\d+px/g);
-				if (parts && parts.length >= 4) {
-					spread = parseInt(parts[3]) || 0;
-				}
-			}
-		}
-		spread = Math.max(0, Math.min(10, spread));
+        // --- Box-shadow spread ---
+        let spread = 0;
+        if (btnId && appState.buttons[btnId]?.boxShadowSpread != null) {
+            spread = appState.buttons[btnId].boxShadowSpread;
+        } else {
+            // Parse computed boxShadow string
+            const boxShadow = cs.boxShadow; // e.g., "0 0 0 4px black"
+            if (boxShadow && boxShadow !== "none") {
+                const parts = boxShadow.match(/-?\d+px/g);
+                if (parts && parts.length >= 4) {
+                    spread = parseInt(parts[3]) || 0;
+                }
+            }
+        }
+        spread = Math.max(0, Math.min(10, spread));
 
-		// --- Update sliders only ---
-		innerSlider.value = outlineWidth;
-		if (innerValue) innerValue.textContent = outlineWidth;
+        // --- Update sliders only ---
+        innerSlider.value = outlineWidth;
+        if (innerValue) innerValue.textContent = outlineWidth;
 
-		outerSlider.value = spread;
-		if (outerValue) outerValue.textContent = spread;
-	}
+        outerSlider.value = spread;
+        if (outerValue) outerValue.textContent = spread;
+    }
 
     // Keyboard & Hotkeys
     document.addEventListener('keydown', (e) => {
@@ -989,141 +989,144 @@ window.addEventListener('DOMContentLoaded', () => {
     const moveDelay = 120;
     const moveStep = 10;
 
-	function handleDpadMovement(pad) {
-		if (!pad) return -1; // neutral
-		const now = performance.now();
+    // Fix Start: move moveSelected outside
+    function moveSelected(dx, dy, key) {
+        if (!selected) return;
+        const cs = window.getComputedStyle(selected);
+        let top = parseInt(cs.top) || 0;
+        let left = parseInt(cs.left) || 0;
+        top = Math.max(0, top + dy);
+        left = Math.max(0, left + dx);
+        selected.style.top = top + "px";
+        selected.style.left = left + "px";
 
-		function moveSelected(dx, dy, key) {
-			if (!selected) return;
-			const cs = window.getComputedStyle(selected);
-			let top = parseInt(cs.top) || 0;
-			let left = parseInt(cs.left) || 0;
-			top = Math.max(0, top + dy);
-			left = Math.max(0, left + dx);
-			selected.style.top = top + "px";
-			selected.style.left = left + "px";
+        if (selected.classList.contains('btn')) {
+            const name = selected.dataset.btn;
+            appState.buttons[name] = appState.buttons[name] || {};
+            appState.buttons[name].top = selected.style.top;
+            appState.buttons[name].left = selected.style.left;
+        } else if (selected === stickWrapper) {
+            appState.joystick.top = selected.style.top;
+            appState.joystick.left = selected.style.left;
+        } else if (selected === eightWayWrapper) {
+            appState.eightWayWrapper.top = selected.style.top;
+            appState.eightWayWrapper.left = selected.style.left;
+        }
 
-			if (selected.classList.contains('btn')) {
-				const name = selected.dataset.btn;
-				appState.buttons[name] = appState.buttons[name] || {};
-				appState.buttons[name].top = selected.style.top;
-				appState.buttons[name].left = selected.style.left;
-			} else if (selected === stickWrapper) {
-				appState.joystick.top = selected.style.top;
-				appState.joystick.left = selected.style.left;
-			} else if (selected === eightWayWrapper) {
-				appState.eightWayWrapper.top = selected.style.top;
-				appState.eightWayWrapper.left = selected.style.left;
-			}
+        saveState();
+        showToast(`x:${left}, y:${top}`, 500);
+        elementMoveTimers[key] = performance.now();
+    }
+    // Fix End: move moveSelected outside
 
-			saveState();
-			showToast(`x:${left}, y:${top}`, 500);
-			elementMoveTimers[key] = now;
-		}
-		// default to neutral
-		let direction = -1;
+    function handleDpadMovement(pad) {
+        if (!pad) return -1; // neutral
+        const now = performance.now();
 
-		// XInput
-		const dirs = [
-			{ btn: 12, dx: 0, dy: -moveStep, key: 'up', idx: 6 },  // ↑
-			{ btn: 13, dx: 0, dy:  moveStep, key: 'down', idx: 2 }, // ↓
-			{ btn: 14, dx: -moveStep, dy: 0, key: 'left', idx: 4 }, // ←
-			{ btn: 15, dx:  moveStep, dy: 0, key: 'right', idx: 0 } // →
-		];
-		const pressed = {};
-		dirs.forEach(d => {
-			if (pad.buttons[d.btn]?.pressed) {
-				pressed[d.key] = true;
-				if (now - elementMoveTimers[d.key] > moveDelay) {
-					moveSelected(d.dx, d.dy, d.key);
-				}
-			}
-		});
-		// detect diagonals for XInput (combo presses)
-		if (pressed.up && pressed.left) direction = 5;   // ↖
-		else if (pressed.up && pressed.right) direction = 7; // ↗
-		else if (pressed.down && pressed.left) direction = 3; // ↙
-		else if (pressed.down && pressed.right) direction = 1; // ↘
-		else if (pressed.up) direction = 6;
-		else if (pressed.down) direction = 2;
-		else if (pressed.left) direction = 4;
-		else if (pressed.right) direction = 0;
+        // default to neutral
+        let direction = -1;
 
-		// PS / DirectInput fallback: axes[9] hat
-		if (direction === -1 && pad.axes && pad.axes.length > 9) {
-			const hat = pad.axes[9];
-			if (typeof hat === "number") {
-				if (now - elementMoveTimers['hat'] > moveDelay) {
-					// Typical mapping:
-					// -1 = up, -0.714 = up-right, -0.428 = right, -0.142 = down-right,
-					// 0.142 = down, 0.428 = down-left, 0.714 = left, 1.0 = up-left
-					const rounded = Math.round(hat * 7); // scale to -7..7
-					switch (rounded) {
-						case -7: direction = 6; moveSelected(0, -moveStep, 'hat'); break; // ↑
-						case -5: direction = 7; moveSelected(moveStep, -moveStep, 'hat'); break; // ↗
-						case -3: direction = 0; moveSelected(moveStep, 0, 'hat'); break; // →
-						case -1: direction = 1; moveSelected(moveStep, moveStep, 'hat'); break; // ↘
-						case 1:  direction = 2; moveSelected(0, moveStep, 'hat'); break; // ↓
-						case 3:  direction = 3; moveSelected(-moveStep, moveStep, 'hat'); break; // ↙
-						case 5:  direction = 4; moveSelected(-moveStep, 0, 'hat'); break; // ←
-						case 7:  direction = 5; moveSelected(-moveStep, -moveStep, 'hat'); break; // ↖
-					}
-				}
-			}
-		}
-		  const lx = pad.axes[0], ly = pad.axes[1];
-		  if (Math.abs(lx) > 0.3 || Math.abs(ly) > 0.3) {
-			const angle = Math.atan2(ly, lx); // radians
-			const oct = Math.round(8 * angle / (2 * Math.PI) + 8) % 8;
-			direction = oct; // 0=→, 2=↓, 4=←, 6=↑, odd=diagonals
-		  }
-		return direction; // -1 = neutral, 0–7 = 8-way
-	}
-	
-	function handleStickMovement(pad) {
-	  if (!pad) return;
-	  const now = performance.now();
+        // XInput
+        const dirs = [
+            { btn: 12, dx: 0, dy: -moveStep, key: 'up', idx: 6 },  // ↑
+            { btn: 13, dx: 0, dy:  moveStep, key: 'down', idx: 2 }, // ↓
+            { btn: 14, dx: -moveStep, dy: 0, key: 'left', idx: 4 }, // ←
+            { btn: 15, dx:  moveStep, dy: 0, key: 'right', idx: 0 } // →
+        ];
+        const pressed = {};
+        dirs.forEach(d => {
+            if (pad.buttons[d.btn]?.pressed) {
+                pressed[d.key] = true;
+                if (now - elementMoveTimers[d.key] > moveDelay) {
+                    moveSelected(d.dx, d.dy, d.key);
+                }
+            }
+        });
+        // detect diagonals for XInput (combo presses)
+        if (pressed.up && pressed.left) direction = 5;   // ↖
+        else if (pressed.up && pressed.right) direction = 7; // ↗
+        else if (pressed.down && pressed.left) direction = 3; // ↙
+        else if (pressed.down && pressed.right) direction = 1; // ↘
+        else if (pressed.up) direction = 6;
+        else if (pressed.down) direction = 2;
+        else if (pressed.left) direction = 4;
+        else if (pressed.right) direction = 0;
 
-	  // --- element movement (throttled) ---
-	  if (selected) {
-		const ls = getAnalogStick(pad, 'left', cfg.deadzone, cfg.invertY);
-		const rs = getAnalogStick(pad, 'right', cfg.deadzone, cfg.invertY);
+        // PS / DirectInput fallback: axes[9] hat
+        if (direction === -1 && pad.axes && pad.axes.length > 9) {
+            const hat = pad.axes[9];
+            if (typeof hat === "number") {
+                if (now - elementMoveTimers['hat'] > moveDelay) {
+                    // Typical mapping:
+                    // -1 = up, -0.714 = up-right, -0.428 = right, -0.142 = down-right,
+                    // 0.142 = down, 0.428 = down-left, 0.714 = left, 1.0 = up-left
+                    const rounded = Math.round(hat * 7); // scale to -7..7
+                    switch (rounded) {
+                        case -7: direction = 6; moveSelected(0, -moveStep, 'hat'); break; // ↑
+                        case -5: direction = 7; moveSelected(moveStep, -moveStep, 'hat'); break; // ↗
+                        case -3: direction = 0; moveSelected(moveStep, 0, 'hat'); break; // →
+                        case -1: direction = 1; moveSelected(moveStep, moveStep, 'hat'); break; // ↘
+                        case 1:  direction = 2; moveSelected(0, moveStep, 'hat'); break; // ↓
+                        case 3:  direction = 3; moveSelected(-moveStep, moveStep, 'hat'); break; // ↙
+                        case 5:  direction = 4; moveSelected(-moveStep, 0, 'hat'); break; // ←
+                        case 7:  direction = 5; moveSelected(-moveStep, -moveStep, 'hat'); break; // ↖
+                    }
+                }
+            }
+        }
+        const lx = pad.axes[0], ly = pad.axes[1];
+        if (Math.abs(lx) > 0.3 || Math.abs(ly) > 0.3) {
+            const angle = Math.atan2(ly, lx); // radians
+            const oct = Math.round(8 * angle / (2 * Math.PI) + 8) % 8;
+            direction = oct; // 0=→, 2=↓, 4=←, 6=↑, odd=diagonals
+        }
+        return direction; // -1 = neutral, 0–7 = 8-way
+    }
 
-		if ((Math.abs(ls.x) > 0.15 || Math.abs(ls.y) > 0.15) &&
-			now - (elementMoveTimers['ls'] || 0) > moveDelay) {
-		  moveSelected(ls.x * moveStep, ls.y * moveStep, 'ls');
-		}
-		if ((Math.abs(rs.x) > 0.15 || Math.abs(rs.y) > 0.15) &&
-			now - (elementMoveTimers['rs'] || 0) > moveDelay) {
-		  moveSelected(rs.x * moveStep, rs.y * moveStep, 'rs');
-		}
-	  }
+    function handleStickMovement(pad) {
+        if (!pad) return;
+        const now = performance.now();
 
-	  // --- LS visual feedback ---
-	  let ls = getAnalogStick(pad, 'left', cfg.deadzone, cfg.invertY);
-	  if (ls.x === 0 && ls.y === 0) {
-		// force reset
-		if (btnEls['LS']) btnEls['LS'].style.transform = `translate(0px, 0px)`;
-	  } else {
-		if (btnEls['LS']) btnEls['LS'].style.transform = `translate(${ls.x * 8}px, ${ls.y * 8}px)`;
-	  }
+        // --- element movement (throttled) ---
+        if (selected) {
+            const ls = getAnalogStick(pad, 'left', cfg.deadzone, cfg.invertY);
+            const rs = getAnalogStick(pad, 'right', cfg.deadzone, cfg.invertY);
 
-	  // --- RS visual feedback ---
-	  let rs = getAnalogStick(pad, 'right', cfg.deadzone, cfg.invertY);
-	  if (rs.x === 0 && rs.y === 0) {
-		// force reset
-		if (btnEls['RS']) btnEls['RS'].style.transform = `translate(0px, 0px)`;
-	  } else {
-		if (btnEls['RS']) btnEls['RS'].style.transform = `translate(${rs.x * 8}px, ${rs.y * 8}px)`;
-	  }
-	}
-	
-	function stickToCenter(x, y, deadzone = cfg.deadzone) {
-		const mag = Math.hypot(x, y);
-		if (mag < deadzone) return { x: 0, y: 0 }; // snap to center
-		return { x, y };
-	}
-	
+            if ((Math.abs(ls.x) > 0.15 || Math.abs(ls.y) > 0.15) &&
+                now - (elementMoveTimers['ls'] || 0) > moveDelay) {
+                moveSelected(ls.x * moveStep, ls.y * moveStep, 'ls');
+            }
+            if ((Math.abs(rs.x) > 0.15 || Math.abs(rs.y) > 0.15) &&
+                now - (elementMoveTimers['rs'] || 0) > moveDelay) {
+                moveSelected(rs.x * moveStep, rs.y * moveStep, 'rs');
+            }
+        }
+
+        // --- LS visual feedback ---
+        let ls = getAnalogStick(pad, 'left', cfg.deadzone, cfg.invertY);
+        if (ls.x === 0 && ls.y === 0) {
+            // force reset
+            if (btnEls['LS']) btnEls['LS'].style.transform = `translate(0px, 0px)`;
+        } else {
+            if (btnEls['LS']) btnEls['LS'].style.transform = `translate(${ls.x * 8}px, ${ls.y * 8}px)`;
+        }
+
+        // --- RS visual feedback ---
+        let rs = getAnalogStick(pad, 'right', cfg.deadzone, cfg.invertY);
+        if (rs.x === 0 && rs.y === 0) {
+            // force reset
+            if (btnEls['RS']) btnEls['RS'].style.transform = `translate(0px, 0px)`;
+        } else {
+            if (btnEls['RS']) btnEls['RS'].style.transform = `translate(${rs.x * 8}px, ${rs.y * 8}px)`;
+        }
+    }
+
+    function stickToCenter(x, y, deadzone = cfg.deadzone) {
+        const mag = Math.hypot(x, y);
+        if (mag < deadzone) return { x: 0, y: 0 }; // snap to center
+        return { x, y };
+    }
+
     // Analog stick
     function getAnalogStick(pad, stick = 'left', deadzone = 0.1, invertY = false) {
         if (!pad) return { x: 0, y: 0 };
@@ -1177,50 +1180,50 @@ window.addEventListener('DOMContentLoaded', () => {
         return clampRoundedSquare(x, cfg.invertY ? -y : y);
     }
 
-	function positionEightWayArrows() {
-		const rect = eightWayWrapper.getBoundingClientRect();
-		const cx = rect.width / 2;
-		const cy = rect.height / 2;
+    function positionEightWayArrows() {
+        const rect = eightWayWrapper.getBoundingClientRect();
+        const cx = rect.width / 2;
+        const cy = rect.height / 2;
 
-		// Put tips along the perimeter. Keep a tiny margin so things don't get cut off.
-		const radius = Math.min(cx, cy) - 4;
+        // Put tips along the perimeter. Keep a tiny margin so things don't get cut off.
+        const radius = Math.min(cx, cy) - 4;
 
-		for (let i = 0; i < 8; i++) {
-			const angle = (i * 45) * Math.PI / 180;
-			// target point on circumference where the TIP should be
-			const tx = cx + radius * Math.cos(angle);
-			const ty = cy + radius * Math.sin(angle);
+        for (let i = 0; i < 8; i++) {
+            const angle = (i * 45) * Math.PI / 180;
+            // target point on circumference where the TIP should be
+            const tx = cx + radius * Math.cos(angle);
+            const ty = cy + radius * Math.sin(angle);
 
-			const arrow = document.getElementById("arrow" + i);
-			if (!arrow) continue;
+            const arrow = document.getElementById("arrow" + i);
+            if (!arrow) continue;
 
-			// If the arrow's tip is the element's right-center (100% 50%),
-			// the element's top-left should be placed at (tx - width, ty - height/2).
-			const left = tx - arrowSize;
-			const top  = ty - (arrowSize / 2);
+            // If the arrow's tip is the element's right-center (100% 50%),
+            // the element's top-left should be placed at (tx - width, ty - height/2).
+            const left = tx - arrowSize;
+            const top = ty - (arrowSize / 2);
 
-			arrow.style.left = left + "px";
-			arrow.style.top  = top  + "px";
+            arrow.style.left = left + "px";
+            arrow.style.top = top + "px";
 
-			// Rotate so arrows point outward (keeps your original rotate mapping)
-			arrow.style.transformOrigin = "100% 50%"; // tip is right-center
-			arrow.style.transform = `rotate(${i * 45}deg)`;
-		}
-	}
+            // Rotate so arrows point outward (keeps your original rotate mapping)
+            arrow.style.transformOrigin = "100% 50%"; // tip is right-center
+            arrow.style.transform = `rotate(${i * 45}deg)`;
+        }
+    }
 
-	function applyArrowSize() {
-		for (let i = 0; i < 8; i++) {
-			const arrow = document.getElementById("arrow" + i);
-			if (!arrow) continue;
-			arrow.style.width = arrowSize + "px";
-			arrow.style.height = arrowSize + "px";
-			// keep transform origin consistent with positionEightWayArrows
-			arrow.style.transformOrigin = "100% 50%";
-			arrow.style.transform = `rotate(${i * 45}deg)`;
-		}
-		// reposition after resizing so tip-perimeter alignment stays correct
-		positionEightWayArrows();
-	}
+    function applyArrowSize() {
+        for (let i = 0; i < 8; i++) {
+            const arrow = document.getElementById("arrow" + i);
+            if (!arrow) continue;
+            arrow.style.width = arrowSize + "px";
+            arrow.style.height = arrowSize + "px";
+            // keep transform origin consistent with positionEightWayArrows
+            arrow.style.transformOrigin = "100% 50%";
+            arrow.style.transform = `rotate(${i * 45}deg)`;
+        }
+        // reposition after resizing so tip-perimeter alignment stays correct
+        positionEightWayArrows();
+    }
 
     if (window.ResizeObserver) {
         const ro = new ResizeObserver(() => {
@@ -1286,73 +1289,73 @@ window.addEventListener('DOMContentLoaded', () => {
         return null;
     }
 
-	function updateButtonsFromPad(pad) {
-		if (!pad || !pad.buttons) {
-			resetJoystick();
-			Object.values(btnEls).forEach(b => b.classList.remove('active'));
-			return;
-		}
+    function updateButtonsFromPad(pad) {
+        if (!pad || !pad.buttons) {
+            resetJoystick();
+            Object.values(btnEls).forEach(b => b.classList.remove('active'));
+            return;
+        }
 
-		let anyPressed = false;
-		for (const key in btnEls) {
-			// 🚫 Skip LS and RS — handled only by handleStickMovement
-			if (key === "LS" || key === "RS") continue;
+        let anyPressed = false;
+        for (const key in btnEls) {
+            // 🚫 Skip LS and RS — handled only by handleStickMovement
+            if (key === "LS" || key === "RS") continue;
 
-			const idx = map[key];
-			if (idx === undefined) continue;
-			const DEADZONE = 0.45;
+            const idx = map[key];
+            if (idx === undefined) continue;
+            const DEADZONE = 0.45;
 
-			let raw = pad.buttons[idx]?.value || 0;
-			let val = raw < DEADZONE ? 0 : raw;
+            let raw = pad.buttons[idx]?.value || 0;
+            let val = raw < DEADZONE ? 0 : raw;
 
-			if (key === "LTTRIGGER" || key === "RTTRIGGER") {
-				const isActive = val > DEADZONE;
-				btnEls[key].classList.toggle('active', isActive);
+            if (key === "LTTRIGGER" || key === "RTTRIGGER") {
+                const isActive = val > DEADZONE;
+                btnEls[key].classList.toggle('active', isActive);
 
-				if (val < DEADZONE) {
-					btnEls[key].style.filter = "brightness(1.0)";
-					btnEls[key].style.transform = "scale(1)";
-				} else {
-					btnEls[key].style.filter = `brightness(${1.0 + val * 2.5})`;
-					btnEls[key].style.transform = `scale(${1 + val * 0.08})`;
-				}
-				if (isActive) {
-					anyPressed = true;
-					lastPressedTimes[key] = performance.now();
-				}
-			} else {
-				const pressed = !!pad.buttons[idx]?.pressed;
-				btnEls[key].classList.toggle('active', pressed);
-				if (pressed && !cfg.ignoredForJoystick.includes(key)) {
-					anyPressed = true;
-					lastPressedTimes[key] = performance.now();
-				}
-			}
-		}
+                if (val < DEADZONE) {
+                    btnEls[key].style.filter = "brightness(1.0)";
+                    btnEls[key].style.transform = "scale(1)";
+                } else {
+                    btnEls[key].style.filter = `brightness(${1.0 + val * 2.5})`;
+                    btnEls[key].style.transform = `scale(${1 + val * 0.08})`;
+                }
+                if (isActive) {
+                    anyPressed = true;
+                    lastPressedTimes[key] = performance.now();
+                }
+            } else {
+                const pressed = !!pad.buttons[idx]?.pressed;
+                btnEls[key].classList.toggle('active', pressed);
+                if (pressed && !cfg.ignoredForJoystick.includes(key)) {
+                    anyPressed = true;
+                    lastPressedTimes[key] = performance.now();
+                }
+            }
+        }
 
-		// Joystick display logic (unchanged)
-		if (anyPressed) {
-			let active = null, latest = -1;
-			for (const k in lastPressedTimes) {
-				if (btnEls[k].classList.contains('active') &&
-					!cfg.ignoredForJoystick.includes(k) &&
-					lastPressedTimes[k] > latest) {
-					latest = lastPressedTimes[k];
-					active = k;
-				}
-			}
-			if (active) {
-				const cs = getComputedStyle(btnEls[active]);
-				joystick.style.transform = 'translate(-50%,-50%) scale(1.25)';
-				joystick.textContent = btnEls[active].textContent || active;
-				joystick.style.background = cs.backgroundColor;
-				joystick.style.color = cs.color;
-				return;
-			}
-		}
-		saveState();
-		resetJoystick();
-	}
+        // Joystick display logic (unchanged)
+        if (anyPressed) {
+            let active = null, latest = -1;
+            for (const k in lastPressedTimes) {
+                if (btnEls[k].classList.contains('active') &&
+                    !cfg.ignoredForJoystick.includes(k) &&
+                    lastPressedTimes[k] > latest) {
+                    latest = lastPressedTimes[k];
+                    active = k;
+                }
+            }
+            if (active) {
+                const cs = getComputedStyle(btnEls[active]);
+                joystick.style.transform = 'translate(-50%,-50%) scale(1.25)';
+                joystick.textContent = btnEls[active].textContent || active;
+                joystick.style.background = cs.backgroundColor;
+                joystick.style.color = cs.color;
+                return;
+            }
+        }
+        saveState();
+        resetJoystick();
+    }
 
     function resetJoystick() {
         joystick.style.transform = 'translate(-50%,-50%) scale(1)';
@@ -1436,12 +1439,12 @@ window.addEventListener('DOMContentLoaded', () => {
                 applyArrowSize();
             }
         }
-		if (snap.buttons) Object.keys(snap.buttons).forEach(k => {
-			if (btnEls[k]) {
-				applyElement(btnEls[k], snap.buttons[k]);
-				appState.buttons[k] = Object.assign(appState.buttons[k] || {}, snap.buttons[k]);
-			}
-		});
+        if (snap.buttons) Object.keys(snap.buttons).forEach(k => {
+            if (btnEls[k]) {
+                applyElement(btnEls[k], snap.buttons[k]);
+                appState.buttons[k] = Object.assign(appState.buttons[k] || {}, snap.buttons[k]);
+            }
+        });
         appState.lastProfile = n;
         showToast('Profile ' + n + ' loaded', 1000);
         saveState();
@@ -1636,44 +1639,44 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 
     // Animation Loop
-	function animate() {
-	  activeGamepadIndex = detectActiveGamepad();
-	  const pad = (navigator.getGamepads && activeGamepadIndex !== null) 
-		? navigator.getGamepads()[activeGamepadIndex] 
-		: null;
+    function animate() {
+        activeGamepadIndex = detectActiveGamepad();
+        const pad = (navigator.getGamepads && activeGamepadIndex !== null)
+            ? navigator.getGamepads()[activeGamepadIndex]
+            : null;
 
-	  updateButtonsFromPad(pad);
+        updateButtonsFromPad(pad);
 
-	  // D-pad highlights
-	  const dpadDir = handleDpadMovement(pad);
-	  updateArrowHighlights(dpadDir);
+        // D-pad highlights
+        const dpadDir = handleDpadMovement(pad);
+        updateArrowHighlights(dpadDir);
 
-	  // --- Joystick head + trail (use getStickXY to merge LS + Dpad) ---
-	  const { x, y } = getStickXY(pad);
-	  const cx = canvas.width / 2, cy = canvas.height / 2;
-	  const radius = canvas.width / 2 - 25;
-	  const jx = cx + x * radius, jy = cy + y * radius;
-	  joystick.style.left = jx + 'px';
-	  joystick.style.top = jy + 'px';
+        // --- Joystick head + trail (use getStickXY to merge LS + Dpad) ---
+        const { x, y } = getStickXY(pad);
+        const cx = canvas.width / 2, cy = canvas.height / 2;
+        const radius = canvas.width / 2 - 25;
+        const jx = cx + x * radius, jy = cy + y * radius;
+        joystick.style.left = jx + 'px';
+        joystick.style.top = jy + 'px';
 
-	  trail.push({ x, y });
-	  if (trail.length > cfg.trail) trail.shift();
-	  drawTrail(trail);
+        trail.push({ x, y });
+        if (trail.length > cfg.trail) trail.shift();
+        drawTrail(trail);
 
-	  // --- LS/RS button transforms + element movement ---
-	  handleStickMovement(pad);
+        // --- LS/RS button transforms + element movement ---
+        handleStickMovement(pad);
 
-	  // Marker highlights (0–7 = 8-way)
-	  for (let i = 0; i < markers.length; i++) {
-		markers[i].classList.toggle('active', i === dpadDir);
-	  }
+        // Marker highlights (0–7 = 8-way)
+        for (let i = 0; i < markers.length; i++) {
+            markers[i].classList.toggle('active', i === dpadDir);
+        }
 
-	  requestAnimationFrame(animate);
-	}
+        requestAnimationFrame(animate);
+    }
 
     // Boot
     loadState();
-    applyState(); 
+    applyState();
 
     resizeCanvas();
     joystick.style.left = (canvas.width / 2) + 'px';
@@ -1697,5 +1700,5 @@ window.addEventListener('DOMContentLoaded', () => {
         loadState,
         copyLayoutToClipboard
     };
-    setInterval(saveState, 5000);
 });
+    setInterval(saveState, 5000);
