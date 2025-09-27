@@ -62,10 +62,9 @@ window.addEventListener('DOMContentLoaded', () => {
     let appState = {
         buttons: {},
         joystick: {},
+		joystickHead: {},
         base: {},
-        eightWayWrapper: {
-            arrowSize: 90
-        },
+        eightWayWrapper: { arrowSize: 90 },
         hiddenButtons: [],
         trailColor: getComputedStyle(document.documentElement).getPropertyValue('--trail-color') || '#CEEC73',
         profiles: {}
@@ -102,8 +101,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 appState.profiles = Object.assign({}, appState.profiles || {}, parsed.profiles || {});
                 appState.joystick = Object.assign({}, appState.joystick || {}, parsed.joystick || {});
                 appState.base = Object.assign({}, appState.base || {}, parsed.base || {});
-                appState.eightWayWrapper = Object.assign({}, appState.eightWayWrapper || {}, parsed.eightWayWrapper || {});
-                // Arrays and primitives: override if present
+                appState.eightWayWrapper = Object.assign({}, appState.eightWayWrapper || {}, parsed.eightWayWrapper || {});                
                 if (parsed.hiddenButtons !== undefined) appState.hiddenButtons = parsed.hiddenButtons;
                 if (parsed.trailColor !== undefined) appState.trailColor = parsed.trailColor;
                 if (parsed.lastProfile !== undefined) appState.lastProfile = parsed.lastProfile;
@@ -119,7 +117,6 @@ window.addEventListener('DOMContentLoaded', () => {
             const data = appState.buttons[k] || {};
             applyElement(el, data);
 
-            // Existing properties...
             let display = data.display;
             if (display === undefined) {
                 display = appState.hiddenButtons?.includes(k) ? "none" : "flex";
@@ -139,7 +136,6 @@ window.addEventListener('DOMContentLoaded', () => {
                 }
             }
             if (data.label !== undefined && el.dataset?.btn) el.textContent = data.label;
-
             if (data.outlineWidth != null || data.outlineColor != null) {
                 const width = data.outlineWidth ?? 0;
                 const color = data.outlineColor ?? "black";
@@ -151,8 +147,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 el.style.boxShadow = `0 0 0 ${spread}px black`;
             }
         });
-
-        // Existing logic for joystick, base, eightWayWrapper...
+        
         if (appState.joystick) {
             applyElement(stickWrapper, appState.joystick);
             if (appState.joystick.display !== undefined) stickWrapper.style.display = appState.joystick.display;
@@ -221,7 +216,11 @@ window.addEventListener('DOMContentLoaded', () => {
             fontSize: cs.fontSize,
             label: (el.textContent || '').trim()
         };
-
+		
+		if (el !== joystick) {
+			snap.top = cs.top;
+			snap.left = cs.left;
+		}
         if (el.dataset && el.dataset.btn) {
             const key = el.dataset.btn;
             if (appState.buttons?.[key]?.label !== undefined) {
@@ -230,14 +229,12 @@ window.addEventListener('DOMContentLoaded', () => {
                 snap.label = (el.textContent || '').trim();
             }
         }
-
         if (snap.backgroundSize && snap.backgroundSize !== "auto") {
             const num = parseInt(snap.backgroundSize);
             if (!isNaN(num)) {
                 snap.backgroundSize = num + "px auto";
             }
         }
-
         if (el === eightWayWrapper && appState.eightWayWrapper?.arrowSize !== undefined) {
             snap.arrowSize = appState.eightWayWrapper.arrowSize;
         }
@@ -312,7 +309,7 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    [base, stickWrapper, eightWayWrapper].forEach(el => {
+    [base, stickWrapper, eightWayWrapper, joystick].forEach(el => {
         el.addEventListener('mousedown', e => {
             selectElement(el);
             e.stopPropagation();
@@ -942,6 +939,11 @@ window.addEventListener('DOMContentLoaded', () => {
             applyElement(stickWrapper, parsed.joystick);
             if (parsed.joystick.display !== undefined) stickWrapper.style.display = parsed.joystick.display;
         }
+		if (parsed.joystickHead) {
+			appState.joystickHead = { ...parsed.joystickHead };
+			applyElement(joystick, parsed.joystickHead);
+			if (parsed.joystickHead.display !== undefined) joystick.style.display = parsed.joystickHead.display;
+		}
         if (parsed.eightWayWrapper) {
             appState.eightWayWrapper = {
                 ...parsed.eightWayWrapper
@@ -1298,7 +1300,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
         let anyPressed = false;
         for (const key in btnEls) {
-            // 🚫 Skip LS and RS — handled only by handleStickMovement
+            // Skip LS and RS — handled only by handleStickMovement
             // if (key === "LS" || key === "RS") continue;
 
             const idx = map[key];
@@ -1344,25 +1346,39 @@ window.addEventListener('DOMContentLoaded', () => {
                     active = k;
                 }
             }
-            if (active) {
-                const cs = getComputedStyle(btnEls[active]);
-                joystick.style.transform = 'translate(-50%,-50%) scale(1.25)';
-                joystick.textContent = btnEls[active].textContent || active;
-                joystick.style.background = cs.backgroundColor;
-                joystick.style.color = cs.color;
-                return;
-            }
+			if (active) {
+				const cs = getComputedStyle(btnEls[active]);
+				joystick.style.transform = 'translate(-50%,-50%) scale(1.25)';
+				joystick.textContent = btnEls[active].textContent || active;
+				joystick.style.backgroundColor = cs.backgroundColor;
+				joystick.style.color = cs.color;
+
+				if (appState.joystickHead) {
+					if (appState.joystickHead.boxShadow) joystick.style.boxShadow = appState.joystickHead.boxShadow;
+					if (appState.joystickHead.outline) joystick.style.outline = appState.joystickHead.outline;
+					if (appState.joystickHead.borderRadius) joystick.style.borderRadius = appState.joystickHead.borderRadius;
+					if (appState.joystickHead.fontSize) joystick.style.fontSize = appState.joystickHead.fontSize;
+				}
+				return;
+			}
         }
         saveState();
         resetJoystick();
     }
 
-    function resetJoystick() {
-        joystick.style.transform = 'translate(-50%,-50%) scale(1)';
-        joystick.textContent = '';
-        joystick.style.background = 'rgba(120,120,120,1)'; // default
-        joystick.style.color = '#000';
-    }
+	function resetJoystick() {
+		joystick.style.transform = 'translate(-50%,-50%) scale(1)';
+		joystick.textContent = '';
+
+		const head = appState.joystickHead || {};
+
+		if (head.backgroundColor !== undefined) joystick.style.backgroundColor = head.backgroundColor;
+		if (head.color !== undefined) joystick.style.color = head.color;
+		if (head.boxShadow !== undefined) joystick.style.boxShadow = head.boxShadow;
+		if (head.outline !== undefined) joystick.style.outline = head.outline;
+		if (head.borderRadius !== undefined) joystick.style.borderRadius = head.borderRadius;
+		if (head.fontSize !== undefined) joystick.style.fontSize = head.fontSize;
+	}
 
     function resizeCanvas() {
         canvas.width = stickWrapper.clientWidth;
@@ -1403,6 +1419,7 @@ window.addEventListener('DOMContentLoaded', () => {
         const snap = {
             base: captureElement(base),
             joystick: captureElement(stickWrapper),
+			joystickHead: captureElement(joystick),
             eightWayWrapper: captureElement(eightWayWrapper),
             buttons: {}
         };
@@ -1428,6 +1445,18 @@ window.addEventListener('DOMContentLoaded', () => {
             appState.joystick = Object.assign(appState.joystick, snap.joystick);
             if (snap.joystick.display !== undefined) stickWrapper.style.display = snap.joystick.display;
         }
+		if (snap.joystickHead) {
+			applyElement(joystick, snap.joystickHead);
+			appState.joystickHead = Object.assign(appState.joystickHead || {}, snap.joystickHead);
+
+			if (snap.joystickHead.boxShadow !== undefined) {
+				joystick.style.boxShadow = snap.joystickHead.boxShadow;
+			}
+
+			if (snap.joystickHead.display !== undefined) {
+				joystick.style.display = snap.joystickHead.display;
+			}
+		}
         if (snap.eightWayWrapper) {
             applyElement(eightWayWrapper, snap.eightWayWrapper);
             appState.eightWayWrapper = Object.assign(appState.eightWayWrapper, snap.eightWayWrapper);
@@ -1455,6 +1484,7 @@ window.addEventListener('DOMContentLoaded', () => {
         const snap = {
             base: captureElement(base),
             joystick: captureElement(stickWrapper),
+			joystickHead: captureElement(joystick),
             eightWayWrapper: captureElement(eightWayWrapper),
             buttons: {}
         };
@@ -1475,6 +1505,7 @@ window.addEventListener('DOMContentLoaded', () => {
         const snap = {
             base: captureElement(base),
             joystick: captureElement(stickWrapper),
+			joystickHead: captureElement(joystick),
             eightWayWrapper: captureElement(eightWayWrapper),
             buttons: {}
         };
@@ -1670,10 +1701,9 @@ window.addEventListener('DOMContentLoaded', () => {
         for (let i = 0; i < markers.length; i++) {
             markers[i].classList.toggle('active', i === dpadDir);
         }
-
         requestAnimationFrame(animate);
     }
-
+	
     // Boot
     loadState();
     applyState();
@@ -1701,5 +1731,4 @@ window.addEventListener('DOMContentLoaded', () => {
         copyLayoutToClipboard
     };
 });
-    setInterval(saveState, 5000);
-
+setInterval(saveState, 5000);
