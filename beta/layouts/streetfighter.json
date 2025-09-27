@@ -35,6 +35,24 @@
     "fontSize": "16px",
     "label": ""
   },
+  "joystickHead": {
+    "display": "flex",
+    "zIndex": "4",
+    "top": "65px",
+    "left": "65px",
+    "width": "60px",
+    "height": "60px",
+    "borderRadius": "50%",
+    "outline": "rgb(255, 255, 255) none 20px",
+    "outlineOffset": "0px",
+    "boxShadow": "rgba(0, 0, 0, 0.5) 0px 0px 5px 2px",
+    "backgroundColor": "rgb(80, 80, 80)",
+    "backgroundImage": "none",
+    "backgroundSize": "auto",
+    "color": "rgb(0, 0, 0)",
+    "fontSize": "30px",
+    "label": ""
+  },
   "eightWayWrapper": {
     "display": "block",
     "zIndex": "1",

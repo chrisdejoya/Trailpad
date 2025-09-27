@@ -35,6 +35,24 @@
     "fontSize": "16px",
     "label": ""
   },
+  "joystickHead": {
+    "display": "flex",
+    "zIndex": "4",
+    "top": "105px",
+    "left": "105px",
+    "width": "60px",
+    "height": "60px",
+    "borderRadius": "50%",
+    "outline": "rgb(0, 0, 0) none 0px",
+    "outlineOffset": "0px",
+    "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
+    "backgroundColor": "rgb(64, 64, 64)",
+    "backgroundImage": "none",
+    "backgroundSize": "auto",
+    "color": "rgb(0, 0, 0)",
+    "fontSize": "30px",
+    "label": ""
+  },
   "eightWayWrapper": {
     "display": "block",
     "zIndex": "auto",
@@ -47,12 +65,12 @@
     "outlineOffset": "0px",
     "boxShadow": "none",
     "backgroundColor": "rgba(0, 0, 0, 0)",
-    "backgroundImage": "none",
+    "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/images/sf/gate_strive.svg\")",
     "backgroundSize": "auto",
     "color": "rgb(238, 238, 238)",
     "fontSize": "16px",
     "label": "",
-    "arrowSize": 90
+    "arrowSize": "90px"
   },
   "buttons": {
     "Up": {
@@ -345,4 +363,3 @@
     }
   }
 }
-
