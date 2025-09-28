@@ -70,7 +70,7 @@
     "color": "rgb(238, 238, 238)",
     "fontSize": "16px",
     "label": "",
-    "arrowSize": "90px"
+    "arrowSize": "90"
   },
   "buttons": {
     "Up": {
@@ -362,4 +362,5 @@
       "label": "Menu"
     }
   }
+
 }
