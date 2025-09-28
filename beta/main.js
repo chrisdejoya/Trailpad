@@ -171,7 +171,7 @@ window.addEventListener('DOMContentLoaded', () => {
             applyPropertiesToElement(eightWayWrapper, appState.eightWayWrapper);
             if (appState.eightWayWrapper.display !== undefined) eightWayWrapper.style.display = appState.eightWayWrapper.display;
             if (appState.eightWayWrapper.arrowSize !== undefined) {
-                arrowSize = appState.eightWayWrapper.arrowSize;
+                arrowSize = appState.eightWayWrapper.arrowSize || 90;
                 resizeEightWayArrows();
             }
         }
@@ -247,7 +247,7 @@ window.addEventListener('DOMContentLoaded', () => {
             }
         }
         if (el === eightWayWrapper && appState.eightWayWrapper?.arrowSize !== undefined) {
-            snap.arrowSize = appState.eightWayWrapper.arrowSize;
+            snap.arrowSize = appState.eightWayWrapper.arrowSize || 90;
         }
         return snap;
     }
@@ -965,7 +965,7 @@ window.addEventListener('DOMContentLoaded', () => {
             applyPropertiesToElement(eightWayWrapper, parsed.eightWayWrapper);
             if (parsed.eightWayWrapper.display !== undefined) eightWayWrapper.style.display = parsed.eightWayWrapper.display;
             if (parsed.eightWayWrapper.arrowSize !== undefined) {
-                arrowSize = parsed.eightWayWrapper.arrowSize;
+                arrowSize = parsed.eightWayWrapper.arrowSize || 90;
                 resizeEightWayArrows();
             }
         }
@@ -1473,7 +1473,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 eightWayWrapper.style.display = snap.eightWayWrapper.display;
             }
             if (snap.eightWayWrapper.arrowSize !== undefined) {
-                arrowSize = snap.eightWayWrapper.arrowSize;
+                arrowSize = snap.eightWayWrapper.arrowSize || 90;
                 resizeEightWayArrows();
             }
         }
@@ -1564,6 +1564,10 @@ window.addEventListener('DOMContentLoaded', () => {
                     applyPropertiesToElement(eightWayWrapper, parsed.eightWayWrapper);
                     if (parsed.eightWayWrapper.display !== undefined) eightWayWrapper.style.display = parsed.eightWayWrapper.display;
                 }
+				if (parsed.eightWayWrapper.arrowSize !== undefined) {
+				    arrowSize = parseInt(parsed.eightWayWrapper.arrowSize) || 90;
+				    resizeEightWayArrows();
+				}
 				if (parsed.joystickHead) {
 					appState.joystickHead = { ...appState.joystickHead, ...parsed.joystickHead };
 					applyPropertiesToElement(joystick, appState.joystickHead);
@@ -1676,3 +1680,4 @@ window.addEventListener('DOMContentLoaded', () => {
         copyLayoutToClipboard
     };
 });
+
