@@ -40,15 +40,15 @@
     "zIndex": "4",
     "top": "65px",
     "left": "65px",
-    "width": "60px",
-    "height": "60px",
+    "width": "80px",
+    "height": "80px",
     "borderRadius": "50%",
-    "outline": "rgb(255, 255, 255) none 20px",
+    "outline": "rgb(255, 255, 255) none 0px",
     "outlineOffset": "0px",
-    "boxShadow": "rgba(0, 0, 0, 0.5) 0px 0px 5px 2px",
+    "boxShadow": "rgba(0, 0, 0, 1) 0px 0px 5px 2px",
     "backgroundColor": "rgb(80, 80, 80)",
-    "backgroundImage": "none",
-    "backgroundSize": "auto",
+    "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/images/sf/sf-joystick.svg\")",
+    "backgroundSize": "contain",
     "color": "rgb(0, 0, 0)",
     "fontSize": "30px",
     "label": ""
@@ -56,10 +56,10 @@
   "eightWayWrapper": {
     "display": "block",
     "zIndex": "1",
-    "top": "50px",
-    "left": "70px",
-    "width": "250px",
-    "height": "250px",
+    "top": "60px",
+    "left": "80px",
+    "width": "230px",
+    "height": "230px",
     "borderRadius": "50%",
     "outline": "rgb(238, 238, 238) none 0px",
     "outlineOffset": "0px",
@@ -70,7 +70,7 @@
     "color": "rgb(238, 238, 238)",
     "fontSize": "16px",
     "label": "",
-    "arrowSize": 75
+    "arrowSize": 95
   },
   "buttons": {
     "Up": {
