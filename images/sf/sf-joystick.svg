@@ -2,7 +2,7 @@
 <g filter="url(#filter0_ii_210_101)">
 <circle cx="50.5798" cy="50.6234" r="50" fill="url(#paint0_linear_210_101)"/>
 </g>
-<g filter="url(#filter1_f_210_101)">
+<g opacity="0.75" filter="url(#filter1_f_210_101)">
 <circle cx="50.5798" cy="29.1866" r="8.25476" fill="#FCFEFC"/>
 <circle cx="50.5798" cy="29.1866" r="13.2548" stroke="#800FDC" stroke-width="10"/>
 </g>
