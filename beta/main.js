@@ -10,7 +10,6 @@ window.addEventListener('DOMContentLoaded', () => {
         ]
         .map((k, i) => [k, i])
     );
-    const arrowNames = ["Right", "Down Right", "Down", "Down Left", "Left", "Up Left", "Up", "Up Right"];
     const cfg = {
         deadzone: 0.1,
         trail: 8,
@@ -55,9 +54,9 @@ window.addEventListener('DOMContentLoaded', () => {
     const markers = Array.from({
         length: 8
     }, (_, i) => document.getElementById('marker' + i));
-
-    let arrowSize = 90;
-
+	
+	let arrowSize = 90;
+	
     // State
     let appState = {
         buttons: {},
@@ -74,7 +73,19 @@ window.addEventListener('DOMContentLoaded', () => {
     let trail = [];
     let activeGamepadIndex = null;
     let panelAnchorTarget = null;
-    let currentPreviewTarget = null;
+    let currentPreviewTarget = null;    
+	
+	const defaultHead = window.getComputedStyle(joystick);
+	appState.joystickHead = {
+		backgroundColor: defaultHead.backgroundColor,
+		backgroundImage: defaultHead.backgroundImage,
+		color: defaultHead.color,
+		borderRadius: defaultHead.borderRadius,
+		boxShadow: defaultHead.boxShadow,
+		outline: defaultHead.outline,
+		outlineOffset: defaultHead.outlineOffset,
+		fontSize: defaultHead.fontSize
+	};
 
     function showToast(msg, dur = 1000) {
         toastEl.textContent = msg;
@@ -83,7 +94,7 @@ window.addEventListener('DOMContentLoaded', () => {
         toastEl._t = setTimeout(() => toastEl.style.transform = 'translate(-50%,0) scale(0)', dur);
     }
 
-    function saveState() {
+    function saveStateData() {
         try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
             console.debug("Saving state:", JSON.stringify(appState.buttons, null, 2));
@@ -92,7 +103,7 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function loadState() {
+    function loadStateData() {
         try {
             const raw = localStorage.getItem(STORAGE_KEY);
             if (raw) {
@@ -112,10 +123,10 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function applyState() {
+    function updateStateData() {
         Object.entries(btnEls).forEach(([k, el]) => {
             const data = appState.buttons[k] || {};
-            applyElement(el, data);
+            applyPropertiesToElement(el, data);
 
             let display = data.display;
             if (display === undefined) {
@@ -149,30 +160,30 @@ window.addEventListener('DOMContentLoaded', () => {
         });
         
         if (appState.joystick) {
-            applyElement(stickWrapper, appState.joystick);
+            applyPropertiesToElement(stickWrapper, appState.joystick);
             if (appState.joystick.display !== undefined) stickWrapper.style.display = appState.joystick.display;
         }
         if (appState.base) {
-            applyElement(base, appState.base);
+            applyPropertiesToElement(base, appState.base);
             if (appState.base.display !== undefined) base.style.display = appState.base.display;
         }
         if (appState.eightWayWrapper) {
-            applyElement(eightWayWrapper, appState.eightWayWrapper);
+            applyPropertiesToElement(eightWayWrapper, appState.eightWayWrapper);
             if (appState.eightWayWrapper.display !== undefined) eightWayWrapper.style.display = appState.eightWayWrapper.display;
             if (appState.eightWayWrapper.arrowSize !== undefined) {
                 arrowSize = appState.eightWayWrapper.arrowSize;
-                applyArrowSize();
+                resizeEightWayArrows();
             }
         }
         if (appState.trailColor) {
             document.documentElement.style.setProperty("--trail-color", appState.trailColor);
         }
-        resizeCanvas();
+        resizeJoystickWrapper();
         joystick.style.left = canvas.width / 2 + "px";
         joystick.style.top = canvas.height / 2 + "px";
     }
 
-    function applyElement(el, data) {
+    function applyPropertiesToElement(el, data) {
         if (!el || !data) return;
         if (data.display !== undefined) el.style.display = data.display;
         if (data.zIndex !== undefined) el.style.zIndex = data.zIndex;
@@ -196,7 +207,7 @@ window.addEventListener('DOMContentLoaded', () => {
         if (data.label !== undefined && el.dataset && el.dataset.btn) el.textContent = data.label;
     }
 
-    function captureElement(el) {
+    function captureElementProperties(el) {
         const cs = window.getComputedStyle(el);
         const snap = {
             display: cs.display,
@@ -348,7 +359,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 btn.textContent = newLabel;
                 appState.buttons[btn.dataset.btn] = appState.buttons[btn.dataset.btn] || {};
                 appState.buttons[btn.dataset.btn].label = newLabel;
-                saveState();
+                saveStateData();
             }
             input.addEventListener('blur', save);
             input.addEventListener('keydown', ev => {
@@ -507,7 +518,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 appState.buttons[btnId].outlineColor = color;
             }
 
-            saveState();
+            saveStateData();
         });
 
         outerSlider.addEventListener('input', () => {
@@ -525,7 +536,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 appState.buttons[btnId].boxShadowSpread = spread;
             }
 
-            saveState();
+            saveStateData();
         });
 
         // --- Swatch container ---
@@ -573,7 +584,7 @@ window.addEventListener('DOMContentLoaded', () => {
                         appState.buttons[btnId].boxShadowSpread = spread;
                     }
                 }
-                saveState();
+                saveStateData();
             });
 
             swatchContainer.appendChild(s);
@@ -664,14 +675,14 @@ window.addEventListener('DOMContentLoaded', () => {
         // Snap to Grid
         if (e.ctrlKey && e.key.toLowerCase() === 't') {
             snapLayoutToGrid(10);
-            saveState();
+            saveStateData();
         }
 
         // Reset to Default
         if (e.ctrlKey && e.key.toLowerCase() === "r") {
             e.preventDefault();
             resetToDefault();
-            saveState();
+            saveStateData();
         }
 
         // Unhide all
@@ -687,12 +698,12 @@ window.addEventListener('DOMContentLoaded', () => {
             stickWrapper.style.display = 'block';
             base.style.display = 'block';
             appState.hiddenButtons = [];
-            saveState();
+            saveStateData();
             showToast('Show All Widgets', 1000);
             return;
         }
 
-        // Call Save and Load Profile
+        // Save and switch between profiles
         if (e.key.startsWith('F')) {
             const n = parseInt(e.key.slice(1));
             if (n >= 1 && n <= PROFILE_COUNT) {
@@ -724,10 +735,10 @@ window.addEventListener('DOMContentLoaded', () => {
                 if (selected === eightWayWrapper) {
                     arrowSize += (e.key === ']') ? 5 : -5;
                     arrowSize = Math.max(20, arrowSize); // minimum size
-                    applyArrowSize();
+                    resizeEightWayArrows();
                     appState.eightWayWrapper = appState.eightWayWrapper || {};
                     appState.eightWayWrapper.arrowSize = arrowSize;
-                    saveState();
+                    saveStateData();
                     showToast("Arrow size: " + arrowSize + "px", 1000);
 
                 } else if (selected.classList.contains("btn")) {
@@ -740,7 +751,7 @@ window.addEventListener('DOMContentLoaded', () => {
                     appState.buttons[selected.dataset.btn] =
                         appState.buttons[selected.dataset.btn] || {};
                     appState.buttons[selected.dataset.btn].fontSize = selected.style.fontSize;
-                    saveState();
+                    saveStateData();
                     showToast("Font size: " + fs, 1000);
 
                     // optional background scaling
@@ -749,10 +760,10 @@ window.addEventListener('DOMContentLoaded', () => {
                         const newBgSize = Math.max(10, bgSize + (e.key === "]" ? 2 : -2));
                         selected.style.backgroundSize = newBgSize + "px auto";
                         appState.buttons[selected.dataset.btn].backgroundSize = selected.style.backgroundSize;
-                        saveState();
+                        saveStateData();
                         showToast("Symbol size: " + newBgSize, 1000);
                     }
-                    saveState();
+                    saveStateData();
                 }
             }
             e.preventDefault();
@@ -778,7 +789,7 @@ window.addEventListener('DOMContentLoaded', () => {
                     appState.buttons[selected.dataset.btn].borderRadius =
                         selected.style.borderRadius;
                 }
-                saveState();
+                saveStateData();
                 showToast("Border radius: " + br, 1000);
             }
             e.preventDefault();
@@ -811,7 +822,7 @@ window.addEventListener('DOMContentLoaded', () => {
                         showToast("Button hidden", 1000);
                     }
                     deselect();
-                    saveState();
+                    saveStateData();
                 }
             }
             e.preventDefault();
@@ -837,7 +848,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 if (e.key === 'ArrowRight') width += 10;
                 if (e.key === 'ArrowLeft') width = Math.max(10, width - 10);
 
-                // Make square if it's stickWrapper or eightWayWrapper
+                // Maintain 1:1 ratio for StickWrapper and EightWayWrapper
                 if (selected === stickWrapper || selected === eightWayWrapper) {
                     let newSize;
                     if (e.key === 'ArrowUp' || e.key === 'ArrowRight') {
@@ -864,7 +875,7 @@ window.addEventListener('DOMContentLoaded', () => {
                     appState.buttons[name].left = selected.style.left;
                 }
 
-                saveState();
+                saveStateData();
                 showToast(`height: ${height}, width: ${width}`, 1000);
                 updated = true;
 
@@ -890,14 +901,14 @@ window.addEventListener('DOMContentLoaded', () => {
                 if (updated) {
                     selected.style.top = Math.max(0, top) + 'px';
                     selected.style.left = Math.max(0, left) + 'px';
-                    saveState();
+                    saveStateData();
                     showToast(`x: ${left}, y: ${top}`, 1000);
                 }
             }
 
             if (updated) {
                 if (selected === stickWrapper) {
-                    resizeCanvas();
+                    resizeJoystickWrapper();
                     joystick.style.left = (width / 2) + 'px';
                     joystick.style.top = (height / 2) + 'px';
 
@@ -918,7 +929,7 @@ window.addEventListener('DOMContentLoaded', () => {
                     appState.buttons[name].top = selected.style.top;
                     appState.buttons[name].left = selected.style.left;
                 }
-                saveState();
+                saveStateData();
             }
         }
     });
@@ -929,30 +940,33 @@ window.addEventListener('DOMContentLoaded', () => {
             appState.base = {
                 ...parsed.base
             };
-            applyElement(base, parsed.base);
+            applyPropertiesToElement(base, parsed.base);
             if (parsed.base.display !== undefined) base.style.display = parsed.base.display;
         }
         if (parsed.joystick) {
             appState.joystick = {
                 ...parsed.joystick
             };
-            applyElement(stickWrapper, parsed.joystick);
+            applyPropertiesToElement(stickWrapper, parsed.joystick);
             if (parsed.joystick.display !== undefined) stickWrapper.style.display = parsed.joystick.display;
         }
 		if (parsed.joystickHead) {
-			appState.joystickHead = { ...parsed.joystickHead };
-			applyElement(joystick, parsed.joystickHead);
-			if (parsed.joystickHead.display !== undefined) joystick.style.display = parsed.joystickHead.display;
+			appState.joystickHead = { ...appState.joystickHead, ...parsed.joystickHead };
+			applyPropertiesToElement(joystick, appState.joystickHead);
+
+			if (parsed.joystickHead.display !== undefined) {
+				joystick.style.display = parsed.joystickHead.display;
+			}
 		}
         if (parsed.eightWayWrapper) {
             appState.eightWayWrapper = {
                 ...parsed.eightWayWrapper
             };
-            applyElement(eightWayWrapper, parsed.eightWayWrapper);
+            applyPropertiesToElement(eightWayWrapper, parsed.eightWayWrapper);
             if (parsed.eightWayWrapper.display !== undefined) eightWayWrapper.style.display = parsed.eightWayWrapper.display;
             if (parsed.eightWayWrapper.arrowSize !== undefined) {
                 arrowSize = parsed.eightWayWrapper.arrowSize;
-                applyArrowSize();
+                resizeEightWayArrows();
             }
         }
         if (parsed.buttons) {
@@ -961,12 +975,12 @@ window.addEventListener('DOMContentLoaded', () => {
                     ...parsed.buttons[k]
                 };
                 if (btnEls[k]) {
-                    applyElement(btnEls[k], parsed.buttons[k]);
+                    applyPropertiesToElement(btnEls[k], parsed.buttons[k]);
                     if (parsed.buttons[k].display !== undefined) btnEls[k].style.display = parsed.buttons[k].display;
                 }
             });
         }
-        saveState();
+        saveStateData();
     }
 
     async function resetToDefault() {
@@ -988,7 +1002,7 @@ window.addEventListener('DOMContentLoaded', () => {
         left: 0,
         right: 0
     };
-    const moveDelay = 120;
+    const moveDelay = 60;
     const moveStep = 10;
 
     // Fix Start: move moveSelected outside
@@ -1015,7 +1029,7 @@ window.addEventListener('DOMContentLoaded', () => {
             appState.eightWayWrapper.left = selected.style.left;
         }
 
-        saveState();
+        saveStateData();
         showToast(`x:${left}, y:${top}`, 500);
         elementMoveTimers[key] = performance.now();
     }
@@ -1146,7 +1160,7 @@ window.addEventListener('DOMContentLoaded', () => {
         return { x: (x / mag) * scale, y: (y / mag) * scale };
     }
 
-    // Gamepad helpers, canvas, trail, markers
+    // Gamepad helpers
     function radialDeadzone(x, y, dz) {
         const mag = Math.hypot(x, y);
         if (mag < dz) return { x: 0, y: 0 };
@@ -1182,13 +1196,11 @@ window.addEventListener('DOMContentLoaded', () => {
         return clampRoundedSquare(x, cfg.invertY ? -y : y);
     }
 
-    function positionEightWayArrows() {
+    function clampResizeEightWayArrows() {
         const rect = eightWayWrapper.getBoundingClientRect();
         const cx = rect.width / 2;
         const cy = rect.height / 2;
-
-        // Put tips along the perimeter. Keep a tiny margin so things don't get cut off.
-        const radius = Math.min(cx, cy) - 4;
+        const radius = Math.min(cx, cy);
 
         for (let i = 0; i < 8; i++) {
             const angle = (i * 45) * Math.PI / 180;
@@ -1207,34 +1219,33 @@ window.addEventListener('DOMContentLoaded', () => {
             arrow.style.left = left + "px";
             arrow.style.top = top + "px";
 
-            // Rotate so arrows point outward (keeps your original rotate mapping)
+            // Rotate so arrows point outward
             arrow.style.transformOrigin = "100% 50%"; // tip is right-center
             arrow.style.transform = `rotate(${i * 45}deg)`;
         }
     }
 
-    function applyArrowSize() {
+    function resizeEightWayArrows() {
         for (let i = 0; i < 8; i++) {
             const arrow = document.getElementById("arrow" + i);
             if (!arrow) continue;
             arrow.style.width = arrowSize + "px";
             arrow.style.height = arrowSize + "px";
-            // keep transform origin consistent with positionEightWayArrows
+            // keep transform origin consistent with clampResizeEightWayArrows
             arrow.style.transformOrigin = "100% 50%";
             arrow.style.transform = `rotate(${i * 45}deg)`;
         }
-        // reposition after resizing so tip-perimeter alignment stays correct
-        positionEightWayArrows();
+        clampResizeEightWayArrows();
     }
 
     if (window.ResizeObserver) {
         const ro = new ResizeObserver(() => {
-            positionEightWayArrows();
+            clampResizeEightWayArrows();
         });
         ro.observe(eightWayWrapper);
     }
 
-    window.addEventListener("resize", positionEightWayArrows);
+    window.addEventListener("resize", clampResizeEightWayArrows);
 
     function snapLayoutToGrid(grid = 10) {
         const snap = v => Math.round((parseInt(v) || 0) / grid) * grid + "px";
@@ -1275,7 +1286,7 @@ window.addEventListener('DOMContentLoaded', () => {
         snapElement(eightWayWrapper, appState.eightWayWrapper);
         snapElement(base, appState.base);
 
-        saveState();
+        saveStateData();
         showToast("Snapped layout to grid!", 1000);
     }
 
@@ -1293,7 +1304,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     function updateButtonsFromPad(pad) {
         if (!pad || !pad.buttons) {
-            resetJoystick();
+            resetJoystickHead();
             Object.values(btnEls).forEach(b => b.classList.remove('active'));
             return;
         }
@@ -1335,7 +1346,7 @@ window.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Joystick display logic (unchanged)
+        // Joystick display logic
         if (anyPressed) {
             let active = null, latest = -1;
             for (const k in lastPressedTimes) {
@@ -1362,11 +1373,11 @@ window.addEventListener('DOMContentLoaded', () => {
 				return;
 			}
         }
-        saveState();
-        resetJoystick();
+        saveStateData();
+        resetJoystickHead();
     }
 
-	function resetJoystick() {
+	function resetJoystickHead() {
 		joystick.style.transform = 'translate(-50%,-50%) scale(1)';
 		joystick.textContent = '';
 
@@ -1380,12 +1391,12 @@ window.addEventListener('DOMContentLoaded', () => {
 		if (head.fontSize !== undefined) joystick.style.fontSize = head.fontSize;
 	}
 
-    function resizeCanvas() {
+    function resizeJoystickWrapper() {
         canvas.width = stickWrapper.clientWidth;
         canvas.height = stickWrapper.clientHeight;
     }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
+    window.addEventListener('resize', resizeJoystickWrapper);
+    resizeJoystickWrapper();
 
     function drawTrail(tr) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -1417,16 +1428,16 @@ window.addEventListener('DOMContentLoaded', () => {
     function saveProfile(n) {
         if (n < 1 || n > PROFILE_COUNT) return;
         const snap = {
-            base: captureElement(base),
-            joystick: captureElement(stickWrapper),
-			joystickHead: captureElement(joystick),
-            eightWayWrapper: captureElement(eightWayWrapper),
+            base: captureElementProperties(base),
+            joystick: captureElementProperties(stickWrapper),
+			joystickHead: captureElementProperties(joystick),
+            eightWayWrapper: captureElementProperties(eightWayWrapper),
             buttons: {}
         };
-        Object.keys(btnEls).forEach(k => snap.buttons[k] = captureElement(btnEls[k]));
+        Object.keys(btnEls).forEach(k => snap.buttons[k] = captureElementProperties(btnEls[k]));
         appState.profiles['profile' + n] = snap;
         appState.lastProfile = n;
-        saveState();
+        saveStateData();
     }
 
     function loadProfile(n) {
@@ -1436,77 +1447,53 @@ window.addEventListener('DOMContentLoaded', () => {
             return;
         }
         if (snap.base) {
-            applyElement(base, snap.base);
+            applyPropertiesToElement(base, snap.base);
             appState.base = Object.assign(appState.base, snap.base);
             if (snap.base.display !== undefined) base.style.display = snap.base.display;
         }
         if (snap.joystick) {
-            applyElement(stickWrapper, snap.joystick);
+            applyPropertiesToElement(stickWrapper, snap.joystick);
             appState.joystick = Object.assign(appState.joystick, snap.joystick);
             if (snap.joystick.display !== undefined) stickWrapper.style.display = snap.joystick.display;
         }
 		if (snap.joystickHead) {
-			applyElement(joystick, snap.joystickHead);
-			appState.joystickHead = Object.assign(appState.joystickHead || {}, snap.joystickHead);
-
+			appState.joystickHead = { ...appState.joystickHead, ...snap.joystickHead };
+			applyPropertiesToElement(joystick, appState.joystickHead);
 			if (snap.joystickHead.boxShadow !== undefined) {
 				joystick.style.boxShadow = snap.joystickHead.boxShadow;
 			}
-
 			if (snap.joystickHead.display !== undefined) {
 				joystick.style.display = snap.joystickHead.display;
 			}
 		}
         if (snap.eightWayWrapper) {
-            applyElement(eightWayWrapper, snap.eightWayWrapper);
+            applyPropertiesToElement(eightWayWrapper, snap.eightWayWrapper);
             appState.eightWayWrapper = Object.assign(appState.eightWayWrapper, snap.eightWayWrapper);
             if (snap.eightWayWrapper.display !== undefined) {
                 eightWayWrapper.style.display = snap.eightWayWrapper.display;
             }
             if (snap.eightWayWrapper.arrowSize !== undefined) {
                 arrowSize = snap.eightWayWrapper.arrowSize;
-                applyArrowSize();
+                resizeEightWayArrows();
             }
         }
         if (snap.buttons) Object.keys(snap.buttons).forEach(k => {
             if (btnEls[k]) {
-                applyElement(btnEls[k], snap.buttons[k]);
+                applyPropertiesToElement(btnEls[k], snap.buttons[k]);
                 appState.buttons[k] = Object.assign(appState.buttons[k] || {}, snap.buttons[k]);
             }
         });
         appState.lastProfile = n;
         showToast('Profile ' + n + ' loaded', 1000);
-        saveState();
-    }
-
-    // layout save/import/export
-    function saveLayoutToFile() {
-        const snap = {
-            base: captureElement(base),
-            joystick: captureElement(stickWrapper),
-			joystickHead: captureElement(joystick),
-            eightWayWrapper: captureElement(eightWayWrapper),
-            buttons: {}
-        };
-        Object.keys(btnEls).forEach(k => snap.buttons[k] = captureElement(btnEls[k]));
-        const json = JSON.stringify(snap, null, 2);
-        const blob = new Blob([json], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'layout.json';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
+        saveStateData();
     }
 
     async function copyLayoutToClipboard() {
         const snap = {
-            base: captureElement(base),
-            joystick: captureElement(stickWrapper),
-			joystickHead: captureElement(joystick),
-            eightWayWrapper: captureElement(eightWayWrapper),
+            base: captureElementProperties(base),
+            joystick: captureElementProperties(stickWrapper),
+			joystickHead: captureElementProperties(joystick),
+            eightWayWrapper: captureElementProperties(eightWayWrapper),
             buttons: {}
         };
 
@@ -1518,7 +1505,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 // Only export the display property
                 snap.buttons[k] = { display: "none" };
             } else {
-                snap.buttons[k] = captureElement(el);
+                snap.buttons[k] = captureElementProperties(el);
             }
         });
 
@@ -1543,10 +1530,10 @@ window.addEventListener('DOMContentLoaded', () => {
                 showToast('Copy failed', 1000);
             }
         }
-        saveState();
+        saveStateData();
     }
 
-    // Import (file input + drag drop)
+    // Import (file input)
     const importInput = document.createElement('input');
     importInput.type = 'file';
     importInput.accept = '.json,application/json';
@@ -1562,32 +1549,39 @@ window.addEventListener('DOMContentLoaded', () => {
                 if (parsed.base) {
                     appState.base = appState.base || {};
                     Object.assign(appState.base, parsed.base);
-                    applyElement(base, parsed.base);
+                    applyPropertiesToElement(base, parsed.base);
                     if (parsed.base.display !== undefined) base.style.display = parsed.base.display;
                 }
                 if (parsed.joystick) {
                     appState.joystick = appState.joystick || {};
                     Object.assign(appState.joystick, parsed.joystick);
-                    applyElement(stickWrapper, parsed.joystick);
+                    applyPropertiesToElement(stickWrapper, parsed.joystick);
                     if (parsed.joystick.display !== undefined) stickWrapper.style.display = parsed.joystick.display;
                 }
                 if (parsed.eightWayWrapper) {
                     appState.eightWayWrapper = appState.eightWayWrapper || {};
                     Object.assign(appState.eightWayWrapper, parsed.eightWayWrapper);
-                    applyElement(eightWayWrapper, parsed.eightWayWrapper);
+                    applyPropertiesToElement(eightWayWrapper, parsed.eightWayWrapper);
                     if (parsed.eightWayWrapper.display !== undefined) eightWayWrapper.style.display = parsed.eightWayWrapper.display;
                 }
+				if (parsed.joystickHead) {
+					appState.joystickHead = { ...appState.joystickHead, ...parsed.joystickHead };
+					applyPropertiesToElement(joystick, appState.joystickHead);
+					if (parsed.joystickHead.display !== undefined) {
+						joystick.style.display = parsed.joystickHead.display;
+					}
+				}
                 if (parsed.buttons) {
                     Object.keys(parsed.buttons).forEach(k => {
                         appState.buttons[k] = appState.buttons[k] || {};
                         Object.assign(appState.buttons[k], parsed.buttons[k]);
                         if (btnEls[k]) {
-                            applyElement(btnEls[k], parsed.buttons[k]);
+                            applyPropertiesToElement(btnEls[k], parsed.buttons[k]);
                             if (parsed.buttons[k].display !== undefined) btnEls[k].style.display = parsed.buttons[k].display;
                         }
                     });
                 }
-                saveState();
+                saveStateData();
                 showToast('Imported layout', 1000);
             } catch (err) {
                 showToast('Invalid JSON', 1000);
@@ -1595,55 +1589,6 @@ window.addEventListener('DOMContentLoaded', () => {
         };
         r.readAsText(f);
         importInput.value = '';
-    });
-
-    window.addEventListener('dragover', e => e.preventDefault());
-    window.addEventListener('drop', e => {
-        e.preventDefault();
-        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
-            const f = e.dataTransfer.files[0];
-            if (f.type.includes('json') || f.name.toLowerCase().endsWith('.json')) {
-                const r = new FileReader();
-                r.onload = ev => {
-                    try {
-                        const parsed = JSON.parse(ev.target.result);
-                        if (parsed.base) {
-                            appState.base = appState.base || {};
-                            Object.assign(appState.base, parsed.base);
-                            applyElement(base, parsed.base);
-                            if (parsed.base.display !== undefined) base.style.display = parsed.base.display;
-                        }
-                        if (parsed.joystick) {
-                            appState.joystick = appState.joystick || {};
-                            Object.assign(appState.joystick, parsed.joystick);
-                            applyElement(stickWrapper, parsed.joystick);
-                            if (parsed.joystick.display !== undefined) stickWrapper.style.display = parsed.joystick.display;
-                        }
-                        if (parsed.eightWayWrapper) {
-                            appState.eightWayWrapper = appState.eightWayWrapper || {};
-                            Object.assign(appState.eightWayWrapper, parsed.eightWayWrapper);
-                            applyElement(eightWayWrapper, parsed.eightWayWrapper);
-                            if (parsed.eightWayWrapper.display !== undefined) eightWayWrapper.style.display = parsed.eightWayWrapper.display;
-                        }
-                        if (parsed.buttons) {
-                            Object.keys(parsed.buttons).forEach(k => {
-                                appState.buttons[k] = appState.buttons[k] || {};
-                                Object.assign(appState.buttons[k], parsed.buttons[k]);
-                                if (btnEls[k]) {
-                                    applyElement(btnEls[k], parsed.buttons[k]);
-                                    if (parsed.buttons[k].display !== undefined) btnEls[k].style.display = parsed.buttons[k].display;
-                                }
-                            });
-                        }
-                        saveState();
-                        showToast('Imported layout', 1000);
-                    } catch (err) {
-                        showToast('Invalid JSON', 1000);
-                    }
-                };
-                r.readAsText(f);
-            } else showToast('Only JSON layout files are accepted', 1000);
-        }
     });
 
     // Load help panel contents from help.html
@@ -1705,17 +1650,17 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 	
     // Boot
-    loadState();
-    applyState();
+    loadStateData();
+    updateStateData();
 
-    resizeCanvas();
+    resizeJoystickWrapper();
     joystick.style.left = (canvas.width / 2) + 'px';
     joystick.style.top = (canvas.height / 2) + 'px';
 
     // Resize Observer to recenter joystick when stickWrapper size changes
     if (window.ResizeObserver) {
         const ro = new ResizeObserver(() => {
-            resizeCanvas();
+            resizeJoystickWrapper();
             joystick.style.left = (canvas.width / 2) + 'px';
             joystick.style.top = (canvas.height / 2) + 'px';
         });
@@ -1726,9 +1671,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
     // expose some helpers
     window.trailpad = {
-        saveState,
-        loadState,
+        saveStateData,
+        loadStateData,
         copyLayoutToClipboard
     };
 });
-setInterval(saveState, 5000);
