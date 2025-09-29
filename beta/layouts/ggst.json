@@ -49,7 +49,7 @@
     "backgroundColor": "rgba(0, 0, 0, 0)",
     "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/ggst/ggst-joystick.svg\")",
     "backgroundSize": "contain",
-    "color": "rgba(255, 255, 255, 1.0) !important",
+    "color": "rgb(255, 255, 255)",
     "fontSize": "32px",
     "label": ""
   },
@@ -93,14 +93,14 @@
       "width": "80px",
       "height": "80px",
       "borderRadius": "45px",
-      "outline": "rgb(121, 67, 20) solid 4px",
+      "outline": "rgb(121, 67, 20) none 0px",
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 2px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
       "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/ggst/ggst-btn.svg\")",
-      "backgroundSize": "98px auto",
+      "backgroundSize": "106px auto",
       "color": "rgb(121, 67, 20)",
-      "fontSize": "48px",
+      "fontSize": "52px",
       "label": "D"
     },
     "B": {
@@ -129,14 +129,14 @@
       "width": "80px",
       "height": "80px",
       "borderRadius": "45px",
-      "outline": "rgb(120, 53, 115) solid 4px",
+      "outline": "rgb(120, 53, 115) none 0px",
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 2px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
       "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/ggst/ggst-btn.svg\")",
-      "backgroundSize": "98px auto",
+      "backgroundSize": "105px auto",
       "color": "rgb(120, 53, 115)",
-      "fontSize": "48px",
+      "fontSize": "52px",
       "label": "P"
     },
     "Y": {
@@ -147,14 +147,14 @@
       "width": "80px",
       "height": "80px",
       "borderRadius": "45px",
-      "outline": "rgb(46, 112, 149) solid 4px",
+      "outline": "rgb(46, 112, 149) none 0px",
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 2px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
       "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/ggst/ggst-btn.svg\")",
-      "backgroundSize": "98px auto",
+      "backgroundSize": "106px auto",
       "color": "rgb(46, 112, 149)",
-      "fontSize": "48px",
+      "fontSize": "52px",
       "label": "K"
     },
     "LB": {
@@ -165,14 +165,14 @@
       "width": "80px",
       "height": "80px",
       "borderRadius": "45px",
-      "outline": "rgb(127, 24, 24) solid 4px",
+      "outline": "rgb(127, 24, 24) none 0px",
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 2px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
       "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/ggst/ggst-btn.svg\")",
-      "backgroundSize": "98px auto",
+      "backgroundSize": "106px auto",
       "color": "rgb(127, 24, 24)",
-      "fontSize": "48px",
+      "fontSize": "52px",
       "label": "HS"
     },
     "RB": {
@@ -183,14 +183,14 @@
       "width": "80px",
       "height": "80px",
       "borderRadius": "45px",
-      "outline": "rgb(22, 132, 90) solid 4px",
+      "outline": "rgb(22, 132, 90) none 0px",
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 2px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
       "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/ggst/ggst-btn.svg\")",
-      "backgroundSize": "98px auto",
+      "backgroundSize": "106px auto",
       "color": "rgb(22, 132, 90)",
-      "fontSize": "48px",
+      "fontSize": "52px",
       "label": "S"
     },
     "LT": {
@@ -219,14 +219,14 @@
       "width": "80px",
       "height": "80px",
       "borderRadius": "45px",
-      "outline": "rgb(171, 22, 111) solid 4px",
+      "outline": "rgb(171, 22, 111) none 0px",
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 2px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
       "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/ggst/ggst-btn.svg\")",
-      "backgroundSize": "98px auto",
+      "backgroundSize": "106px auto",
       "color": "rgb(171, 22, 111)",
-      "fontSize": "48px",
+      "fontSize": "52px",
       "label": "RC"
     },
     "LS": {
@@ -243,14 +243,12 @@
       "backgroundColor": "rgb(48, 48, 48)",
       "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/ggst/ggst-parry.svg\")",
       "backgroundSize": "contain",
-      "color": "transparent",
+      "color": "rgba(0, 0, 0, 0)",
       "fontSize": "0px",
       "label": ""
     },
     "RS": {
-      "display": "none",
-	  "color": "transparent",
-	  "label": ""
+      "display": "none"
     },
     "View": {
       "display": "none"
