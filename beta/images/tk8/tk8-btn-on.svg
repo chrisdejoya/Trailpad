@@ -1,21 +1,21 @@
 <svg width="100" height="101" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g filter="url(#filter0_i_249_190)">
-<circle cx="50.0081" cy="50.1475" r="50" fill="url(#paint0_linear_249_190)"/>
+<g filter="url(#filter0_i_251_224)">
+<circle cx="50.0081" cy="50.1475" r="50" fill="url(#paint0_linear_251_224)"/>
 <circle cx="50.0081" cy="50.1475" r="50" fill="black" fill-opacity="0.2"/>
 </g>
 <defs>
-<filter id="filter0_i_249_190" x="0.00805664" y="0.147461" width="100" height="100" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<filter id="filter0_i_251_224" x="0.00805664" y="0.147461" width="100" height="100" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
 <feFlood flood-opacity="0" result="BackgroundImageFix"/>
 <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
 <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
-<feMorphology radius="6" operator="dilate" in="SourceAlpha" result="effect1_innerShadow_249_190"/>
+<feMorphology radius="6" operator="dilate" in="SourceAlpha" result="effect1_innerShadow_251_224"/>
 <feOffset dx="6" dy="6"/>
 <feGaussianBlur stdDeviation="2"/>
 <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
 <feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.8 0"/>
-<feBlend mode="normal" in2="shape" result="effect1_innerShadow_249_190"/>
+<feBlend mode="normal" in2="shape" result="effect1_innerShadow_251_224"/>
 </filter>
-<linearGradient id="paint0_linear_249_190" x1="50.0081" y1="0.147461" x2="50.0081" y2="100.147" gradientUnits="userSpaceOnUse">
+<linearGradient id="paint0_linear_251_224" x1="50.0081" y1="0.147461" x2="50.0081" y2="100.147" gradientUnits="userSpaceOnUse">
 <stop stop-color="#FF3F44"/>
 <stop offset="1" stop-color="#B70B09"/>
 </linearGradient>
