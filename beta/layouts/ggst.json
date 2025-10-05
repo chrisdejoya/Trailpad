@@ -74,16 +74,76 @@
   },
   "buttons": {
     "Up": {
-      "display": "none"
+      "display": "none",
+      "zIndex": "2",
+      "top": "270px",
+      "left": "300px",
+      "width": "90px",
+      "height": "90px",
+      "borderRadius": "50%",
+      "outline": "rgba(255, 255, 255, 0.18) solid 4px",
+      "outlineOffset": "-4px",
+      "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
+      "backgroundColor": "rgb(48, 48, 48)",
+      "backgroundImage": "url(\"http://absolute/D:/Documents/Trailpad/images/up.svg\")",
+      "backgroundSize": "contain",
+      "color": "rgb(238, 238, 238)",
+      "fontSize": "44px",
+      "label": ""
     },
     "Down": {
-      "display": "none"
+      "display": "none",
+      "zIndex": "2",
+      "top": "270px",
+      "left": "400px",
+      "width": "90px",
+      "height": "90px",
+      "borderRadius": "50%",
+      "outline": "rgba(255, 255, 255, 0.18) solid 4px",
+      "outlineOffset": "-4px",
+      "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
+      "backgroundColor": "rgb(48, 48, 48)",
+      "backgroundImage": "url(\"http://absolute/D:/Documents/Trailpad/images/down.svg\")",
+      "backgroundSize": "contain",
+      "color": "rgb(238, 238, 238)",
+      "fontSize": "44px",
+      "label": ""
     },
     "Left": {
-      "display": "none"
+      "display": "none",
+      "zIndex": "2",
+      "top": "270px",
+      "left": "500px",
+      "width": "90px",
+      "height": "90px",
+      "borderRadius": "50%",
+      "outline": "rgba(255, 255, 255, 0.18) solid 4px",
+      "outlineOffset": "-4px",
+      "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
+      "backgroundColor": "rgb(48, 48, 48)",
+      "backgroundImage": "url(\"http://absolute/D:/Documents/Trailpad/images/left.svg\")",
+      "backgroundSize": "contain",
+      "color": "rgb(238, 238, 238)",
+      "fontSize": "44px",
+      "label": ""
     },
     "Right": {
-      "display": "none"
+      "display": "none",
+      "zIndex": "2",
+      "top": "270px",
+      "left": "600px",
+      "width": "90px",
+      "height": "90px",
+      "borderRadius": "50%",
+      "outline": "rgba(255, 255, 255, 0.18) solid 4px",
+      "outlineOffset": "-4px",
+      "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
+      "backgroundColor": "rgb(48, 48, 48)",
+      "backgroundImage": "url(\"http://absolute/D:/Documents/Trailpad/images/right.svg\")",
+      "backgroundSize": "contain",
+      "color": "rgb(238, 238, 238)",
+      "fontSize": "44px",
+      "label": ""
     },
     "A": {
       "display": "flex",
@@ -170,9 +230,9 @@
       "boxShadow": "rgb(0, 0, 0) 0px 2px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
       "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/ggst/ggst-btn.svg\")",
-      "backgroundSize": "106px auto",
-      "color": "rgb(127, 24, 24)",
-      "fontSize": "52px",
+      "backgroundSize": "82px auto",
+      "color": "rgb(179, 45, 45)",
+      "fontSize": "40px",
       "label": "HS"
     },
     "RB": {
@@ -224,9 +284,9 @@
       "boxShadow": "rgb(0, 0, 0) 0px 2px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
       "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/ggst/ggst-btn.svg\")",
-      "backgroundSize": "106px auto",
+      "backgroundSize": "82px auto",
       "color": "rgb(171, 22, 111)",
-      "fontSize": "52px",
+      "fontSize": "40px",
       "label": "RC"
     },
     "LS": {
@@ -248,13 +308,59 @@
       "label": ""
     },
     "RS": {
-      "display": "none"
+      "display": "none",
+      "zIndex": "4",
+      "top": "370px",
+      "left": "400px",
+      "width": "90px",
+      "height": "90px",
+      "borderRadius": "50%",
+      "outline": "rgba(255, 255, 255, 0.18) solid 4px",
+      "outlineOffset": "-4px",
+      "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
+      "backgroundColor": "rgb(48, 48, 48)",
+      "backgroundImage": "none",
+      "backgroundSize": "contain",
+      "color": "rgb(238, 238, 238)",
+      "fontSize": "36px",
+      "label": "RS"
     },
     "View": {
-      "display": "none"
+      "display": "none",
+      "zIndex": "2",
+      "top": "370px",
+      "left": "500px",
+      "width": "90px",
+      "height": "90px",
+      "borderRadius": "50%",
+      "outline": "rgba(255, 255, 255, 0.18) solid 4px",
+      "outlineOffset": "-4px",
+      "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
+      "backgroundColor": "rgb(48, 48, 48)",
+      "backgroundImage": "none",
+      "backgroundSize": "contain",
+      "color": "rgb(238, 238, 238)",
+      "fontSize": "20px",
+      "label": "View"
     },
     "Menu": {
-      "display": "none"
+      "display": "none",
+      "zIndex": "2",
+      "top": "370px",
+      "left": "600px",
+      "width": "90px",
+      "height": "90px",
+      "borderRadius": "50%",
+      "outline": "rgba(255, 255, 255, 0.18) solid 4px",
+      "outlineOffset": "-4px",
+      "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
+      "backgroundColor": "rgb(48, 48, 48)",
+      "backgroundImage": "none",
+      "backgroundSize": "contain",
+      "color": "rgb(238, 238, 238)",
+      "fontSize": "20px",
+      "label": "Menu"
     }
-  }
+  },
+  "trailColor": "#FB0300"
 }
