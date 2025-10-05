@@ -127,7 +127,12 @@ window.addEventListener('DOMContentLoaded', () => {
   // export/import layout helpers
   function exportLayout() {
     const snap = {
-      base: captureElementProperties(base), joystick: captureElementProperties(stickWrapper), joystickHead: captureElementProperties(joystick), eightWayWrapper: captureElementProperties(eightWayWrapper), buttons: {}
+      base: captureElementProperties(base),
+      joystick: captureElementProperties(stickWrapper),
+      joystickHead: captureElementProperties(joystick),
+      eightWayWrapper: captureElementProperties(eightWayWrapper),
+      buttons: {},
+      trailColor: appState.trailColor || getComputedStyle(document.documentElement).getPropertyValue('--trail-color') || '#CEEC73'
     };
     Object.keys(btnEls).forEach(k => snap.buttons[k] = captureElementProperties(btnEls[k]));
     return snap;
@@ -150,6 +155,10 @@ window.addEventListener('DOMContentLoaded', () => {
     if (parsed.eightWayWrapper?.arrowSize !== undefined) {
       arrowSize = parseInt(parsed.eightWayWrapper.arrowSize) || arrowSize;
       resizeEightWayArrows();
+    }
+    if (parsed.trailColor) {
+      appState.trailColor = parsed.trailColor;
+      document.documentElement.style.setProperty('--trail-color', parsed.trailColor);
     }
     if (parsed.joystickHead) applyJoystickHeadFromState();
     saveStateData();
