@@ -70,7 +70,9 @@
     "color": "rgb(238, 238, 238)",
     "fontSize": "16px",
     "label": "",
-    "arrowSize": 90
+    "arrowSize": 90,
+    "arrowImageOn": "https://chrisdejoya.github.io/Trailpad/beta/images/arrow-on.svg",
+    "arrowImageOff": "https://chrisdejoya.github.io/Trailpad/beta/images/arrow-off.svg"
   },
   "buttons": {
     "Up": {
