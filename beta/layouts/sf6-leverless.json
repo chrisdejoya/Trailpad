@@ -35,6 +35,24 @@
     "fontSize": "16px",
     "label": ""
   },
+  "joystickHead": {
+    "display": "flex",
+    "zIndex": "4",
+    "top": "0px",
+    "left": "0px",
+    "width": "60px",
+    "height": "60px",
+    "borderRadius": "50%",
+    "outline": "rgb(0, 0, 0) none 0px",
+    "outlineOffset": "0px",
+    "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 5px",
+    "backgroundColor": "rgb(64, 64, 64)",
+    "backgroundImage": "none",
+    "backgroundSize": "auto",
+    "color": "rgb(0, 0, 0)",
+    "fontSize": "30px",
+    "label": ""
+  },
   "eightWayWrapper": {
     "display": "none",
     "zIndex": "1",
@@ -52,7 +70,9 @@
     "color": "rgb(238, 238, 238)",
     "fontSize": "16px",
     "label": "",
-    "arrowSize": 75
+    "arrowSize": 75,
+    "arrowImageOn": "https://chrisdejoya.github.io/Trailpad/beta/images/arrow-on.svg",
+    "arrowImageOff": "https://chrisdejoya.github.io/Trailpad/beta/images/arrow-off.svg"
   },
   "buttons": {
     "Up": {
@@ -272,16 +292,77 @@
       "label": "hk"
     },
     "LS": {
-      "display": "none"
+      "display": "none",
+      "zIndex": "4",
+      "top": "370px",
+      "left": "300px",
+      "width": "90px",
+      "height": "90px",
+      "borderRadius": "0px",
+      "outline": "rgba(255, 255, 255, 0.18) solid 4px",
+      "outlineOffset": "-4px",
+      "boxShadow": "rgba(0, 0, 0, 0.75) 0px 2px 5px 0px",
+      "backgroundColor": "rgb(48, 48, 48)",
+      "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/hitbox/plastic-black.png\")",
+      "backgroundSize": "contain",
+      "color": "rgb(238, 238, 238)",
+      "fontSize": "36px",
+      "label": "LS"
     },
     "RS": {
-      "display": "none"
+      "display": "none",
+      "zIndex": "4",
+      "top": "370px",
+      "left": "400px",
+      "width": "90px",
+      "height": "90px",
+      "borderRadius": "0px",
+      "outline": "rgba(255, 255, 255, 0.18) solid 4px",
+      "outlineOffset": "-4px",
+      "boxShadow": "rgba(0, 0, 0, 0.75) 0px 2px 5px 0px",
+      "backgroundColor": "rgb(48, 48, 48)",
+      "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/hitbox/plastic-black.png\")",
+      "backgroundSize": "contain",
+      "color": "rgb(238, 238, 238)",
+      "fontSize": "36px",
+      "label": "RS"
     },
     "View": {
-      "display": "none"
+      "display": "none",
+      "zIndex": "2",
+      "top": "370px",
+      "left": "500px",
+      "width": "90px",
+      "height": "90px",
+      "borderRadius": "0px",
+      "outline": "rgba(255, 255, 255, 0.18) solid 4px",
+      "outlineOffset": "-4px",
+      "boxShadow": "rgba(0, 0, 0, 0.75) 0px 2px 5px 0px",
+      "backgroundColor": "rgb(48, 48, 48)",
+      "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/hitbox/plastic-black.png\")",
+      "backgroundSize": "contain",
+      "color": "rgb(238, 238, 238)",
+      "fontSize": "20px",
+      "label": "View"
     },
     "Menu": {
-      "display": "none"
+      "display": "none",
+      "zIndex": "2",
+      "top": "370px",
+      "left": "600px",
+      "width": "90px",
+      "height": "90px",
+      "borderRadius": "0px",
+      "outline": "rgba(255, 255, 255, 0.18) solid 4px",
+      "outlineOffset": "-4px",
+      "boxShadow": "rgba(0, 0, 0, 0.75) 0px 2px 5px 0px",
+      "backgroundColor": "rgb(48, 48, 48)",
+      "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/hitbox/plastic-black.png\")",
+      "backgroundSize": "contain",
+      "color": "rgb(238, 238, 238)",
+      "fontSize": "20px",
+      "label": "Menu"
     }
-  }
+  },
+  "trailColor": "#0000"
 }

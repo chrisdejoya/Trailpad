@@ -2,9 +2,9 @@
   "base": {
     "display": "block",
     "zIndex": "0",
-    "top": "210px",
-    "left": "140px",
-    "width": "530px",
+    "top": "190px",
+    "left": "145px",
+    "width": "520px",
     "height": "230px",
     "borderRadius": "0px",
     "outline": "rgb(238, 238, 238) none 0px",
@@ -12,7 +12,7 @@
     "boxShadow": "none",
     "backgroundColor": "rgba(0, 0, 0, 0)",
     "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/hades2/h2-base.svg\")",
-    "backgroundSize": "100% 100%",
+    "backgroundSize": "contain",
     "color": "rgb(238, 238, 238)",
     "fontSize": "16px",
     "label": ""
@@ -37,7 +37,7 @@
   },
   "joystickHead": {
     "display": "flex",
-    "zIndex": "4 !important",
+    "zIndex": "4",
     "top": "110px",
     "left": "110px",
     "width": "80px",
@@ -54,7 +54,25 @@
     "label": ""
   },
   "eightWayWrapper": {
-    "display": "none"
+    "display": "none",
+    "zIndex": "auto",
+    "top": "260px",
+    "left": "50px",
+    "width": "230px",
+    "height": "230px",
+    "borderRadius": "50%",
+    "outline": "rgb(238, 238, 238) none 0px",
+    "outlineOffset": "0px",
+    "boxShadow": "none",
+    "backgroundColor": "rgba(0, 0, 0, 0)",
+    "backgroundImage": "none",
+    "backgroundSize": "auto",
+    "color": "rgb(238, 238, 238)",
+    "fontSize": "16px",
+    "label": "",
+    "arrowSize": 90,
+    "arrowImageOn": "https://chrisdejoya.github.io/Trailpad/beta/images/arrow-on.svg",
+    "arrowImageOff": "https://chrisdejoya.github.io/Trailpad/beta/images/arrow-off.svg"
   },
   "buttons": {
     "Up": {
@@ -143,8 +161,8 @@
       "backgroundColor": "rgb(48, 48, 48)",
       "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/hades2/h2-a.svg\")",
       "backgroundSize": "contain",
-      "color": "#60D67F",
-      "fontSize": "0",
+      "color": "rgb(96, 214, 127)",
+      "fontSize": "0px",
       "label": "A"
     },
     "B": {
@@ -161,8 +179,8 @@
       "backgroundColor": "rgb(48, 48, 48)",
       "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/hades2/h2-b.svg\")",
       "backgroundSize": "contain",
-      "color": "#C4403E",
-      "fontSize": "0",
+      "color": "rgb(196, 64, 62)",
+      "fontSize": "0px",
       "label": "B"
     },
     "X": {
@@ -179,8 +197,8 @@
       "backgroundColor": "rgb(48, 48, 48)",
       "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/hades2/h2-x.svg\")",
       "backgroundSize": "contain",
-      "color": "#73B8CF",
-      "fontSize": "0",
+      "color": "rgb(115, 184, 207)",
+      "fontSize": "0px",
       "label": "X"
     },
     "Y": {
@@ -197,8 +215,8 @@
       "backgroundColor": "rgb(48, 48, 48)",
       "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/hades2/h2-y.svg\")",
       "backgroundSize": "92px auto",
-      "color": "#E5CC73",
-      "fontSize": "0",
+      "color": "rgb(229, 204, 115)",
+      "fontSize": "0px",
       "label": "Y"
     },
     "LB": {
@@ -216,7 +234,7 @@
       "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/hades2/h2-lb.svg\")",
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
-      "fontSize": "0",
+      "fontSize": "0px",
       "label": "LB"
     },
     "RB": {
@@ -234,7 +252,7 @@
       "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/hades2/h2-rb.svg\")",
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
-      "fontSize": "0",
+      "fontSize": "0px",
       "label": "Rb"
     },
     "LT": {
@@ -252,7 +270,7 @@
       "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/hades2/h2-lt.svg\")",
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
-      "fontSize": "0",
+      "fontSize": "0px",
       "label": "LT"
     },
     "RT": {
@@ -270,7 +288,7 @@
       "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/hades2/h2-rt.svg\")",
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
-      "fontSize": "0",
+      "fontSize": "0px",
       "label": "RT"
     },
     "LS": {
@@ -281,7 +299,7 @@
       "width": "90px",
       "height": "90px",
       "borderRadius": "50%",
-      "outline": "none",
+      "outline": "rgb(238, 238, 238) none 0px",
       "outlineOffset": "0px",
       "boxShadow": "rgb(0, 0, 0) 0px 1px 0px 2px",
       "backgroundColor": "rgb(48, 48, 48)",
@@ -299,7 +317,7 @@
       "width": "90px",
       "height": "90px",
       "borderRadius": "50%",
-      "outline": "none",
+      "outline": "rgb(238, 238, 238) none 0px",
       "outlineOffset": "0px",
       "boxShadow": "rgb(0, 0, 0) 0px 1px 0px 2px",
       "backgroundColor": "rgb(48, 48, 48)",
@@ -317,7 +335,7 @@
       "width": "70px",
       "height": "70px",
       "borderRadius": "50%",
-      "outline": "none",
+      "outline": "rgb(238, 238, 238) none 0px",
       "outlineOffset": "0px",
       "boxShadow": "rgb(0, 0, 0) 0px 1px 0px 2px",
       "backgroundColor": "rgba(0, 0, 0, 0)",
@@ -335,7 +353,7 @@
       "width": "70px",
       "height": "70px",
       "borderRadius": "50%",
-      "outline": "none",
+      "outline": "rgb(238, 238, 238) none 0px",
       "outlineOffset": "0px",
       "boxShadow": "rgb(0, 0, 0) 0px 1px 0px 2px",
       "backgroundColor": "rgba(0, 0, 0, 0)",
@@ -345,5 +363,6 @@
       "fontSize": "20px",
       "label": ""
     }
-  }
+  },
+  "trailColor": "#FB0300"
 }
