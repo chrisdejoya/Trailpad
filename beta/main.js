@@ -33,7 +33,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const eightWayWrapper = document.getElementById('eightWayWrapper');
   const canvas = document.getElementById('stickCanvas');
   const ctx = canvas.getContext('2d');
-  const colorPanel = document.getElementById('colorPanel');
+  let colorPanel = document.getElementById('colorPanel');
   const toastEl = document.getElementById('toast');
   const markers = Array.from({ length: 8 }, (_, i) => document.getElementById('marker' + i));
 
@@ -134,6 +134,9 @@ window.addEventListener('DOMContentLoaded', () => {
       buttons: {},
       trailColor: appState.trailColor || getComputedStyle(document.documentElement).getPropertyValue('--trail-color') || '#CEEC73'
     };
+    // Add arrowImageOn/Off if present
+    if (appState.eightWayWrapper?.arrowImageOn) snap.eightWayWrapper.arrowImageOn = appState.eightWayWrapper.arrowImageOn;
+    if (appState.eightWayWrapper?.arrowImageOff) snap.eightWayWrapper.arrowImageOff = appState.eightWayWrapper.arrowImageOff;
     Object.keys(btnEls).forEach(k => snap.buttons[k] = captureElementProperties(btnEls[k]));
     return snap;
   }
@@ -156,6 +159,21 @@ window.addEventListener('DOMContentLoaded', () => {
       arrowSize = parseInt(parsed.eightWayWrapper.arrowSize) || arrowSize;
       resizeEightWayArrows();
     }
+    // Set arrowImageOn/Off if present
+    if (parsed.eightWayWrapper?.arrowImageOn) {
+      appState.eightWayWrapper.arrowImageOn = parsed.eightWayWrapper.arrowImageOn;
+    }
+    if (parsed.eightWayWrapper?.arrowImageOff) {
+      appState.eightWayWrapper.arrowImageOff = parsed.eightWayWrapper.arrowImageOff;
+    }
+    // Apply to all arrows
+    for (let i = 0; i < 8; i++) {
+      const arrow = document.getElementById('arrow' + i);
+      if (!arrow) continue;
+      if (appState.eightWayWrapper.arrowImageOff) {
+        arrow.style.backgroundImage = `url('${appState.eightWayWrapper.arrowImageOff}')`;
+      }
+    }
     if (parsed.trailColor) {
       appState.trailColor = parsed.trailColor;
       document.documentElement.style.setProperty('--trail-color', parsed.trailColor);
@@ -169,6 +187,8 @@ window.addEventListener('DOMContentLoaded', () => {
     if (!currentPreviewTarget) return;
     if (currentPreviewTarget.dataset._prevBg !== undefined) { currentPreviewTarget.style.backgroundColor = currentPreviewTarget.dataset._prevBg || ''; delete currentPreviewTarget.dataset._prevBg; }
     if (currentPreviewTarget.dataset._prevColor !== undefined) { currentPreviewTarget.style.color = currentPreviewTarget.dataset._prevColor || ''; delete currentPreviewTarget.dataset._prevColor; }
+    if (currentPreviewTarget.dataset._prevBgImage !== undefined) { currentPreviewTarget.style.backgroundImage = currentPreviewTarget.dataset._prevBgImage || ''; delete currentPreviewTarget.dataset._prevBgImage; }
+    if (currentPreviewTarget.dataset._prevBgSize !== undefined) { currentPreviewTarget.style.backgroundSize = currentPreviewTarget.dataset._prevBgSize || ''; delete currentPreviewTarget.dataset._prevBgSize; }
     currentPreviewTarget = null;
   }
 
@@ -181,6 +201,18 @@ window.addEventListener('DOMContentLoaded', () => {
     if (selected && selected !== el) { selected.classList.remove('selected'); selected.classList.remove('selectedOutline'); }
     selected = el; selected.classList.add('selected'); selected.classList.add('selectedOutline'); updatePanelForSelection();
     if (colorPanel.style.display === 'block' || colorPanel.style.display === 'flex') panelAnchorTarget = selected;
+    // sync persistent size slider to selected element's backgroundSize (percent if set)
+    try {
+      const slider = colorPanel.querySelector('.symbolSizeSlider'); const valEl = colorPanel.querySelector('.symbolSizeValue');
+      if (slider) {
+        const cs = window.getComputedStyle(selected);
+        let bgSize = cs.backgroundSize || selected.style.backgroundSize || '';
+        // try to extract percent value
+        const m = (selected.style.backgroundSize || bgSize).match(/(\d+)%/);
+        if (m) { slider.value = parseInt(m[1]); if (valEl) valEl.textContent = slider.value + ''; }
+        else { slider.value = 100; if (valEl) valEl.textContent = slider.value + ''; }
+      }
+    } catch (e) { }
   }
 
   function deselect() { selectElement(null); }
@@ -188,7 +220,16 @@ window.addEventListener('DOMContentLoaded', () => {
   // arrow highlight helper
   function updateArrowHighlights(idx) {
     for (let i = 0; i < 8; i++) {
-      const arrow = document.getElementById('arrow' + i); if (!arrow) continue; arrow.classList.toggle('active', i === idx);
+      const arrow = document.getElementById('arrow' + i);
+      if (!arrow) continue;
+      const isActive = i === idx;
+      arrow.classList.toggle('active', isActive);
+      // Set background image based on state
+      if (appState.eightWayWrapper?.arrowImageOn && appState.eightWayWrapper?.arrowImageOff) {
+        arrow.style.backgroundImage = isActive
+          ? `url('${appState.eightWayWrapper.arrowImageOn}')`
+          : `url('${appState.eightWayWrapper.arrowImageOff}')`;
+      }
     }
   }
 
@@ -208,7 +249,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   Object.values(btnEls).forEach(btn => {
     btn.addEventListener('click', e => { selectElement(btn); lastPressedTimes[btn.dataset.btn] = performance.now(); showToast(btn.dataset.btn, 1000); e.stopPropagation(); if (colorPanel.style.display === 'block' || colorPanel.style.display === 'flex') panelAnchorTarget = btn; });
-    btn.addEventListener('contextmenu', e => { e.preventDefault(); selectElement(btn); openColorPanel(btn, e.pageX, e.pageY); });
+    btn.addEventListener('contextmenu', e => { e.preventDefault(); selectElement(btn); openColorPanel(btn, e.pageX, e.pageY).catch(err => console.error('openColorPanel error', err)); });
 
     btn.addEventListener('dblclick', e => {
       if (btn.querySelector('input')) return;
@@ -227,33 +268,107 @@ window.addEventListener('DOMContentLoaded', () => {
   // --- color panel ---
   let colorMode = localStorage.getItem('colorMode') || 'bg';
 
-  function openColorPanel(anchorTarget, x, y) {
-    panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
+  async function openColorPanel(anchorTarget, x, y) {
+    try {
+      // defensive: ensure colorPanel exists and is attached
+      colorPanel = document.getElementById('colorPanel') || colorPanel;
+      if (!colorPanel) {
+        colorPanel = document.createElement('div'); colorPanel.id = 'colorPanel'; document.body.appendChild(colorPanel);
+      } else if (!document.body.contains(colorPanel)) {
+        document.body.appendChild(colorPanel);
+      }
+      panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
 
     // mode toggle row
-    const toggle = document.createElement('div'); toggle.className = 'modeToggle'; toggle.style.display = 'flex'; toggle.style.alignItems = 'center'; toggle.style.justifyContent = 'space-between'; toggle.style.gap = '8px';
-    const leftGroup = document.createElement('div'); leftGroup.style.display = 'flex'; leftGroup.style.gap = '8px';
+  const toggle = document.createElement('div'); toggle.className = 'modeToggle'; toggle.style.display = 'flex'; toggle.style.alignItems = 'center'; toggle.style.justifyContent = 'space-between'; toggle.style.gap = '5px';
+  const leftGroup = document.createElement('div'); leftGroup.style.display = 'flex'; leftGroup.style.gap = '8px';
+  // right group for sliders / symbol size controls
+  const rightGroup = document.createElement('div'); rightGroup.style.display = 'flex'; rightGroup.style.alignItems = 'center'; rightGroup.style.gap = '8px';
+  // declare symbolBtn early to avoid TDZ when handlers reference it
+  let symbolBtn = null;
     const bgDiv = document.createElement('div'); bgDiv.className = 'modeBtn bgBtn'; bgDiv.textContent = 'FILL';
     const txtDiv = document.createElement('div'); txtDiv.className = 'modeBtn txtBtn'; txtDiv.textContent = 'TEXT';
     const outlineDiv = document.createElement('div'); outlineDiv.className = 'modeBtn outlineBtn'; outlineDiv.textContent = 'STROKE';
-    leftGroup.appendChild(bgDiv); leftGroup.appendChild(txtDiv); leftGroup.appendChild(outlineDiv); toggle.appendChild(leftGroup);
+  leftGroup.appendChild(bgDiv); leftGroup.appendChild(txtDiv); leftGroup.appendChild(outlineDiv); toggle.appendChild(leftGroup);
 
-    const sliderWrapper = document.createElement('div'); sliderWrapper.style.display = 'none'; sliderWrapper.style.alignItems = 'center'; sliderWrapper.style.gap = '10px';
+  const sliderWrapper = document.createElement('div'); sliderWrapper.style.display = 'none'; sliderWrapper.style.alignItems = 'center'; sliderWrapper.style.gap = '5px';
     const innerLabel = document.createElement('span'); innerLabel.textContent = 'In';
-    const innerSlider = document.createElement('input'); innerSlider.type = 'range'; innerSlider.min = 0; innerSlider.max = 10; innerSlider.step = 1; innerSlider.style.width = '80px';
+    const innerSlider = document.createElement('input'); innerSlider.type = 'range'; innerSlider.min = 0; innerSlider.max = 10; innerSlider.step = 1; innerSlider.style.width = '60px';
     const innerValue = document.createElement('span');
     const outerLabel = document.createElement('span'); outerLabel.textContent = 'Out';
-    const outerSlider = document.createElement('input'); outerSlider.type = 'range'; outerSlider.min = 0; outerSlider.max = 10; outerSlider.step = 1; outerSlider.style.width = '80px';
+    const outerSlider = document.createElement('input'); outerSlider.type = 'range'; outerSlider.min = 0; outerSlider.max = 10; outerSlider.step = 1; outerSlider.style.width = '60px';
     const outerValue = document.createElement('span');
-    sliderWrapper.appendChild(innerLabel); sliderWrapper.appendChild(innerSlider); sliderWrapper.appendChild(innerValue); sliderWrapper.appendChild(outerLabel); sliderWrapper.appendChild(outerSlider); sliderWrapper.appendChild(outerValue);
-    toggle.appendChild(sliderWrapper); colorPanel.appendChild(toggle);
+  sliderWrapper.appendChild(innerLabel); sliderWrapper.appendChild(innerSlider); sliderWrapper.appendChild(innerValue); sliderWrapper.appendChild(outerLabel); sliderWrapper.appendChild(outerSlider); sliderWrapper.appendChild(outerValue);
+  // create persistent size control in rightGroup (hidden by default; shown only in symbol mode)
+  const sizeCtrl = document.createElement('div'); sizeCtrl.className = 'symbolSizeControl'; sizeCtrl.style.display = 'none'; sizeCtrl.style.alignItems = 'left'; sizeCtrl.style.gap = '5px'; sizeCtrl.style.padding = '0px 0px';
+    const sizeLabel = document.createElement('span'); sizeLabel.textContent = 'Size'; sizeLabel.style.fontSize = '16px';
+  const sizeSlider = document.createElement('input'); sizeSlider.type = 'range'; sizeSlider.min = 0; sizeSlider.max = 200; sizeSlider.step = 10; sizeSlider.value = 100; sizeSlider.style.width = '100px'; sizeSlider.className = 'symbolSizeSlider';
+    const sizeValue = document.createElement('span'); sizeValue.textContent = sizeSlider.value + ''; sizeValue.style.minWidth = '30px'; sizeValue.className = 'symbolSizeValue'; sizeValue.style.fontSize = '16px';
+    sizeCtrl.appendChild(sizeLabel); sizeCtrl.appendChild(sizeSlider); sizeCtrl.appendChild(sizeValue);
+    const clearBtn = document.createElement('button'); clearBtn.type = 'button'; clearBtn.className = 'clearSymbolBtn'; clearBtn.textContent = 'Clear'; clearBtn.style.marginLeft = '0px'; clearBtn.style.padding = '5px 5px'; clearBtn.style.fontSize = '16px';
+    sizeCtrl.appendChild(clearBtn);
 
-    let mode = colorMode; if (mode === 'bg') bgDiv.classList.add('active'); if (mode === 'text') txtDiv.classList.add('active');
-    if (mode === 'outline') { outlineDiv.classList.add('active'); sliderWrapper.style.display = 'flex'; updatePanelForSelection(); }
+    // persistent slider listener (applies size % to current selection)
+    sizeSlider.addEventListener('input', () => {
+      sizeValue.textContent = sizeSlider.value + '';
+      const applyTarget = selected || panelAnchorTarget; if (!applyTarget) return; const btnId = applyTarget.dataset?.btn;
+      applyTarget.style.backgroundSize = `${sizeSlider.value}% auto`;
+      if (btnId) { appState.buttons[btnId] = appState.buttons[btnId] || {}; appState.buttons[btnId].backgroundSize = applyTarget.style.backgroundSize; saveStateData(); }
+    });
 
-    bgDiv.addEventListener('click', () => { mode = 'bg'; colorMode = 'bg'; bgDiv.classList.add('active'); txtDiv.classList.remove('active'); outlineDiv.classList.remove('active'); sliderWrapper.style.display = 'none'; });
-    txtDiv.addEventListener('click', () => { mode = 'text'; colorMode = 'text'; txtDiv.classList.add('active'); bgDiv.classList.remove('active'); outlineDiv.classList.remove('active'); sliderWrapper.style.display = 'none'; });
-    outlineDiv.addEventListener('click', () => { mode = 'outline'; colorMode = 'outline'; outlineDiv.classList.add('active'); bgDiv.classList.remove('active'); txtDiv.classList.remove('active'); sliderWrapper.style.display = 'flex'; updatePanelForSelection(); });
+    clearBtn.addEventListener('click', () => {
+      const applyTarget = selected || panelAnchorTarget; if (!applyTarget) return; const btnId = applyTarget.dataset?.btn;
+      applyTarget.style.backgroundImage = '';
+      applyTarget.style.backgroundSize = '';
+      if (btnId && appState.buttons[btnId]) {
+        // restore previous text color if available
+        if (appState.buttons[btnId].prevColor !== undefined) {
+          applyTarget.style.color = appState.buttons[btnId].prevColor || '';
+          delete appState.buttons[btnId].prevColor;
+        } else {
+          if (appState.buttons[btnId].color === 'transparent') delete appState.buttons[btnId].color;
+        }
+        delete appState.buttons[btnId].backgroundImage;
+        delete appState.buttons[btnId].backgroundSize;
+      } else {
+        applyTarget.style.color = '';
+      }
+      const grid = colorPanel.querySelector('.symbolGrid'); if (grid) grid.querySelectorAll('.symbolCell').forEach(c => c.classList.remove('selected'));
+      saveStateData();
+    });
+
+  // put the slider wrapper into the rightGroup so outline sliders live there
+  rightGroup.appendChild(sliderWrapper);
+  // add persistent sizeCtrl to rightGroup (visible in all modes)
+  rightGroup.appendChild(sizeCtrl);
+  toggle.appendChild(leftGroup); toggle.appendChild(rightGroup);
+  colorPanel.appendChild(toggle);
+
+  let mode = colorMode; if (mode === 'bg') bgDiv.classList.add('active'); if (mode === 'text') txtDiv.classList.add('active');
+  if (mode === 'outline') { outlineDiv.classList.add('active'); sliderWrapper.style.display = 'flex'; updatePanelForSelection(); }
+
+  bgDiv.addEventListener('click', () => {
+    mode = 'bg'; colorMode = 'bg'; localStorage.setItem('colorMode', colorMode); bgDiv.classList.add('active'); txtDiv.classList.remove('active'); outlineDiv.classList.remove('active');
+    // restore UI and remove symbol grid only
+    sliderWrapper.style.display = 'none'; if (typeof symbolBtn !== 'undefined') symbolBtn.classList.remove('active'); if (typeof swatchContainer !== 'undefined') swatchContainer.style.display = '';
+    // hide symbol size control when not in symbol mode
+    try { sizeCtrl.style.display = 'none'; } catch (e) {}
+    const grid = colorPanel.querySelector('.symbolGrid'); if (grid) grid.remove();
+  });
+  txtDiv.addEventListener('click', () => {
+    mode = 'text'; colorMode = 'text'; localStorage.setItem('colorMode', colorMode); txtDiv.classList.add('active'); bgDiv.classList.remove('active'); outlineDiv.classList.remove('active');
+    sliderWrapper.style.display = 'none'; if (typeof symbolBtn !== 'undefined') symbolBtn.classList.remove('active'); if (typeof swatchContainer !== 'undefined') swatchContainer.style.display = '';
+    // hide symbol size control when not in symbol mode
+    try { sizeCtrl.style.display = 'none'; } catch (e) {}
+    const grid = colorPanel.querySelector('.symbolGrid'); if (grid) grid.remove();
+  });
+  outlineDiv.addEventListener('click', () => {
+    mode = 'outline'; colorMode = 'outline'; localStorage.setItem('colorMode', colorMode); outlineDiv.classList.add('active'); bgDiv.classList.remove('active'); txtDiv.classList.remove('active');
+    sliderWrapper.style.display = 'flex'; updatePanelForSelection(); if (typeof symbolBtn !== 'undefined') symbolBtn.classList.remove('active'); if (typeof swatchContainer !== 'undefined') swatchContainer.style.display = '';
+    // hide symbol size control when not in symbol mode
+    try { sizeCtrl.style.display = 'none'; } catch (e) {}
+    const grid = colorPanel.querySelector('.symbolGrid'); if (grid) grid.remove();
+  });
 
     innerSlider.addEventListener('input', () => {
       const applyTarget = selected || panelAnchorTarget; if (!applyTarget) return; const btnId = applyTarget.dataset?.btn;
@@ -289,13 +404,139 @@ window.addEventListener('DOMContentLoaded', () => {
 
     colorPanel.appendChild(swatchContainer);
 
-    // clamp
-    colorPanel.style.display = 'block'; colorPanel.style.left = '0px'; colorPanel.style.top = '0px';
+  // --- Symbol selector ---
+  // assign to previously-declared symbolBtn (avoid redeclaring block-scoped variable)
+  symbolBtn = document.createElement('div'); symbolBtn.className = 'modeBtn symbolBtn'; symbolBtn.textContent = 'SYMBOL';
+  leftGroup.appendChild(symbolBtn);
+
+    let symbolsData = null;
+    async function loadSymbols() {
+      if (symbolsData) return symbolsData;
+      try {
+        const res = await fetch('symbols.json'); if (!res.ok) throw new Error('not found'); const parsed = await res.json();
+        symbolsData = parsed; return symbolsData;
+      } catch (e) { console.warn('Could not load symbols.json', e); symbolsData = { images: [] }; return symbolsData; }
+    }
+
+    async function showSymbolGrid() {
+      // clear any existing symbol area
+      const existing = colorPanel.querySelector('.symbolGrid'); if (existing) existing.remove();
+      // keep persistent symbolSizeControl in the rightGroup; do not remove it here
+      const data = await loadSymbols();
+      const grid = document.createElement('div'); grid.className = 'symbolGrid';
+      document.documentElement.style.setProperty('--symbol-size', (data.symbolSize || 48) + 'px');
+      document.documentElement.style.setProperty('--symbol-gap', (data.symbolGap || 8) + 'px');
+      data.images = data.images || [];
+
+      // use persistent sizeSlider/clearBtn created above
+
+      // Build cells
+      data.images.forEach(src => {
+        const cell = document.createElement('div'); cell.className = 'symbolCell'; cell.title = src; cell.style.backgroundImage = `url('${src}')`;
+        // preview on mouseenter
+        cell.addEventListener('mouseenter', () => {
+          const applyTarget = selected || panelAnchorTarget; if (!applyTarget) return;
+          // save previous values
+          if (currentPreviewTarget && currentPreviewTarget !== applyTarget) revertPreview();
+          if (applyTarget.dataset._prevBgImage === undefined) applyTarget.dataset._prevBgImage = applyTarget.style.backgroundImage || '';
+          if (applyTarget.dataset._prevBgSize === undefined) applyTarget.dataset._prevBgSize = applyTarget.style.backgroundSize || '';
+          applyTarget.style.backgroundImage = `url('${src}')`;
+          // use percent slider value for preview if present
+          const persistentSlider = colorPanel.querySelector('.symbolSizeSlider'); const pct = persistentSlider ? parseInt(persistentSlider.value) || 100 : 100; applyTarget.style.backgroundSize = `${pct}% auto`;
+          currentPreviewTarget = applyTarget;
+        });
+
+        // on mouseleave, only revert if the preview target still exists AND it wasn't applied
+        cell.addEventListener('mouseleave', () => {
+          // if the preview target was applied (we cleared preview marker), don't revert
+          if (!currentPreviewTarget) return; // already handled by click
+          revertPreview();
+        });
+
+        // apply on click
+        cell.addEventListener('click', () => {
+          const applyTarget = selected || panelAnchorTarget; if (!applyTarget) return;
+          const btnId = applyTarget.dataset?.btn;
+          // set background image and size based on slider
+          const persistentSlider = colorPanel.querySelector('.symbolSizeSlider'); const pct = persistentSlider ? parseInt(persistentSlider.value) || 100 : 100;
+          applyTarget.style.backgroundImage = `url('${src}')`;
+          applyTarget.style.backgroundSize = `${pct}% auto`;
+          if (btnId) {
+            appState.buttons[btnId] = appState.buttons[btnId] || {};
+            appState.buttons[btnId].backgroundImage = applyTarget.style.backgroundImage;
+            appState.buttons[btnId].backgroundSize = applyTarget.style.backgroundSize;
+          }
+          // save previous text color (persist) and set text color to transparent when applying a symbol
+          if (btnId) {
+            appState.buttons[btnId] = appState.buttons[btnId] || {};
+            if (appState.buttons[btnId].prevColor === undefined) {
+              // capture computed color as previous color
+              const prev = window.getComputedStyle(applyTarget).color || '';
+              appState.buttons[btnId].prevColor = prev;
+            }
+            appState.buttons[btnId].color = 'transparent';
+          }
+          applyTarget.style.color = 'transparent';
+          // mark selected visually in grid
+          grid.querySelectorAll('.symbolCell').forEach(c => c.classList.remove('selected'));
+          cell.classList.add('selected');
+          // Clear preview state so mouseleave won't revert
+          if (applyTarget.dataset._prevBgImage !== undefined) delete applyTarget.dataset._prevBgImage;
+          if (applyTarget.dataset._prevBgSize !== undefined) delete applyTarget.dataset._prevBgSize;
+          // remove currentPreviewTarget to avoid revert
+          currentPreviewTarget = null;
+          saveStateData();
+        });
+
+        grid.appendChild(cell);
+      });
+
+  // grid appended below (sizeCtrl already in rightGroup at top)
+  colorPanel.appendChild(grid);
+    }
+
+    symbolBtn.addEventListener('click', async () => {
+      // activate symbol mode UI and hide swatches + sliders
+      mode = 'symbol'; colorMode = 'symbol'; localStorage.setItem('colorMode', colorMode); bgDiv.classList.remove('active'); txtDiv.classList.remove('active'); outlineDiv.classList.remove('active'); symbolBtn.classList.add('active'); swatchContainer.style.display = 'none';
+      // hide the In/Out slider wrapper when symbol panel is active
+      if (typeof sliderWrapper !== 'undefined') sliderWrapper.style.display = 'none';
+      // show symbol size control when in symbol mode
+      try { sizeCtrl.style.display = 'flex'; } catch (e) {}
+      await showSymbolGrid();
+    });
+
+  // clamp
+  colorPanel.style.display = 'block'; colorPanel.style.left = '0px'; colorPanel.style.top = '0px';
     const panelRect = colorPanel.getBoundingClientRect(); const viewportWidth = window.innerWidth; const viewportHeight = window.innerHeight;
     let left = x; let top = y + 40;
     if (left + panelRect.width > viewportWidth) left = Math.max(8, viewportWidth - panelRect.width - 10);
     if (top + panelRect.height > viewportHeight) top = Math.max(8, viewportHeight - panelRect.height - 10);
     colorPanel.style.left = left + 'px'; colorPanel.style.top = top + 'px';
+    // sync size slider to target
+    try {
+      const slider = colorPanel.querySelector('.symbolSizeSlider'); const valEl = colorPanel.querySelector('.symbolSizeValue');
+      const applyTarget = selected || panelAnchorTarget; if (slider && applyTarget) {
+        const cs = window.getComputedStyle(applyTarget); let bgSize = cs.backgroundSize || applyTarget.style.backgroundSize || '';
+        const m = (applyTarget.style.backgroundSize || bgSize).match(/(\d+)/);
+        if (m) { slider.value = parseInt(m[1]); if (valEl) valEl.textContent = slider.value + ''; }
+        else { slider.value = 100; if (valEl) valEl.textContent = slider.value + ''; }
+      }
+    } catch (e) { }
+    // if the remembered mode is symbol, open the symbol grid automatically
+    try {
+      if (colorMode === 'symbol') {
+        if (typeof sliderWrapper !== 'undefined') sliderWrapper.style.display = 'none';
+        if (typeof swatchContainer !== 'undefined') swatchContainer.style.display = 'none';
+        // mark symbol button active and show size control when auto-opening symbol grid
+        try { if (symbolBtn) symbolBtn.classList.add('active'); } catch (e) {}
+        try { sizeCtrl.style.display = 'flex'; } catch (e) {}
+        await showSymbolGrid();
+      }
+    } catch (e) { console.warn('Could not auto-open symbol grid', e); }
+    } catch (err) {
+      console.error('openColorPanel failed', err);
+      try { colorPanel.style.display = 'none'; } catch (_) {}
+    }
   }
 
   function updatePanelForSelection() {

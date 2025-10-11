@@ -1,0 +1,28 @@
+{
+  "symbolSize": 40,
+  "symbolGap": 5,
+  "images": [
+    "images/ps/ps-circle.svg",
+    "images/ps/ps-square.svg",
+    "images/ps/ps-triangle.svg",
+    "images/ps/ps-cross.svg",
+    "images/ps/ps-circle-col.svg",
+    "images/ps/ps-square-col.svg",
+    "images/ps/ps-triangle-col.svg",
+    "images/ps/ps-cross-col.svg",
+    "images/sf/sf-punch.svg",
+    "images/sf/sf-kick.svg",
+    "images/up.svg",
+    "images/down.svg",
+    "images/left.svg",
+    "images/right.svg",
+    "images/sf/sf-up.svg",
+    "images/sf/sf-down.svg",
+    "images/sf/sf-left.svg",
+    "images/sf/sf-right.svg",
+    "images/up-dark.svg",
+    "images/down-dark.svg",
+    "images/left-dark.svg",
+    "images/right-dark.svg"
+  ]
+}
