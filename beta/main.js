@@ -414,8 +414,15 @@ window.addEventListener('DOMContentLoaded', () => {
       if (symbolsData) return symbolsData;
       try {
         const res = await fetch('symbols.json'); if (!res.ok) throw new Error('not found'); const parsed = await res.json();
+        // Support both new structure (buttons/directions) and old `images` array for backward compatibility
+        if (!parsed.buttons && parsed.images) {
+          parsed.buttons = parsed.images; parsed.directions = parsed.images.filter(s => /up|down|left|right/i.test(s));
+        }
+        // Ensure arrays exist
+        parsed.buttons = Array.isArray(parsed.buttons) ? parsed.buttons : [];
+        parsed.directions = Array.isArray(parsed.directions) ? parsed.directions : [];
         symbolsData = parsed; return symbolsData;
-      } catch (e) { console.warn('Could not load symbols.json', e); symbolsData = { images: [] }; return symbolsData; }
+      } catch (e) { console.warn('Could not load symbols.json', e); symbolsData = { buttons: [], directions: [], symbolSize: 40, symbolGap: 5 }; return symbolsData; }
     }
 
     async function showSymbolGrid() {
@@ -426,12 +433,23 @@ window.addEventListener('DOMContentLoaded', () => {
       const grid = document.createElement('div'); grid.className = 'symbolGrid';
       document.documentElement.style.setProperty('--symbol-size', (data.symbolSize || 48) + 'px');
       document.documentElement.style.setProperty('--symbol-gap', (data.symbolGap || 8) + 'px');
-      data.images = data.images || [];
+      // Decide which images to show based on currently selected button (directions for dpad, buttons otherwise)
+      const applyTarget = selected || panelAnchorTarget;
+      const btnId = applyTarget?.dataset?.btn;
+      // Define direction keys (case-insensitive)
+      const directionKeys = ['Up','Down','Left','Right','up','down','left','right'];
+      let images = [];
+      if (btnId && directionKeys.includes(btnId)) {
+        images = data.directions && data.directions.length ? data.directions : data.buttons || [];
+      } else {
+        images = data.buttons && data.buttons.length ? data.buttons : data.directions || [];
+      }
+      images = images || [];
 
       // use persistent sizeSlider/clearBtn created above
 
       // Build cells
-      data.images.forEach(src => {
+      images.forEach(src => {
         const cell = document.createElement('div'); cell.className = 'symbolCell'; cell.title = src; cell.style.backgroundImage = `url('${src}')`;
         // preview on mouseenter
         cell.addEventListener('mouseenter', () => {

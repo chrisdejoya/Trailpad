@@ -1,7 +1,7 @@
 {
   "symbolSize": 40,
   "symbolGap": 5,
-  "images": [
+  "buttons": [
     "images/ps/ps-circle.svg",
     "images/ps/ps-square.svg",
     "images/ps/ps-triangle.svg",
@@ -12,15 +12,17 @@
     "images/ps/ps-cross-col.svg",
     "images/sf/sf-punch.svg",
     "images/sf/sf-kick.svg",
+    "images/2xko/2xko-dash-white.svg",
+    "images/2xko/2xko-dash-black.svg",
+    "images/ggst/ggst-symbol-dash.svg",
+    "images/ggst/ggst-symbol-parry.svg",
+    "images/ggst/ggst-symbol-taunt.svg"
+  ],
+  "directions": [
     "images/up.svg",
     "images/down.svg",
     "images/left.svg",
     "images/right.svg",
-	"images/2xko/2xko-dash-white.svg",
-	"images/2xko/2xko-dash-black.svg",
-	"images/ggst/ggst-symbol-dash.svg",
-	"images/ggst/ggst-symbol-parry.svg",
-	"images/ggst/ggst-symbol-taunt.svg",
     "images/sf/sf-up.svg",
     "images/sf/sf-down.svg",
     "images/sf/sf-left.svg",
