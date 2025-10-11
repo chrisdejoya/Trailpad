@@ -27,9 +27,14 @@
     "images/sf/sf-down.svg",
     "images/sf/sf-left.svg",
     "images/sf/sf-right.svg",
+    "images/hades2/chevron-up.svg",
+    "images/hades2/chevron-down.svg",
+    "images/hades2/chevron-left.svg",
+    "images/hades2/chevron-right.svg",
     "images/up-dark.svg",
     "images/down-dark.svg",
     "images/left-dark.svg",
     "images/right-dark.svg"
   ]
+
 }
