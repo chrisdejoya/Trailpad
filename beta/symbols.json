@@ -12,6 +12,7 @@
     "images/ps/ps-cross-col.svg",
     "images/sf/sf-punch.svg",
     "images/sf/sf-kick.svg",
+    "images/sf/sf-throw.svg",
     "images/2xko/2xko-dash-white.svg",
     "images/2xko/2xko-dash-black.svg",
     "images/ggst/ggst-symbol-dash.svg",
@@ -38,3 +39,4 @@
   ]
 
 }
+
