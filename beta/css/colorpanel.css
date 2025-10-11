@@ -3,7 +3,7 @@
 	width: 600px;
     display: none;
     z-index: 200;
-    background: rgba(0.1,0.1,0.1,0.85);
+    background: rgba(60,60,60,0.95);
     border: 2px solid #333;
     padding: 10px;
     pointer: block;
