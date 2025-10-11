@@ -45,3 +45,37 @@ input.btn-edit {
   text-transform: uppercase;
   outline: none;
 }
+
+/* Symbol picker grid */
+.symbolGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--symbol-size,48px), 1fr));
+  gap: var(--symbol-gap,8px);
+  padding: 8px;
+  max-height: 300px;
+  overflow: auto;
+  box-sizing: border-box;
+}
+.symbolCell {
+  width: var(--symbol-size,48px);
+  height: var(--symbol-size,48px);
+  border-radius: 6px;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+.symbolCell:hover { transform: scale(1.06); border-color: rgba(255,255,255,0.25); }
+.symbolCell.selected { border-color: #fff; box-shadow: 0 0 6px rgba(0,0,0,0.6); }
+
+/* Compact layout for the symbol size control */
+.symbolSizeControl {
+  padding: 4px 6px;
+  gap: 6px;
+  display: flex;
+  align-items: center;
+}
+.symbolSizeControl .symbolSizeValue { font-size: 11px; min-width: 34px; }
+.symbolSizeControl button.clearSymbolBtn { padding: 3px 6px; font-size: 11px; }
+
