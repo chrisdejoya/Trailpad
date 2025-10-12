@@ -1044,35 +1044,74 @@ window.addEventListener('DOMContentLoaded', () => {
       // remove existing menu if present
       if (presetsMenuEl) presetsMenuEl.remove();
       const menu = document.createElement('div'); menu.className = 'presetsMenu';
-      const hdr = document.createElement('div'); hdr.className = 'presetsHeader'; hdr.textContent = 'Presets'; menu.appendChild(hdr);
-      const wrapper = document.createElement('div'); wrapper.className = 'presetsList';
-      if (!list || list.length === 0) {
-        const none = document.createElement('div'); none.className = 'presetItem'; none.textContent = '(no presets found)'; wrapper.appendChild(none);
-      } else {
-        for (const entry of list) {
-          const fn = entry.file; const label = entry.name || entry.file.replace(/\.json$/i, '');
-          const item = document.createElement('div'); item.className = 'presetItem'; item.textContent = label; item.dataset.file = fn; item.dataset.name = label;
-          item.addEventListener('mouseenter', async () => {
-            try {
-              // abort previous fetch
-              if (_previewFetchController) try { _previewFetchController.abort(); } catch (e) {}
-              _previewFetchController = new AbortController();
-              const res = await fetch('layouts/' + fn, { signal: _previewFetchController.signal }); if (!res.ok) throw new Error('not found');
-              const parsed = await res.json(); applyLayoutPreview(parsed);
-            } catch (e) { if (e.name !== 'AbortError') console.warn('Could not load preset for preview', e); }
-          });
-          item.addEventListener('click', async (ev) => {
-            ev.stopPropagation(); try {
-              const res = await fetch('layouts/' + fn); if (!res.ok) throw new Error('not found'); const parsed = await res.json();
-              // apply permanently
-              importLayout(parsed);
-              _menuSelectionMade = true; closePresetsMenu(false);
-              showToast('Preset applied: ' + item.dataset.name, 1000);
-            } catch (e) { console.warn('Could not apply preset', e); }
-          });
+  // Header with toggle between Profiles and Presets
+  const hdr = document.createElement('div'); hdr.className = 'presetsHeader';
+  const profilesToggle = document.createElement('span'); profilesToggle.className = 'presetHeaderToggle'; profilesToggle.textContent = 'Profiles'; profilesToggle.style.cursor = 'pointer'; profilesToggle.style.marginRight = '10px';
+  const presetsToggle = document.createElement('span'); presetsToggle.className = 'presetHeaderToggle'; presetsToggle.textContent = 'Presets'; presetsToggle.style.cursor = 'pointer';
+  hdr.appendChild(profilesToggle); hdr.appendChild(presetsToggle); menu.appendChild(hdr);
+  const wrapper = document.createElement('div'); wrapper.className = 'presetsList';
+      // helper to show presets list
+      function renderPresetsList() {
+        wrapper.innerHTML = '';
+        if (!list || list.length === 0) {
+          const none = document.createElement('div'); none.className = 'presetItem'; none.textContent = '(no presets found)'; wrapper.appendChild(none);
+        } else {
+          for (const entry of list) {
+            const fn = entry.file; const label = entry.name || entry.file.replace(/\.json$/i, '');
+            const item = document.createElement('div'); item.className = 'presetItem'; item.textContent = label; item.dataset.file = fn; item.dataset.name = label;
+            item.addEventListener('mouseenter', async () => {
+              try {
+                if (_previewFetchController) try { _previewFetchController.abort(); } catch (e) {}
+                _previewFetchController = new AbortController();
+                const res = await fetch('layouts/' + fn, { signal: _previewFetchController.signal }); if (!res.ok) throw new Error('not found');
+                const parsed = await res.json(); applyLayoutPreview(parsed);
+              } catch (e) { if (e.name !== 'AbortError') console.warn('Could not load preset for preview', e); }
+            });
+            item.addEventListener('click', async (ev) => {
+              ev.stopPropagation(); try {
+                const res = await fetch('layouts/' + fn); if (!res.ok) throw new Error('not found'); const parsed = await res.json();
+                importLayout(parsed);
+                _menuSelectionMade = true; closePresetsMenu(false);
+                showToast('Preset applied: ' + item.dataset.name, 1000);
+              } catch (e) { console.warn('Could not apply preset', e); }
+            });
+            wrapper.appendChild(item);
+          }
+        }
+      }
+
+      // helper to render profiles list
+      function renderProfilesList() {
+        wrapper.innerHTML = '';
+        for (let i = 1; i <= PROFILE_COUNT; i++) {
+          const key = 'profile' + i;
+          const saved = appState.profiles && appState.profiles[key];
+          const item = document.createElement('div'); item.className = 'presetItem';
+          const label = 'Profile ' + i + (saved ? '' : ' (Empty)');
+          item.textContent = label; item.dataset.profile = i;
+          if (saved) {
+            item.addEventListener('mouseenter', () => { try { applyLayoutPreview(saved); } catch (e) { console.warn('profile preview failed', e); } });
+            item.addEventListener('click', () => { try { importLayout(saved); _menuSelectionMade = true; closePresetsMenu(false); showToast('Profile ' + i + ' loaded', 1000); } catch (e) { console.warn('profile load failed', e); } });
+          }
           wrapper.appendChild(item);
         }
       }
+
+  // initial render shows profiles by default
+  renderProfilesList();
+      // wire header toggles and set classes
+      function setActiveToggle(which) {
+        if (which === 'profiles') {
+          profilesToggle.classList.add('active'); profilesToggle.classList.remove('inactive');
+          presetsToggle.classList.remove('active'); presetsToggle.classList.add('inactive');
+        } else {
+          presetsToggle.classList.add('active'); presetsToggle.classList.remove('inactive');
+          profilesToggle.classList.remove('active'); profilesToggle.classList.add('inactive');
+        }
+      }
+      profilesToggle.addEventListener('click', () => { setActiveToggle('profiles'); renderProfilesList(); });
+      presetsToggle.addEventListener('click', () => { setActiveToggle('presets'); renderPresetsList(); });
+  setActiveToggle('profiles');
       menu.appendChild(wrapper);
       // const note = document.createElement('div'); note.className = 'presetPreviewNote'; note.textContent = 'Hover to preview. Click to apply. Click outside to cancel.'; menu.appendChild(note);
       document.body.appendChild(menu); presetsMenuEl = menu;
@@ -1080,7 +1119,9 @@ window.addEventListener('DOMContentLoaded', () => {
       menu.style.left = x + 'px'; menu.style.top = y + 'px'; const rect = menu.getBoundingClientRect(); const vw = window.innerWidth; const vh = window.innerHeight;
       let left = x; let top = y; if (left + rect.width > vw) left = Math.max(8, vw - rect.width - 10); if (top + rect.height > vh) top = Math.max(8, vh - rect.height - 10);
       menu.style.left = left + 'px'; menu.style.top = top + 'px';
-      // register global handlers to close
+  // make Presets toggle visually active by default
+  presetsToggle.style.fontWeight = 'bold';
+  // register global handlers to close
       document.addEventListener('mousedown', _presetsOutsideClickHandler);
       document.addEventListener('keydown', _presetsKeyHandler);
     } catch (e) { console.warn('openPresetsMenu failed', e); }
