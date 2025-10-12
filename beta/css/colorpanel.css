@@ -70,7 +70,7 @@
     color: #ddd;
     padding: 6px 8px;
     min-width: 200px;
-	max-width: 200px;
+	max-width: 350px;
     box-shadow: 0 6px 18px rgba(0,0,0,0.6);
     font-family: inherit;
 }
@@ -98,3 +98,4 @@
     color: #999;
     padding-top: 5px;
 }
+
