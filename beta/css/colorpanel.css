@@ -60,3 +60,41 @@
 	outline-offset: -2px;
 	color: #fff;
 }
+
+/* Presets context menu (matches color panel) */
+.presetsMenu {
+    position: fixed;
+    z-index: 300;
+    background: rgba(20,20,20,0.95);
+    border: 2px solid #333;
+    color: #ddd;
+    padding: 6px 8px;
+    min-width: 200px;
+	max-width: 200px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.6);
+    font-family: inherit;
+}
+.presetsMenu .presetsHeader {
+    font-weight: bold;
+    padding: 5px 10px;
+    border-bottom: 1px solid rgba(80,80,80,0.2);
+    margin-bottom: 6px;
+	color: #999;
+}
+.presetsMenu .presetItem {
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 0px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.presetsMenu .presetItem:hover {
+    background: rgba(60,60,60,0.5);
+    color: #fff;
+}
+.presetsMenu .presetPreviewNote {
+    font-size: 12px;
+    color: #999;
+    padding-top: 5px;
+}
