@@ -56,10 +56,10 @@
   "eightWayWrapper": {
     "display": "block",
     "zIndex": "auto",
-    "top": "25px",
-    "left": "45px",
-    "width": "310px",
-    "height": "310px",
+    "top": "30px",
+    "left": "60px",
+    "width": "250px",
+    "height": "250px",
     "borderRadius": "50%",
     "outline": "rgb(238, 238, 238) none 0px",
     "outlineOffset": "0px",
@@ -70,7 +70,7 @@
     "color": "rgb(238, 238, 238)",
     "fontSize": "16px",
     "label": "",
-    "arrowSize": 85,
+    "arrowSize": 95,
     "arrowImageOn": "https://chrisdejoya.github.io/Trailpad/beta/images/arrow-on.svg",
     "arrowImageOff": "https://chrisdejoya.github.io/Trailpad/beta/images/arrow-off.svg"
   },
