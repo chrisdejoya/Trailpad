@@ -87,10 +87,10 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/up.svg\")",
-      "backgroundSize": "contain",
-      "color": "rgb(238, 238, 238)",
-      "fontSize": "44px",
+      "backgroundImage": "url(\"http://absolute/D:/Documents/Trailpad/images/up.svg\")",
+      "backgroundSize": "70px auto",
+      "color": "rgba(0, 0, 0, 0)",
+      "fontSize": "49px",
       "label": ""
     },
     "Down": {
@@ -105,10 +105,10 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/down.svg\")",
-      "backgroundSize": "contain",
-      "color": "rgb(238, 238, 238)",
-      "fontSize": "44px",
+      "backgroundImage": "url(\"http://absolute/D:/Documents/Trailpad/images/down.svg\")",
+      "backgroundSize": "70px auto",
+      "color": "rgba(0, 0, 0, 0)",
+      "fontSize": "29px",
       "label": ""
     },
     "Left": {
@@ -123,10 +123,10 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/left.svg\")",
-      "backgroundSize": "contain",
-      "color": "rgb(238, 238, 238)",
-      "fontSize": "44px",
+      "backgroundImage": "url(\"http://absolute/D:/Documents/Trailpad/images/left.svg\")",
+      "backgroundSize": "70px auto",
+      "color": "rgba(0, 0, 0, 0)",
+      "fontSize": "29px",
       "label": ""
     },
     "Right": {
@@ -141,10 +141,10 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/right.svg\")",
-      "backgroundSize": "contain",
-      "color": "rgb(238, 238, 238)",
-      "fontSize": "44px",
+      "backgroundImage": "url(\"http://absolute/D:/Documents/Trailpad/images/right.svg\")",
+      "backgroundSize": "70px auto",
+      "color": "rgba(0, 0, 0, 0)",
+      "fontSize": "29px",
       "label": ""
     },
     "A": {
@@ -161,9 +161,9 @@
       "backgroundColor": "rgb(48, 48, 48)",
       "backgroundImage": "none",
       "backgroundSize": "contain",
-      "color": "rgb(238, 238, 238)",
+      "color": "rgb(255, 255, 255)",
       "fontSize": "44px",
-      "label": "A"
+      "label": "a"
     },
     "B": {
       "display": "flex",
@@ -364,5 +364,14 @@
       "label": "Menu"
     }
   },
-  "trailColor": "#eedd44"
+  "trailColor": "#eedd44",
+  "analog": {
+    "LS": true,
+    "RS": true,
+    "analogVisualRange": 15,
+    "pressureEnabled": false,
+    "minTriggerBrightness": 1,
+    "maxTriggerBrightness": 3,
+    "triggerDeadzone": 0.0
+  }
 }
