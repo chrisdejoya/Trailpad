@@ -26,7 +26,11 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // DOM refs
   const btnEls = {};
-  document.querySelectorAll('.btn').forEach(el => btnEls[el.dataset.btn] = el);
+  document.querySelectorAll('.btn').forEach(el => {
+    btnEls[el.dataset.btn] = el;
+    // smooth visual feedback for analog changes (triggers / press scale)
+    try { el.style.transition = 'filter 60ms linear, transform 60ms linear'; } catch (e) {}
+  });
   const base = document.getElementById('base');
   const stickWrapper = document.getElementById('stickWrapper');
   const joystick = document.getElementById('joystickHead');
@@ -39,10 +43,21 @@ window.addEventListener('DOMContentLoaded', () => {
 
   let arrowSize = 90;
 
+  // stick container refs (parents of .btn for LS/RS)
+  const stickContainers = { LS: document.getElementById('LS'), RS: document.getElementById('RS') };
+
+  // distance readouts removed (no on-screen numeric distance)
+
+  // (analog control panel removed) - preferences remain in appState.analog and will be exported/imported
+
   // App state
   let appState = {
     buttons: {}, joystick: {}, joystickHead: {}, base: {}, eightWayWrapper: { arrowSize: 90 }, hiddenButtons: [], trailColor: getComputedStyle(document.documentElement).getPropertyValue('--trail-color') || '#CEEC73', profiles: {}
   };
+  // Add analog configuration to appState (persisted)
+  // pressureEnabled: whether LT/RT respond to analog pressure
+  // minTriggerBrightness/maxTriggerBrightness: mapping from 0..1 trigger value to brightness
+    appState.analog = { LS: true, RS: true, analogVisualRange: 8, pressureEnabled: true, minTriggerBrightness: 0.4, maxTriggerBrightness: 2.0, triggerDeadzone: 0.1 };
   let selected = null;
   let lastPressedTimes = {};
   let trail = [];
@@ -138,6 +153,13 @@ window.addEventListener('DOMContentLoaded', () => {
     if (appState.eightWayWrapper?.arrowImageOn) snap.eightWayWrapper.arrowImageOn = appState.eightWayWrapper.arrowImageOn;
     if (appState.eightWayWrapper?.arrowImageOff) snap.eightWayWrapper.arrowImageOff = appState.eightWayWrapper.arrowImageOff;
     Object.keys(btnEls).forEach(k => snap.buttons[k] = captureElementProperties(btnEls[k]));
+  // include analog prefs (LS/RS enabled, analogVisualRange) so layouts can control analog behavior
+  if (appState.analog) {
+    // copy only canonical fields and prune legacy keys if present
+    const a = Object.assign({}, appState.analog);
+    delete a.visualRange; delete a.minBrightness; delete a.maxBrightness; delete a.deadzone; delete a.showDistance;
+    snap.analog = a;
+  }
     return snap;
   }
 
@@ -177,6 +199,24 @@ window.addEventListener('DOMContentLoaded', () => {
     if (parsed.trailColor) {
       appState.trailColor = parsed.trailColor;
       document.documentElement.style.setProperty('--trail-color', parsed.trailColor);
+    }
+    // import analog prefs if provided
+    if (parsed.analog) {
+      // clone and migrate legacy names into canonical names if needed
+      const safeAnalog = Object.assign({}, parsed.analog);
+      if (safeAnalog.showDistance !== undefined) delete safeAnalog.showDistance;
+      // migrate legacy names
+      if (safeAnalog.visualRange !== undefined && safeAnalog.analogVisualRange === undefined) safeAnalog.analogVisualRange = safeAnalog.visualRange;
+      if (safeAnalog.deadzone !== undefined && safeAnalog.triggerDeadzone === undefined) safeAnalog.triggerDeadzone = safeAnalog.deadzone;
+      if (safeAnalog.minBrightness !== undefined && safeAnalog.minTriggerBrightness === undefined) safeAnalog.minTriggerBrightness = safeAnalog.minBrightness;
+      if (safeAnalog.maxBrightness !== undefined && safeAnalog.maxTriggerBrightness === undefined) safeAnalog.maxTriggerBrightness = safeAnalog.maxBrightness;
+      // remove legacy names so appState.analog stays canonical
+      delete safeAnalog.visualRange; delete safeAnalog.minBrightness; delete safeAnalog.maxBrightness; delete safeAnalog.deadzone;
+      appState.analog = Object.assign({}, appState.analog || {}, safeAnalog);
+      // ensure analogVisualRange fallback
+      if (appState.analog.analogVisualRange === undefined) appState.analog.analogVisualRange = 8;
+      // ensure triggerDeadzone fallback
+      if (appState.analog.triggerDeadzone === undefined) appState.analog.triggerDeadzone = 0.1;
     }
     if (parsed.joystickHead) applyJoystickHeadFromState();
     saveStateData();
@@ -339,6 +379,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // put the slider wrapper into the rightGroup so outline sliders live there
   rightGroup.appendChild(sliderWrapper);
+  // Pressure sensitivity controls removed from the UI by user request.
+  // Pressure settings remain in appState.analog and are still exported/imported, but are not exposed in the panel.
   // add persistent sizeCtrl to rightGroup (visible in all modes)
   rightGroup.appendChild(sizeCtrl);
   toggle.appendChild(leftGroup); toggle.appendChild(rightGroup);
@@ -695,18 +737,39 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 
   function handleStickMovement(pad) {
-    if (!pad) return; const now = performance.now();
-    if (selected) {
-      const ls = getAnalogStick(pad, 'left', cfg.deadzone, cfg.invertY); const rs = getAnalogStick(pad, 'right', cfg.deadzone, cfg.invertY);
-      if ((Math.abs(ls.x) > 0.15 || Math.abs(ls.y) > 0.15) && now - (elementMoveTimers['ls'] || 0) > moveDelay) moveSelected(ls.x * moveStep, ls.y * moveStep, 'ls');
-      if ((Math.abs(rs.x) > 0.15 || Math.abs(rs.y) > 0.15) && now - (elementMoveTimers['rs'] || 0) > moveDelay) moveSelected(rs.x * moveStep, rs.y * moveStep, 'rs');
+    const now = performance.now();
+    // if no pad, reset both sticks to center and clear distances
+    if (!pad) {
+      if (btnEls['LS']) btnEls['LS'].style.transform = 'translate(0px, 0px)';
+      if (btnEls['RS']) btnEls['RS'].style.transform = 'translate(0px, 0px)';
+      return;
     }
-    let ls = getAnalogStick(pad, 'left', cfg.deadzone, cfg.invertY);
-    if (ls.x === 0 && ls.y === 0) { if (btnEls['LS']) btnEls['LS'].style.transform = 'translate(0px, 0px)'; }
-    else { if (btnEls['LS']) btnEls['LS'].style.transform = `translate(${ls.x * 8}px, ${ls.y * 8}px)`; }
-    let rs = getAnalogStick(pad, 'right', cfg.deadzone, cfg.invertY);
-    if (rs.x === 0 && rs.y === 0) { if (btnEls['RS']) btnEls['RS'].style.transform = 'translate(0px, 0px)'; }
-    else { if (btnEls['RS']) btnEls['RS'].style.transform = `translate(${rs.x * 8}px, ${rs.y * 8}px)`; }
+
+    if (selected) {
+      // move selected only if corresponding analog is enabled
+      const lsMove = appState.analog?.LS !== false;
+      const rsMove = appState.analog?.RS !== false;
+  const ls = getAnalogStick(pad, 'left', cfg.deadzone, cfg.invertY); const rs = getAnalogStick(pad, 'right', cfg.deadzone, cfg.invertY);
+      if (lsMove && (Math.abs(ls.x) > 0.15 || Math.abs(ls.y) > 0.15) && now - (elementMoveTimers['ls'] || 0) > moveDelay) moveSelected(ls.x * moveStep, ls.y * moveStep, 'ls');
+      if (rsMove && (Math.abs(rs.x) > 0.15 || Math.abs(rs.y) > 0.15) && now - (elementMoveTimers['rs'] || 0) > moveDelay) moveSelected(rs.x * moveStep, rs.y * moveStep, 'rs');
+    }
+
+    // Visual movement of LS/RS buttons: only when enabled
+    const ls = getAnalogStick(pad, 'left', cfg.deadzone, cfg.invertY);
+      if (appState.analog?.LS === false) {
+      if (btnEls['LS']) btnEls['LS'].style.transform = 'translate(0px, 0px)';
+    } else {
+      if (ls.x === 0 && ls.y === 0) { if (btnEls['LS']) btnEls['LS'].style.transform = 'translate(0px, 0px)'; }
+      else { if (btnEls['LS']) btnEls['LS'].style.transform = `translate(${ls.x * (appState.analog?.analogVisualRange ?? 8)}px, ${ls.y * (appState.analog?.analogVisualRange ?? 8)}px)`; }
+    }
+
+    const rs = getAnalogStick(pad, 'right', cfg.deadzone, cfg.invertY);
+    if (appState.analog?.RS === false) {
+      if (btnEls['RS']) btnEls['RS'].style.transform = 'translate(0px, 0px)';
+    } else {
+      if (rs.x === 0 && rs.y === 0) { if (btnEls['RS']) btnEls['RS'].style.transform = 'translate(0px, 0px)'; }
+      else { if (btnEls['RS']) btnEls['RS'].style.transform = `translate(${rs.x * (appState.analog?.analogVisualRange ?? 8)}px, ${rs.y * (appState.analog?.analogVisualRange ?? 8)}px)`; }
+    }
   }
 
   // stick helpers
@@ -714,7 +777,8 @@ window.addEventListener('DOMContentLoaded', () => {
   function clampRoundedSquare(x, y, n = 8) { const mag = Math.pow(Math.abs(x), n) + Math.pow(Math.abs(y), n); if (mag > 1) { const scale = Math.pow(mag, -1 / n); return { x: x * scale, y: y * scale }; } return { x, y }; }
   function getStickXY(pad) {
     if (!pad) return { x: 0, y: 0 };
-    let a = radialDeadzone(pad.axes[0] || 0, pad.axes[1] || 0, cfg.deadzone); let { x, y } = a;
+  const stickDz = (appState.analog && typeof appState.analog.triggerDeadzone === 'number') ? appState.analog.triggerDeadzone : cfg.deadzone;
+    let a = radialDeadzone(pad.axes[0] || 0, pad.axes[1] || 0, stickDz); let { x, y } = a;
     const up = pad.buttons[12]?.pressed ? 1 : 0; const down = pad.buttons[13]?.pressed ? 1 : 0; const leftBtn = pad.buttons[14]?.pressed ? 1 : 0; const rightBtn = pad.buttons[15]?.pressed ? 1 : 0;
     if (up || down || leftBtn || rightBtn) { y = (up ? -1 : 0) + (down ? 1 : 0); x = (leftBtn ? -1 : 0) + (rightBtn ? 1 : 0); if (x && y) { x *= 0.85; y *= 0.85; } }
     return clampRoundedSquare(x, cfg.invertY ? -y : y);
@@ -722,7 +786,10 @@ window.addEventListener('DOMContentLoaded', () => {
 
   function getAnalogStick(pad, stick = 'left', deadzone = 0.1, invertY = false) {
     if (!pad) return { x: 0, y: 0 };
-    const axisOffset = stick === 'left' ? 0 : 2; let x = pad.axes[axisOffset] || 0; let y = pad.axes[axisOffset + 1] || 0; if (invertY) y = -y; const mag = Math.hypot(x, y); if (mag < deadzone) return { x: 0, y: 0 }; const scale = (mag - deadzone) / (1 - deadzone); return { x: (x / mag) * scale, y: (y / mag) * scale };
+    const axisOffset = stick === 'left' ? 0 : 2; let x = pad.axes[axisOffset] || 0; let y = pad.axes[axisOffset + 1] || 0; if (invertY) y = -y;
+    // allow default deadzone from appState.analog if not explicitly provided
+  const dz = (typeof deadzone === 'number' && deadzone !== undefined) ? deadzone : ((appState.analog && typeof appState.analog.triggerDeadzone === 'number') ? appState.analog.triggerDeadzone : 0.1);
+    const mag = Math.hypot(x, y); if (mag < dz) return { x: 0, y: 0 }; const scale = (mag - dz) / (1 - dz); return { x: (x / mag) * scale, y: (y / mag) * scale };
   }
 
   // --- buttons update from gamepad ---
@@ -730,14 +797,37 @@ window.addEventListener('DOMContentLoaded', () => {
     if (!pad || !pad.buttons) { resetJoystickHead(); Object.values(btnEls).forEach(b => b.classList.remove('active')); return; }
     let anyPressed = false;
     for (const key in btnEls) {
-      const idx = map[key]; if (idx === undefined) continue; const DEADZONE = 0.45; let raw = pad.buttons[idx]?.value || 0; let val = raw < DEADZONE ? 0 : raw;
-      if (key === 'LTTRIGGER' || key === 'RTTRIGGER') {
-        const isActive = val > DEADZONE; btnEls[key].classList.toggle('active', isActive);
-        if (val < DEADZONE) { btnEls[key].style.filter = 'brightness(1.0)'; btnEls[key].style.transform = 'scale(1)'; }
-        else { btnEls[key].style.filter = `brightness(${1.0 + val * 2.5})`; btnEls[key].style.transform = `scale(${1 + val * 0.08})`; }
+      const idx = map[key]; if (idx === undefined) continue;
+      const DEADZONE = 0.45;
+      // raw value from button (some controllers expose analog value on triggers)
+      let raw = (pad.buttons[idx] && (typeof pad.buttons[idx].value === 'number')) ? pad.buttons[idx].value : (pad.buttons[idx] && pad.buttons[idx].pressed ? 1 : 0);
+      let val = raw;
+
+      // Handle analog triggers (LT/RT) by mapping pressure -> brightness & subtle scale
+      if (key === 'LT' || key === 'RT') {
+        const el = btnEls[key];
+  const pressureEnabled = !!(appState.analog && appState.analog.pressureEnabled);
+  const minB = (appState.analog && typeof appState.analog.minTriggerBrightness === 'number') ? appState.analog.minTriggerBrightness : 0.4;
+  const maxB = (appState.analog && typeof appState.analog.maxTriggerBrightness === 'number') ? appState.analog.maxTriggerBrightness : 2.0;
+  const triggerDz = (appState.analog && typeof appState.analog.triggerDeadzone === 'number') ? appState.analog.triggerDeadzone : DEADZONE;
+  const isActive = val > triggerDz;
+        el.classList.toggle('active', isActive);
+        if (pressureEnabled) {
+          // Map 0..1 linear -> minB..maxB
+          // when below triggerDeadzone treat as 0 so it snaps back to min brightness
+          const v = (val <= triggerDz) ? 0 : Math.max(0, Math.min(1, val));
+          const brightness = minB + v * (maxB - minB);
+          const scale = 1 + v * 0.08;
+          try { el.style.filter = `brightness(${brightness})`; el.style.transform = `scale(${scale})`; } catch (e) {}
+        } else {
+          // Pressure disabled: simple on/off brightness (minTriggerBrightness or maxTriggerBrightness)
+          try { el.style.filter = isActive ? `brightness(${maxB})` : `brightness(${minB})`; el.style.transform = isActive ? `scale(${1 + 0.08})` : `scale(1)`; } catch (e) {}
+        }
         if (isActive) { anyPressed = true; lastPressedTimes[key] = performance.now(); }
       } else {
-        const pressed = !!pad.buttons[idx]?.pressed; btnEls[key].classList.toggle('active', pressed); if (pressed && !cfg.ignoredForJoystick.includes(key)) { anyPressed = true; lastPressedTimes[key] = performance.now(); }
+        const pressed = !!(pad.buttons[idx] && pad.buttons[idx].pressed);
+        btnEls[key].classList.toggle('active', pressed);
+        if (pressed && !cfg.ignoredForJoystick.includes(key)) { anyPressed = true; lastPressedTimes[key] = performance.now(); }
       }
     }
 
@@ -789,7 +879,7 @@ window.addEventListener('DOMContentLoaded', () => {
     Object.entries(btnEls).forEach(([k, el]) => { appState.buttons[k] = appState.buttons[k] || {}; snapElement(el, appState.buttons[k]); }); snapElement(stickWrapper, appState.joystick = appState.joystick || {}); snapElement(eightWayWrapper, appState.eightWayWrapper = appState.eightWayWrapper || {}); snapElement(base, appState.base = appState.base || {}); saveStateData(); showToast('Snapped layout to grid!', 1000);
   }
 
-  function detectActiveGamepad() { const gps = navigator.getGamepads ? navigator.getGamepads() : []; for (let i = 0; i < gps.length; i++) { const p = gps[i]; if (!p) continue; const anyBtn = p.buttons.some(b => b.pressed); const anyAx = p.axes.some(a => Math.abs(a) > cfg.deadzone); if (anyBtn || anyAx) return i; } return null; }
+  function detectActiveGamepad() { const gps = navigator.getGamepads ? navigator.getGamepads() : []; for (let i = 0; i < gps.length; i++) { const p = gps[i]; if (!p) continue; const anyBtn = p.buttons.some(b => b.pressed); const axisThreshold = (appState.analog && typeof appState.analog.triggerDeadzone === 'number') ? appState.analog.triggerDeadzone : cfg.deadzone; const anyAx = p.axes.some(a => Math.abs(a) > axisThreshold); if (anyBtn || anyAx) return i; } return null; }
 
   // draw trail
   function resizeJoystickWrapper() { canvas.width = stickWrapper.clientWidth; canvas.height = stickWrapper.clientHeight; }
@@ -843,6 +933,7 @@ window.addEventListener('DOMContentLoaded', () => {
   // Persist current joystick head style to appState
   appState.joystickHead = captureElementProperties(joystick);
   resizeJoystickWrapper(); joystick.style.left = canvas.width/2 + 'px'; joystick.style.top = canvas.height/2 + 'px'; applyJoystickHeadFromState();
+  // analog prefs applied via importLayout/exportLayout only (no on-screen controls)
   }
 
   // --- copy/export/import UI ---
@@ -896,6 +987,12 @@ window.addEventListener('DOMContentLoaded', () => {
       if (parsed.hiddenButtons !== undefined) appState.hiddenButtons = parsed.hiddenButtons;
       if (parsed.trailColor !== undefined) appState.trailColor = parsed.trailColor;
       if (parsed.lastProfile !== undefined) appState.lastProfile = parsed.lastProfile;
+  // load analog prefs if present (ignore legacy showDistance if present)
+  if (parsed.analog !== undefined) {
+    const safeAnalog = Object.assign({}, parsed.analog);
+    if (safeAnalog.showDistance !== undefined) delete safeAnalog.showDistance;
+    appState.analog = Object.assign({}, appState.analog || {}, safeAnalog);
+  }
       // Apply joystick head style after loading
       applyJoystickHeadFromState();
       console.debug('[Trailpad] state loaded');
