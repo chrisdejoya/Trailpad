@@ -1,0 +1,54 @@
+[
+  {
+    "file": "default.json",
+    "name": "Default"
+  },
+  {
+    "file": "2xko-leverless.json",
+    "name": "2XKO (Leverless)"
+  },  
+  {
+    "file": "2xko-pad.json",
+    "name": "2XKO (Gamepad)"
+  },
+  {
+    "file": "hextech.json",
+    "name": "2XKO (Hextech)"
+  },
+  {
+    "file": "gamepad.json",
+    "name": "Gamepad"
+  },
+  {
+    "file": "ggst.json",
+    "name": "GG: Strive"
+  },
+  {
+    "file": "hades2-ps.json",
+    "name": "Hades 2 (PS)"
+  },
+  {
+    "file": "hades2-xbox.json",
+    "name": "Hades 2 (Xbox)"
+  },
+  {
+    "file": "hitbox-plastic.json",
+    "name": "Hitbox (Plastic)"
+  },
+  {
+    "file": "mixbox.json",
+    "name": "Mixbox"
+  },
+  {
+    "file": "streetfighter.json",
+    "name": "SF6 (Classic)"
+  },
+  {
+    "file": "sf6-leverless.json",
+    "name": "SF6 (Leverless)"
+  },
+  {
+    "file": "tekken8.json",
+    "name": "Tekken 8"
+  }
+]

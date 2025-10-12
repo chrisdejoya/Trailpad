@@ -38,8 +38,8 @@
   "joystickHead": {
     "display": "flex",
     "zIndex": "4",
-    "top": "0px",
-    "left": "0px",
+    "top": "0.0003814px",
+    "left": "-0.0003814px",
     "width": "60px",
     "height": "60px",
     "borderRadius": "50%",
@@ -235,7 +235,7 @@
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "28px",
-      "label": "LB"
+      "label": "L1"
     },
     "RB": {
       "display": "flex",
@@ -253,7 +253,7 @@
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "28px",
-      "label": "RB"
+      "label": "R1"
     },
     "LT": {
       "display": "flex",
@@ -271,7 +271,7 @@
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "28px",
-      "label": "LT"
+      "label": "L2"
     },
     "RT": {
       "display": "flex",
@@ -289,7 +289,7 @@
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "28px",
-      "label": "RT"
+      "label": "R2"
     },
     "LS": {
       "display": "flex",
@@ -305,9 +305,9 @@
       "backgroundColor": "rgb(26, 26, 26)",
       "backgroundImage": "none",
       "backgroundSize": "contain",
-      "color": "rgb(26, 26, 26)",
-      "fontSize": "40px",
-      "label": ""
+      "color": "rgb(255, 255, 255)",
+      "fontSize": "30px",
+      "label": "L3"
     },
     "RS": {
       "display": "flex",
@@ -323,9 +323,9 @@
       "backgroundColor": "rgb(26, 26, 26)",
       "backgroundImage": "none",
       "backgroundSize": "contain",
-      "color": "rgb(238, 238, 238)",
-      "fontSize": "40px",
-      "label": ""
+      "color": "rgb(255, 255, 255)",
+      "fontSize": "30px",
+      "label": "R3"
     },
     "View": {
       "display": "flex",
@@ -364,5 +364,14 @@
       "label": ""
     }
   },
-  "trailColor": "#eedd44"
+  "trailColor": "#eedd44",
+  "analog": {
+    "LS": true,
+    "RS": true,
+    "analogVisualRange": 20,
+    "pressureEnabled": true,
+    "minTriggerBrightness": 1,
+    "maxTriggerBrightness": 3,
+    "triggerDeadzone": 0
+  }
 }

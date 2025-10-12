@@ -38,8 +38,8 @@
   "joystickHead": {
     "display": "flex",
     "zIndex": "4",
-    "top": "65px",
-    "left": "65px",
+    "top": "64.9994px",
+    "left": "65.0006px",
     "width": "60px",
     "height": "60px",
     "borderRadius": "50%",
@@ -70,7 +70,9 @@
     "color": "rgb(238, 238, 238)",
     "fontSize": "16px",
     "label": "",
-    "arrowSize": "90px"
+    "arrowSize": "90px",
+    "arrowImageOn": "https://chrisdejoya.github.io/Trailpad/beta/images/arrow-on.svg",
+    "arrowImageOff": "https://chrisdejoya.github.io/Trailpad/beta/images/arrow-off.svg"
   },
   "buttons": {
     "Up": {
@@ -362,5 +364,14 @@
       "label": "Menu"
     }
   },
-  "trailColor": "#1b8ce1"
+  "trailColor": "#1b8ce1",
+  "analog": {
+    "LS": false,
+    "RS": false,
+    "analogVisualRange": 15,
+    "pressureEnabled": false,
+    "minTriggerBrightness": 1,
+    "maxTriggerBrightness": 3,
+    "triggerDeadzone": 0
+  }
 }

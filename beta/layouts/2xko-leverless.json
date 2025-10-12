@@ -38,8 +38,8 @@
   "joystickHead": {
     "display": "flex",
     "zIndex": "4",
-    "top": "125px",
-    "left": "125px",
+    "top": "124.998px",
+    "left": "125.002px",
     "width": "60px",
     "height": "60px",
     "borderRadius": "50%",
@@ -231,10 +231,10 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 6px",
       "backgroundColor": "rgb(254, 128, 2)",
-      "backgroundImage": "none",
-      "backgroundSize": "contain",
-      "color": "rgb(0, 0, 0)",
-      "fontSize": "48px",
+      "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/2xko/2xko-dash-black.svg\")",
+      "backgroundSize": "82px auto",
+      "color": "rgba(0, 0, 0, 0)",
+      "fontSize": "39px",
       "label": "d"
     },
     "RB": {
@@ -364,5 +364,14 @@
       "label": "Menu"
     }
   },
-  "trailColor": "#CEEC73"
+  "trailColor": "#CEEC73",
+  "analog": {
+    "LS": false,
+    "RS": false,
+    "analogVisualRange": 10,
+    "pressureEnabled": false,
+    "minTriggerBrightness": 1,
+    "maxTriggerBrightness": 3,
+    "triggerDeadzone": 0
+  }
 }

@@ -4,7 +4,7 @@
     "zIndex": "0",
     "top": "190px",
     "left": "140px",
-    "width": "530px",
+    "width": "525px",
     "height": "230px",
     "borderRadius": "0px",
     "outline": "rgb(238, 238, 238) none 0px",
@@ -12,7 +12,7 @@
     "boxShadow": "none",
     "backgroundColor": "rgba(0, 0, 0, 0)",
     "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/hades2/h2-base.svg\")",
-    "backgroundSize": "100px auto",
+    "backgroundSize": "contain",
     "color": "rgb(238, 238, 238)",
     "fontSize": "16px",
     "label": ""
@@ -38,8 +38,8 @@
   "joystickHead": {
     "display": "flex",
     "zIndex": "4",
-    "top": "110px",
-    "left": "110px",
+    "top": "109.999px",
+    "left": "110.001px",
     "width": "80px",
     "height": "80px",
     "borderRadius": "50%",
@@ -295,7 +295,7 @@
       "display": "flex",
       "zIndex": "4",
       "top": "330px",
-      "left": "310px",
+      "left": "290px",
       "width": "90px",
       "height": "90px",
       "borderRadius": "50%",
@@ -313,7 +313,7 @@
       "display": "flex",
       "zIndex": "4",
       "top": "330px",
-      "left": "410px",
+      "left": "430px",
       "width": "90px",
       "height": "90px",
       "borderRadius": "50%",
@@ -364,5 +364,14 @@
       "label": ""
     }
   },
-  "trailColor": "#FB0300"
+  "trailColor": "#FB0300",
+  "analog": {
+    "LS": true,
+    "RS": true,
+    "analogVisualRange": 15,
+    "pressureEnabled": true,
+    "minTriggerBrightness": 1,
+    "maxTriggerBrightness": 3,
+    "triggerDeadzone": 0
+  }
 }

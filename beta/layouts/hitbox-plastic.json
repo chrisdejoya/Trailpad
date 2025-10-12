@@ -38,8 +38,8 @@
   "joystickHead": {
     "display": "flex",
     "zIndex": "4",
-    "top": "0px",
-    "left": "0px",
+    "top": "0.0003814px",
+    "left": "-0.0003814px",
     "width": "60px",
     "height": "60px",
     "borderRadius": "50%",
@@ -364,5 +364,14 @@
       "label": "Menu"
     }
   },
-  "trailColor": "#0000"
+  "trailColor": "#0000",
+  "analog": {
+    "LS": false,
+    "RS": false,
+    "analogVisualRange": 15,
+    "pressureEnabled": false,
+    "minTriggerBrightness": 1,
+    "maxTriggerBrightness": 3,
+    "triggerDeadzone": 0
+  }
 }
