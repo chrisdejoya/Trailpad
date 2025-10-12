@@ -68,15 +68,15 @@
     background: rgba(20,20,20,0.95);
     border: 2px solid #333;
     color: #ddd;
-    padding: 6px 8px;
+    padding: 5px 5px;
     min-width: 200px;
-	max-width: 350px;
+	max-width: 400px;
     box-shadow: 0 6px 18px rgba(0,0,0,0.6);
     font-family: inherit;
 }
 .presetsMenu .presetsHeader {
     font-weight: bold;
-    padding: 5px 10px;
+    padding: 5px 5px;
     border-bottom: 1px solid rgba(80,80,80,0.2);
     margin-bottom: 6px;
 	color: #999;
@@ -98,4 +98,25 @@
     color: #999;
     padding-top: 5px;
 }
-
+.presetsHeader .presetHeaderToggle {
+    color: #ddd;
+    padding: 4px 6px;
+}
+.presetsHeader .presetHeaderToggle:hover {
+    color: #fff;
+}
+.presetsHeader .presetHeaderToggle.active {
+    color: #fff;
+    background: rgba(255,255,255,0.06);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+.presetsHeader .presetHeaderToggle.inactive {
+    color: #bbb;
+    background: transparent;
+    font-weight: normal;
+}
+.presetsMenu .presetItem.empty {
+    color: #888;
+}
