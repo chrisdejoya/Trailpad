@@ -958,6 +958,145 @@ window.addEventListener('DOMContentLoaded', () => {
   showToast('Help file not found!', 800);
   const helpPanel = document.getElementById('helpPanel');
 
+  // --- Presets menu: list layouts with hover preview and apply/cancel behavior ---
+  let layoutsIndex = null;
+  let presetsMenuEl = null;
+  let _previewFetchController = null;
+  let _prevLayoutSnapshot = null;
+  let _menuSelectionMade = false;
+
+  async function loadLayoutsIndex() {
+    if (layoutsIndex) return layoutsIndex;
+    try {
+      const res = await fetch('layouts/index.json'); if (!res.ok) throw new Error('not found');
+      const parsed = await res.json();
+      // normalized to array of {file, name}
+      layoutsIndex = Array.isArray(parsed) ? parsed.map(it => (typeof it === 'string' ? { file: it, name: it.replace(/\.json$/i,'') } : { file: it.file, name: it.name || it.file })) : [];
+      return layoutsIndex;
+    } catch (e) { console.warn('Could not load layouts/index.json', e); layoutsIndex = []; return layoutsIndex; }
+  }
+
+  // Apply a parsed layout to the DOM without mutating appState or saving. Used for hover previews.
+  function applyLayoutPreview(parsed) {
+    if (!parsed) return;
+    try {
+      // Apply base/joystick/eightway/buttons visually, but do not merge into appState (we'll revert by re-importing the snapshot)
+      if (parsed.base) applyPropertiesToElement(base, parsed.base);
+      if (parsed.joystick) applyPropertiesToElement(stickWrapper, parsed.joystick);
+      // joystick head: apply visual properties for preview
+      if (parsed.joystickHead) {
+        applyPropertiesToElement(joystick, parsed.joystickHead);
+        // also copy specific head properties that importLayout would normally manage
+        ['boxShadow','outline','borderRadius','fontSize','backgroundColor','backgroundImage','color'].forEach(k => {
+          if (parsed.joystickHead[k] !== undefined) joystick.style[k] = parsed.joystickHead[k];
+        });
+      }
+      if (parsed.eightWayWrapper) applyPropertiesToElement(eightWayWrapper, parsed.eightWayWrapper);
+      // buttons
+      if (parsed.buttons) {
+        Object.entries(parsed.buttons).forEach(([k, data]) => { if (btnEls[k]) applyPropertiesToElement(btnEls[k], data); });
+      }
+      if (parsed.trailColor) document.documentElement.style.setProperty('--trail-color', parsed.trailColor);
+
+      // eight-way specific: arrow size and images
+      if (parsed.eightWayWrapper?.arrowSize !== undefined) { arrowSize = parseInt(parsed.eightWayWrapper.arrowSize) || arrowSize; }
+      // images
+      if (parsed.eightWayWrapper?.arrowImageOff || parsed.eightWayWrapper?.arrowImageOn) {
+        for (let i = 0; i < 8; i++) {
+          const arrow = document.getElementById('arrow' + i); if (!arrow) continue;
+          if (parsed.eightWayWrapper.arrowImageOff) arrow.style.backgroundImage = `url('${parsed.eightWayWrapper.arrowImageOff}')`;
+          if (parsed.eightWayWrapper.arrowImageOn) arrow.dataset._previewOn = parsed.eightWayWrapper.arrowImageOn;
+        }
+      }
+      resizeEightWayArrows(); resizeJoystickWrapper();
+    } catch (e) { console.warn('preview apply failed', e); }
+  }
+
+  function closePresetsMenu(revert = true) {
+    if (!presetsMenuEl) return;
+    presetsMenuEl.remove(); presetsMenuEl = null;
+    // stop any outstanding fetch
+    try { if (_previewFetchController) _previewFetchController.abort(); } catch (e) {}
+    // if a selection wasn't made, revert to previous snapshot
+    if (revert && !_menuSelectionMade && _prevLayoutSnapshot) {
+      try { importLayout(_prevLayoutSnapshot); } catch (e) { console.warn('Could not revert layout after cancelling presets menu', e); }
+    }
+    _prevLayoutSnapshot = null; _menuSelectionMade = false;
+    document.removeEventListener('mousedown', _presetsOutsideClickHandler);
+    document.removeEventListener('keydown', _presetsKeyHandler);
+  }
+
+  function _presetsOutsideClickHandler(e) {
+    if (!presetsMenuEl) return;
+    if (presetsMenuEl.contains(e.target)) return;
+    closePresetsMenu(true);
+  }
+
+  function _presetsKeyHandler(e) {
+    if (e.key === 'Escape') { closePresetsMenu(true); }
+  }
+
+  async function openPresetsMenu(x, y) {
+    try {
+      const list = await loadLayoutsIndex();
+      // capture current layout snapshot so preview can be reverted
+      _prevLayoutSnapshot = exportLayout(); _menuSelectionMade = false;
+      // remove existing menu if present
+      if (presetsMenuEl) presetsMenuEl.remove();
+      const menu = document.createElement('div'); menu.className = 'presetsMenu';
+      const hdr = document.createElement('div'); hdr.className = 'presetsHeader'; hdr.textContent = 'Presets'; menu.appendChild(hdr);
+      const wrapper = document.createElement('div'); wrapper.className = 'presetsList';
+      if (!list || list.length === 0) {
+        const none = document.createElement('div'); none.className = 'presetItem'; none.textContent = '(no presets found)'; wrapper.appendChild(none);
+      } else {
+        for (const entry of list) {
+          const fn = entry.file; const label = entry.name || entry.file.replace(/\.json$/i, '');
+          const item = document.createElement('div'); item.className = 'presetItem'; item.textContent = label; item.dataset.file = fn; item.dataset.name = label;
+          item.addEventListener('mouseenter', async () => {
+            try {
+              // abort previous fetch
+              if (_previewFetchController) try { _previewFetchController.abort(); } catch (e) {}
+              _previewFetchController = new AbortController();
+              const res = await fetch('layouts/' + fn, { signal: _previewFetchController.signal }); if (!res.ok) throw new Error('not found');
+              const parsed = await res.json(); applyLayoutPreview(parsed);
+            } catch (e) { if (e.name !== 'AbortError') console.warn('Could not load preset for preview', e); }
+          });
+          item.addEventListener('click', async (ev) => {
+            ev.stopPropagation(); try {
+              const res = await fetch('layouts/' + fn); if (!res.ok) throw new Error('not found'); const parsed = await res.json();
+              // apply permanently
+              importLayout(parsed);
+              _menuSelectionMade = true; closePresetsMenu(false);
+              showToast('Preset applied: ' + item.dataset.name, 1000);
+            } catch (e) { console.warn('Could not apply preset', e); }
+          });
+          wrapper.appendChild(item);
+        }
+      }
+      menu.appendChild(wrapper);
+      // const note = document.createElement('div'); note.className = 'presetPreviewNote'; note.textContent = 'Hover to preview. Click to apply. Click outside to cancel.'; menu.appendChild(note);
+      document.body.appendChild(menu); presetsMenuEl = menu;
+      // position and clamp to viewport (mirror colorPanel logic)
+      menu.style.left = x + 'px'; menu.style.top = y + 'px'; const rect = menu.getBoundingClientRect(); const vw = window.innerWidth; const vh = window.innerHeight;
+      let left = x; let top = y; if (left + rect.width > vw) left = Math.max(8, vw - rect.width - 10); if (top + rect.height > vh) top = Math.max(8, vh - rect.height - 10);
+      menu.style.left = left + 'px'; menu.style.top = top + 'px';
+      // register global handlers to close
+      document.addEventListener('mousedown', _presetsOutsideClickHandler);
+      document.addEventListener('keydown', _presetsKeyHandler);
+    } catch (e) { console.warn('openPresetsMenu failed', e); }
+  }
+
+  // open presets menu on right-click when not on UI elements or colorPanel
+  document.addEventListener('contextmenu', (e) => {
+    // don't open if contextmenu invoked on colorPanel or on interactive UI
+    try {
+      if (colorPanel && colorPanel.contains(e.target)) return;
+      const topEl = document.elementFromPoint(e.clientX, e.clientY);
+      const isOnUI = !!topEl?.closest?.('.btn') || !!topEl?.closest?.('#stickWrapper') || !!topEl?.closest?.('#eightWayWrapper') || !!topEl?.closest?.('#base');
+      if (isOnUI) return; e.preventDefault(); openPresetsMenu(e.pageX, e.pageY);
+    } catch (err) { }
+  });
+
   document.addEventListener('keydown', e => { if (e.key === 'Tab') { e.preventDefault(); helpPanel.style.display = 'block'; } });
   document.addEventListener('keyup', e => { if (e.key === 'Tab') helpPanel.style.display = 'none'; });
 
