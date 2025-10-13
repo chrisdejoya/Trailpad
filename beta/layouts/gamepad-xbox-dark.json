@@ -338,7 +338,7 @@
       "outline": "rgba(255, 255, 255, 0.18) solid 0px",
       "outlineOffset": "0px",
       "boxShadow": "rgb(203, 242, 98) 0px 0px 0px 3px",
-      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "backgroundColor": "rgb(30, 30, 30)",
       "backgroundImage": "none",
       "backgroundSize": "contain",
       "color": "rgba(0, 0, 0, 0)",
@@ -356,7 +356,7 @@
       "outline": "rgba(0, 0, 0, 0.18) solid 0px",
       "outlineOffset": "0px",
       "boxShadow": "rgb(203, 242, 98) 0px 0px 0px 3px",
-      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "backgroundColor": "rgb(30, 30, 30)",
       "backgroundImage": "none",
       "backgroundSize": "contain",
       "color": "rgba(0, 0, 0, 0)",
@@ -374,4 +374,5 @@
     "maxTriggerBrightness": 3,
     "triggerDeadzone": 0
   }
+
 }
