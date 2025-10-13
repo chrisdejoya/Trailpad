@@ -6,7 +6,7 @@
     background: rgba(60,60,60,0.95);
     border: 2px solid #333;
     padding: 10px;
-    pointer: block;
+    pointer-events: auto;
 }
 
 .swatchContainer {
@@ -61,6 +61,43 @@
 	color: #fff;
 }
 
+/* text size control inside color panel */
+.textSizeControl {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 8px;    
+}
+.textSizeControl .textSizeValue {
+    min-width: 40px;    
+    color: #ddd;
+    font-family: 'Swiss';
+    background: rgba(30,30,30,0.45);
+    border: 1px solid rgba(255,255,255,0.06);
+    padding: 5px 5px;
+    border-radius: 4px;
+    box-sizing: border-box;
+    outline: none;
+    font-size: 20px;
+    cursor: text;
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+.textSizeControl .textSizeValue:focus {
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.03);
+    border-color: rgba(255,255,255,0.12);
+}
+
+/* hide native number input spinners for consistent appearance */
+.textSizeControl .textSizeValue::-webkit-outer-spin-button,
+.textSizeControl .textSizeValue::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.textSizeControl .textSizeValue[type=number] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
 /* Presets context menu (matches color panel) */
 .presetsMenu {
     position: fixed;
