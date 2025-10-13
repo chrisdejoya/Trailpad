@@ -57,7 +57,7 @@ window.addEventListener('DOMContentLoaded', () => {
   // Add analog configuration to appState (persisted)
   // pressureEnabled: whether LT/RT respond to analog pressure
   // minTriggerBrightness/maxTriggerBrightness: mapping from 0..1 trigger value to brightness
-    appState.analog = { LS: true, RS: true, analogVisualRange: 8, pressureEnabled: true, minTriggerBrightness: 0.4, maxTriggerBrightness: 2.0, triggerDeadzone: 0.1 };
+    appState.analog = { LS: true, RS: true, analogVisualRange: 8, pressureEnabled: true, minTriggerBrightness: 1.0, maxTriggerBrightness: 3.0, triggerDeadzone: 0.1 };
   let selected = null;
   let lastPressedTimes = {};
   let trail = [];
@@ -1185,5 +1185,6 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // expose helpers
   window.trailpad = { saveStateData, loadStateData, copyLayoutToClipboard };
+
 
 });
