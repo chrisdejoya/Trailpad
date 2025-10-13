@@ -253,6 +253,18 @@ window.addEventListener('DOMContentLoaded', () => {
         else { slider.value = 100; if (valEl) valEl.textContent = slider.value + ''; }
       }
     } catch (e) { }
+
+    // sync text size slider to selected element's font size
+    try {
+      const txtSlider = colorPanel.querySelector('.textSizeSlider'); const txtVal = colorPanel.querySelector('.textSizeValue');
+      if (txtSlider) {
+        const cs2 = window.getComputedStyle(selected);
+        let fs = cs2.fontSize || selected.style.fontSize || '';
+        const m2 = (fs || '').match(/(\d+)/);
+  if (m2) { txtSlider.value = parseInt(m2[1]); if (txtVal) txtVal.value = txtSlider.value; }
+  else { txtSlider.value = 30; if (txtVal) txtVal.value = txtSlider.value; }
+      }
+    } catch (e) {}
   }
 
   function deselect() { selectElement(null); }
@@ -339,7 +351,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const outerSlider = document.createElement('input'); outerSlider.type = 'range'; outerSlider.min = 0; outerSlider.max = 10; outerSlider.step = 1; outerSlider.style.width = '60px';
     const outerValue = document.createElement('span');
   sliderWrapper.appendChild(innerLabel); sliderWrapper.appendChild(innerSlider); sliderWrapper.appendChild(innerValue); sliderWrapper.appendChild(outerLabel); sliderWrapper.appendChild(outerSlider); sliderWrapper.appendChild(outerValue);
-  // create persistent size control in rightGroup (hidden by default; shown only in symbol mode)
+    // create persistent size control in rightGroup (hidden by default; shown only in symbol mode)
   const sizeCtrl = document.createElement('div'); sizeCtrl.className = 'symbolSizeControl'; sizeCtrl.style.display = 'none'; sizeCtrl.style.alignItems = 'left'; sizeCtrl.style.gap = '5px'; sizeCtrl.style.padding = '0px 0px';
     const sizeLabel = document.createElement('span'); sizeLabel.textContent = 'Size'; sizeLabel.style.fontSize = '16px';
   const sizeSlider = document.createElement('input'); sizeSlider.type = 'range'; sizeSlider.min = 0; sizeSlider.max = 200; sizeSlider.step = 10; sizeSlider.value = 100; sizeSlider.style.width = '100px'; sizeSlider.className = 'symbolSizeSlider';
@@ -348,12 +360,44 @@ window.addEventListener('DOMContentLoaded', () => {
     const clearBtn = document.createElement('button'); clearBtn.type = 'button'; clearBtn.className = 'clearSymbolBtn'; clearBtn.textContent = 'Clear'; clearBtn.style.marginLeft = '0px'; clearBtn.style.padding = '5px 5px'; clearBtn.style.fontSize = '16px';
     sizeCtrl.appendChild(clearBtn);
 
+    // create text-size control (0-100px) - visible only in TEXT mode
+    const textSizeCtrl = document.createElement('div'); textSizeCtrl.className = 'textSizeControl'; textSizeCtrl.style.display = 'none'; textSizeCtrl.style.alignItems = 'center'; textSizeCtrl.style.gap = '8px'; textSizeCtrl.style.padding = '0px 0px';
+    const textSizeLabel = document.createElement('span'); textSizeLabel.textContent = 'Size'; textSizeLabel.style.fontSize = '16px';
+    const textSizeSlider = document.createElement('input'); textSizeSlider.type = 'range'; textSizeSlider.min = 0; textSizeSlider.max = 100; textSizeSlider.step = 1; textSizeSlider.value = 30; textSizeSlider.style.width = '120px'; textSizeSlider.className = 'textSizeSlider';
+  const textSizeValue = document.createElement('input'); textSizeValue.type = 'number'; textSizeValue.min = 0; textSizeValue.max = 100; textSizeValue.step = 1; textSizeValue.value = textSizeSlider.value; textSizeValue.className = 'textSizeValue'; textSizeValue.style.width = '56px'; textSizeValue.style.fontSize = '14px';
+  const textSizeUnit = document.createElement('span'); textSizeUnit.textContent = 'px'; textSizeUnit.style.color = '#ddd'; textSizeUnit.style.fontSize = '14px';
+  textSizeCtrl.appendChild(textSizeLabel); textSizeCtrl.appendChild(textSizeSlider); textSizeCtrl.appendChild(textSizeValue); //textSizeCtrl.appendChild(textSizeUnit);
+
     // persistent slider listener (applies size % to current selection)
     sizeSlider.addEventListener('input', () => {
       sizeValue.textContent = sizeSlider.value + '';
       const applyTarget = selected || panelAnchorTarget; if (!applyTarget) return; const btnId = applyTarget.dataset?.btn;
       applyTarget.style.backgroundSize = `${sizeSlider.value}% auto`;
       if (btnId) { appState.buttons[btnId] = appState.buttons[btnId] || {}; appState.buttons[btnId].backgroundSize = applyTarget.style.backgroundSize; saveStateData(); }
+    });
+
+    // text size slider listener (applies font-size px to current selection)
+    textSizeSlider.addEventListener('input', () => {
+      // update numeric input to match slider
+      try { textSizeValue.value = textSizeSlider.value; } catch (e) {}
+      const applyTarget = selected || panelAnchorTarget; if (!applyTarget) return; const btnId = applyTarget.dataset?.btn;
+      // apply font size in pixels
+      applyTarget.style.fontSize = textSizeSlider.value + 'px';
+      if (btnId) { appState.buttons[btnId] = appState.buttons[btnId] || {}; appState.buttons[btnId].fontSize = applyTarget.style.fontSize; }
+      else if (applyTarget === base) { appState.base.fontSize = applyTarget.style.fontSize; }
+      saveStateData();
+    });
+
+    // allow typing a value into the numeric field
+    textSizeValue.addEventListener('input', () => {
+      // clamp and sync slider
+      let v = parseInt(textSizeValue.value) || 0; if (v < 0) v = 0; if (v > 100) v = 100; textSizeValue.value = v;
+      try { textSizeSlider.value = v; } catch (e) {}
+      const applyTarget = selected || panelAnchorTarget; if (!applyTarget) return; const btnId = applyTarget.dataset?.btn;
+      applyTarget.style.fontSize = v + 'px';
+      if (btnId) { appState.buttons[btnId] = appState.buttons[btnId] || {}; appState.buttons[btnId].fontSize = applyTarget.style.fontSize; }
+      else if (applyTarget === base) { appState.base.fontSize = applyTarget.style.fontSize; }
+      saveStateData();
     });
 
     clearBtn.addEventListener('click', () => {
@@ -383,6 +427,8 @@ window.addEventListener('DOMContentLoaded', () => {
   // Pressure settings remain in appState.analog and are still exported/imported, but are not exposed in the panel.
   // add persistent sizeCtrl to rightGroup (visible in all modes)
   rightGroup.appendChild(sizeCtrl);
+  // add text size control to rightGroup (visible only in TEXT mode)
+  rightGroup.appendChild(textSizeCtrl);
   toggle.appendChild(leftGroup); toggle.appendChild(rightGroup);
   colorPanel.appendChild(toggle);
 
@@ -395,6 +441,8 @@ window.addEventListener('DOMContentLoaded', () => {
     sliderWrapper.style.display = 'none'; if (typeof symbolBtn !== 'undefined') symbolBtn.classList.remove('active'); if (typeof swatchContainer !== 'undefined') swatchContainer.style.display = '';
     // hide symbol size control when not in symbol mode
     try { sizeCtrl.style.display = 'none'; } catch (e) {}
+    // hide text size control when not in text mode
+    try { textSizeCtrl.style.display = 'none'; } catch (e) {}
     const grid = colorPanel.querySelector('.symbolGrid'); if (grid) grid.remove();
   });
   txtDiv.addEventListener('click', () => {
@@ -402,6 +450,8 @@ window.addEventListener('DOMContentLoaded', () => {
     sliderWrapper.style.display = 'none'; if (typeof symbolBtn !== 'undefined') symbolBtn.classList.remove('active'); if (typeof swatchContainer !== 'undefined') swatchContainer.style.display = '';
     // hide symbol size control when not in symbol mode
     try { sizeCtrl.style.display = 'none'; } catch (e) {}
+    // show text size control when in text mode
+    try { textSizeCtrl.style.display = 'flex'; } catch (e) {}
     const grid = colorPanel.querySelector('.symbolGrid'); if (grid) grid.remove();
   });
   outlineDiv.addEventListener('click', () => {
@@ -409,6 +459,8 @@ window.addEventListener('DOMContentLoaded', () => {
     sliderWrapper.style.display = 'flex'; updatePanelForSelection(); if (typeof symbolBtn !== 'undefined') symbolBtn.classList.remove('active'); if (typeof swatchContainer !== 'undefined') swatchContainer.style.display = '';
     // hide symbol size control when not in symbol mode
     try { sizeCtrl.style.display = 'none'; } catch (e) {}
+    // hide text size control when not in text mode
+    try { textSizeCtrl.style.display = 'none'; } catch (e) {}
     const grid = colorPanel.querySelector('.symbolGrid'); if (grid) grid.remove();
   });
 
@@ -560,8 +612,9 @@ window.addEventListener('DOMContentLoaded', () => {
       mode = 'symbol'; colorMode = 'symbol'; localStorage.setItem('colorMode', colorMode); bgDiv.classList.remove('active'); txtDiv.classList.remove('active'); outlineDiv.classList.remove('active'); symbolBtn.classList.add('active'); swatchContainer.style.display = 'none';
       // hide the In/Out slider wrapper when symbol panel is active
       if (typeof sliderWrapper !== 'undefined') sliderWrapper.style.display = 'none';
-      // show symbol size control when in symbol mode
+      // show symbol size control when in symbol mode, hide text size control
       try { sizeCtrl.style.display = 'flex'; } catch (e) {}
+      try { textSizeCtrl.style.display = 'none'; } catch (e) {}
       await showSymbolGrid();
     });
 
@@ -572,7 +625,7 @@ window.addEventListener('DOMContentLoaded', () => {
     if (left + panelRect.width > viewportWidth) left = Math.max(8, viewportWidth - panelRect.width - 10);
     if (top + panelRect.height > viewportHeight) top = Math.max(8, viewportHeight - panelRect.height - 10);
     colorPanel.style.left = left + 'px'; colorPanel.style.top = top + 'px';
-    // sync size slider to target
+    // sync size slider and text-size slider to target
     try {
       const slider = colorPanel.querySelector('.symbolSizeSlider'); const valEl = colorPanel.querySelector('.symbolSizeValue');
       const applyTarget = selected || panelAnchorTarget; if (slider && applyTarget) {
@@ -581,6 +634,16 @@ window.addEventListener('DOMContentLoaded', () => {
         if (m) { slider.value = parseInt(m[1]); if (valEl) valEl.textContent = slider.value + ''; }
         else { slider.value = 100; if (valEl) valEl.textContent = slider.value + ''; }
       }
+      // sync text size slider value from applyTarget fontSize when in text mode
+      try {
+        const txtSlider = colorPanel.querySelector('.textSizeSlider'); const txtVal = colorPanel.querySelector('.textSizeValue');
+        const applyTarget2 = selected || panelAnchorTarget; if (txtSlider && applyTarget2) {
+          const cs2 = window.getComputedStyle(applyTarget2); let fs = cs2.fontSize || applyTarget2.style.fontSize || '';
+          const m2 = (fs || '').match(/(\d+)/);
+          if (m2) { txtSlider.value = parseInt(m2[1]); if (txtVal) txtVal.value = txtSlider.value; }
+          else { txtSlider.value = 30; if (txtVal) txtVal.value = txtSlider.value; }
+        }
+      } catch (e) {}
     } catch (e) { }
     // if the remembered mode is symbol, open the symbol grid automatically
     try {
@@ -591,6 +654,20 @@ window.addEventListener('DOMContentLoaded', () => {
         try { if (symbolBtn) symbolBtn.classList.add('active'); } catch (e) {}
         try { sizeCtrl.style.display = 'flex'; } catch (e) {}
         await showSymbolGrid();
+      }
+      // if the remembered mode is text, show text size control
+      if (colorMode === 'text') {
+        try { textSizeCtrl.style.display = 'flex'; } catch (e) {}
+        // also sync the slider to the current selection
+        try {
+          const txtSlider = colorPanel.querySelector('.textSizeSlider'); const txtVal = colorPanel.querySelector('.textSizeValue');
+          const applyTarget2 = selected || panelAnchorTarget; if (txtSlider && applyTarget2) {
+            const cs2 = window.getComputedStyle(applyTarget2); let fs = cs2.fontSize || applyTarget2.style.fontSize || '';
+            const m2 = (fs || '').match(/(\d+)/);
+            if (m2) { txtSlider.value = parseInt(m2[1]); if (txtVal) txtVal.value = txtSlider.value; }
+            else { txtSlider.value = 30; if (txtVal) txtVal.value = txtSlider.value; }
+          }
+        } catch (e) {}
       }
     } catch (e) { console.warn('Could not auto-open symbol grid', e); }
     } catch (err) {
@@ -1185,6 +1262,5 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // expose helpers
   window.trailpad = { saveStateData, loadStateData, copyLayoutToClipboard };
-
 
 });
