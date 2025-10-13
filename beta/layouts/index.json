@@ -20,6 +20,22 @@
     "name": "Gamepad"
   },
   {
+    "file": "gamepad-ps5.json",
+    "name": "Gamepad (PS5)"
+  },
+  {
+    "file": "gamepad-ps5-dark.json",
+    "name": "Gamepad (PS5 Dark)"
+  },
+  {
+    "file": "gamepad-xbox.json",
+    "name": "Gamepad (Xbox)"
+  },
+  {
+    "file": "gamepad-xbox-dark.json",
+    "name": "Gamepad (Xbox Dark)"
+  },
+  {
     "file": "ggst.json",
     "name": "GG: Strive"
   },
