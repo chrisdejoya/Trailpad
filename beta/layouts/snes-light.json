@@ -159,7 +159,7 @@
       "outlineOffset": "0px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 7px",
       "backgroundColor": "rgb(128, 128, 128)",
-      "backgroundImage": "url(\"http://absolute/D:/Documents/Trailpad/images/ps/ps-cross.svg\")",
+      "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/ps/ps-cross.svg\")",
       "backgroundSize": "68px auto",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "18px",
@@ -177,7 +177,7 @@
       "outlineOffset": "0px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 7px",
       "backgroundColor": "rgb(128, 128, 128)",
-      "backgroundImage": "url(\"http://absolute/D:/Documents/Trailpad/images/ps/ps-circle.svg\")",
+      "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/ps/ps-circle.svg\")",
       "backgroundSize": "82px auto",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "15px",
@@ -195,7 +195,7 @@
       "outlineOffset": "0px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 7px",
       "backgroundColor": "rgb(128, 128, 128)",
-      "backgroundImage": "url(\"http://absolute/D:/Documents/Trailpad/images/ps/ps-square.svg\")",
+      "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/ps/ps-square.svg\")",
       "backgroundSize": "70px auto",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "19px",
@@ -213,7 +213,7 @@
       "outlineOffset": "0px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 7px",
       "backgroundColor": "rgb(128, 128, 128)",
-      "backgroundImage": "url(\"http://absolute/D:/Documents/Trailpad/images/ps/ps-triangle.svg\")",
+      "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/ps/ps-triangle.svg\")",
       "backgroundSize": "66px auto",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "17px",
@@ -374,4 +374,5 @@
     "maxTriggerBrightness": 2,
     "triggerDeadzone": 0
   }
+
 }
