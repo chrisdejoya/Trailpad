@@ -20,6 +20,14 @@
     "name": "Gamepad"
   },
   {
+    "file": "snes-light.json",
+    "name": "Gamepad (SNES Light)"
+  },
+  {
+    "file": "snes-dark.json",
+    "name": "Gamepad (SNES Dark)"
+  },
+  {
     "file": "gamepad-ps5.json",
     "name": "Gamepad (PS5)"
   },
