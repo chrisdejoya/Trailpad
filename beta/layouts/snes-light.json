@@ -160,9 +160,9 @@
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 7px",
       "backgroundColor": "rgb(128, 128, 128)",
       "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/ps/ps-cross.svg\")",
-      "backgroundSize": "68px auto",
+      "backgroundSize": "66px auto",
       "color": "rgba(0, 0, 0, 0)",
-      "fontSize": "18px",
+      "fontSize": "10px",
       "label": "A"
     },
     "B": {
@@ -178,9 +178,9 @@
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 7px",
       "backgroundColor": "rgb(128, 128, 128)",
       "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/ps/ps-circle.svg\")",
-      "backgroundSize": "82px auto",
+      "backgroundSize": "80px auto",
       "color": "rgba(0, 0, 0, 0)",
-      "fontSize": "15px",
+      "fontSize": "6px",
       "label": "B"
     },
     "X": {
@@ -198,7 +198,7 @@
       "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/ps/ps-square.svg\")",
       "backgroundSize": "70px auto",
       "color": "rgba(0, 0, 0, 0)",
-      "fontSize": "19px",
+      "fontSize": "6px",
       "label": "X"
     },
     "Y": {
@@ -214,9 +214,9 @@
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 7px",
       "backgroundColor": "rgb(128, 128, 128)",
       "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/ps/ps-triangle.svg\")",
-      "backgroundSize": "66px auto",
+      "backgroundSize": "64px auto",
       "color": "rgba(0, 0, 0, 0)",
-      "fontSize": "17px",
+      "fontSize": "6px",
       "label": "Y"
     },
     "LB": {
@@ -294,10 +294,10 @@
     "LS": {
       "display": "flex",
       "zIndex": "4",
-      "top": "232px",
-      "left": "228px",
-      "width": "115px",
-      "height": "115px",
+      "top": "237px",
+      "left": "233px",
+      "width": "105px",
+      "height": "105px",
       "borderRadius": "0px",
       "outline": "rgba(0, 0, 0, 0) none 0px",
       "outlineOffset": "0px",
@@ -312,10 +312,10 @@
     "RS": {
       "display": "flex",
       "zIndex": "4",
-      "top": "232px",
-      "left": "455px",
-      "width": "115px",
-      "height": "115px",
+      "top": "237px",
+      "left": "460px",
+      "width": "105px",
+      "height": "105px",
       "borderRadius": "0px",
       "outline": "rgba(0, 0, 0, 0) none 0px",
       "outlineOffset": "0px",
@@ -368,11 +368,10 @@
   "analog": {
     "LS": true,
     "RS": true,
-    "analogVisualRange": 25,
+    "analogVisualRange": 30,
     "pressureEnabled": false,
     "minTriggerBrightness": 1,
     "maxTriggerBrightness": 2,
     "triggerDeadzone": 0
   }
-
 }
