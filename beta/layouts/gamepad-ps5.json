@@ -4,7 +4,7 @@
     "zIndex": "1",
     "top": "90px",
     "left": "70px",
-    "width": "661px",
+    "width": "662px",
     "height": "350px",
     "borderRadius": "0px",
     "outline": "rgba(0, 0, 0, 0.3) solid 0px",
@@ -374,4 +374,5 @@
     "maxTriggerBrightness": 3,
     "triggerDeadzone": 0
   }
+
 }
