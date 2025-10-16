@@ -27,9 +27,10 @@ window.addEventListener('DOMContentLoaded', () => {
   // DOM refs
   const btnEls = {};
   document.querySelectorAll('.btn').forEach(el => {
-    btnEls[el.dataset.btn] = el;
-    // smooth visual feedback for analog changes (triggers / press scale)
-    try { el.style.transition = 'filter 60ms linear, transform 60ms linear'; } catch (e) {}
+  btnEls[el.dataset.btn] = el;
+  // smooth visual feedback for analog changes (triggers / press scale)
+  // Include top/left so position changes animate instead of snapping (this preserves stylesheet transitions)
+  try { el.style.transition = 'filter 60ms linear, transform 60ms linear, top 60ms linear, left 60ms linear'; } catch (e) {}
   });
   const base = document.getElementById('base');
   const stickWrapper = document.getElementById('stickWrapper');
