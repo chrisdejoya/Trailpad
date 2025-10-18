@@ -6,6 +6,10 @@
     "images/ps/ps-square.svg",
     "images/ps/ps-triangle.svg",
     "images/ps/ps-cross.svg",
+    "images/ps/ps-circle-dark.svg",
+    "images/ps/ps-square-dark.svg",
+    "images/ps/ps-triangle-dark.svg",
+    "images/ps/ps-cross-dark.svg",
     "images/ps/ps-circle-col.svg",
     "images/ps/ps-square-col.svg",
     "images/ps/ps-triangle-col.svg",
@@ -39,5 +43,6 @@
   ]
 
 }
+
 
 
