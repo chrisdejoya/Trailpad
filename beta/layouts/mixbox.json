@@ -88,9 +88,9 @@
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
       "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/images/up.svg\")",
-      "backgroundSize": "contain",
+      "backgroundSize": "56px auto",
       "color": "rgb(238, 238, 238)",
-      "fontSize": "40px",
+      "fontSize": "29px",
       "label": ""
     },
     "Down": {
@@ -106,9 +106,9 @@
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
       "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/images/down.svg\")",
-      "backgroundSize": "contain",
+      "backgroundSize": "56px auto",
       "color": "rgb(238, 238, 238)",
-      "fontSize": "40px",
+      "fontSize": "29px",
       "label": ""
     },
     "Left": {
@@ -124,9 +124,9 @@
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
       "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/images/left.svg\")",
-      "backgroundSize": "contain",
+      "backgroundSize": "56px auto",
       "color": "rgb(238, 238, 238)",
-      "fontSize": "40px",
+      "fontSize": "29px",
       "label": ""
     },
     "Right": {
@@ -142,9 +142,9 @@
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
       "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/images/right.svg\")",
-      "backgroundSize": "contain",
+      "backgroundSize": "56px auto",
       "color": "rgb(238, 238, 238)",
-      "fontSize": "40px",
+      "fontSize": "29px",
       "label": ""
     },
     "A": {
