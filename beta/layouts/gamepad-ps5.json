@@ -159,10 +159,10 @@
       "outlineOffset": "0px",
       "boxShadow": "rgb(77, 77, 77) 0px 0px 0px 4px",
       "backgroundColor": "rgb(204, 204, 204)",
-      "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/ps/ps-cross-col.svg\")",
-      "backgroundSize": "60px auto",
+      "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/ps/ps-cross-dark.svg\")",
+      "backgroundSize": "64px auto",
       "color": "rgba(0, 0, 0, 0)",
-      "fontSize": "24px",
+      "fontSize": "6px",
       "label": "a"
     },
     "B": {
@@ -177,10 +177,10 @@
       "outlineOffset": "0px",
       "boxShadow": "rgb(77, 77, 77) 0px 0px 0px 4px",
       "backgroundColor": "rgb(204, 204, 204)",
-      "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/ps/ps-circle-col.svg\")",
-      "backgroundSize": "60px auto",
+      "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/ps/ps-circle-dark.svg\")",
+      "backgroundSize": "74px auto",
       "color": "rgba(0, 0, 0, 0)",
-      "fontSize": "24px",
+      "fontSize": "6px",
       "label": "B"
     },
     "X": {
@@ -195,10 +195,10 @@
       "outlineOffset": "0px",
       "boxShadow": "rgb(77, 77, 77) 0px 0px 0px 4px",
       "backgroundColor": "rgb(204, 204, 204)",
-      "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/ps/ps-square-col.svg\")",
-      "backgroundSize": "60px auto",
+      "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/ps/ps-square-dark.svg\")",
+      "backgroundSize": "64px auto",
       "color": "rgba(0, 0, 0, 0)",
-      "fontSize": "24px",
+      "fontSize": "6px",
       "label": "X"
     },
     "Y": {
@@ -213,10 +213,10 @@
       "outlineOffset": "0px",
       "boxShadow": "rgb(77, 77, 77) 0px 0px 0px 4px",
       "backgroundColor": "rgb(204, 204, 204)",
-      "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/ps/ps-triangle-col.svg\")",
-      "backgroundSize": "60px auto",
+      "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/ps/ps-triangle-dark.svg\")",
+      "backgroundSize": "64px auto",
       "color": "rgba(0, 0, 0, 0)",
-      "fontSize": "24px",
+      "fontSize": "6px",
       "label": "Y"
     },
     "LB": {
@@ -368,7 +368,7 @@
   "analog": {
     "LS": true,
     "RS": true,
-    "analogVisualRange": 15,
+    "analogVisualRange": 25,
     "pressureEnabled": true,
     "minTriggerBrightness": 1,
     "maxTriggerBrightness": 3,
