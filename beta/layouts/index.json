@@ -16,6 +16,10 @@
     "name": "2XKO (Hextech)"
   },
   {
+    "file": "haute-t12.json",
+    "name": "Haute Pad"
+  },
+  {
     "file": "gamepad.json",
     "name": "Gamepad"
   },
