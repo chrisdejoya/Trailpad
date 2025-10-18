@@ -1,11 +1,11 @@
-<svg width="28" height="27" viewBox="0 0 28 27" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g filter="url(#filter0_ii_359_921)">
-<circle cx="14.1753" cy="13.2705" r="10.2705" fill="#AEAEAE" fill-opacity="0.01"/>
+<circle cx="13" cy="13" r="10" fill="#AEAEAE" fill-opacity="0.01"/>
 </g>
-<circle cx="14.1753" cy="13.2705" r="11.7705" stroke="black" stroke-width="3"/>
-<circle cx="14.1753" cy="13.2705" r="6.26807" fill="black" fill-opacity="0.5"/>
+<circle cx="13" cy="13" r="11.5" stroke="black" stroke-width="3"/>
+<circle cx="13" cy="13" r="6" fill="black" fill-opacity="0.5"/>
 <defs>
-<filter id="filter0_ii_359_921" x="0.904785" y="0" width="26.541" height="26.541" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<filter id="filter0_ii_359_921" x="0" y="0" width="26" height="26" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
 <feFlood flood-opacity="0" result="BackgroundImageFix"/>
 <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
 <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
