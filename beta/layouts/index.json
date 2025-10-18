@@ -12,10 +12,6 @@
     "name": "2XKO (Gamepad)"
   },
   {
-    "//file": "hextech.json",
-    "//name": "2XKO (Hextech)"
-  },
-  {
     "file": "haute-t12.json",
     "name": "Haute Pad"
   },
@@ -50,14 +46,6 @@
   {
     "file": "ggst.json",
     "name": "GG: Strive"
-  },
-  {
-    "//file": "hades2-ps.json",
-    "//name": "Hades 2 (PS)"
-  },
-  {
-    "//file": "hades2-xbox.json",
-    "//name": "Hades 2 (Xbox)"
   },
   {
     "file": "hitbox-plastic.json",
