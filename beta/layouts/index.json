@@ -12,6 +12,10 @@
     "name": "2XKO (Gamepad)"
   },
   {
+    "file": "arcadestick.json",
+    "name": "Arcade Stick"
+  },
+  {
     "file": "haute-t12.json",
     "name": "Haute Pad"
   },
