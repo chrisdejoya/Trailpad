@@ -16,6 +16,10 @@
     "name": "Arcade Stick"
   },
   {
+    "file": "dbfz.json",
+    "name": "Dragonball FighterZ"
+  },
+  {
     "file": "haute-t12.json",
     "name": "Haute Pad"
   },
