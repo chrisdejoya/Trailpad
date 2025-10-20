@@ -4,10 +4,10 @@
 <circle cx="40" cy="40" r="38" stroke="black" stroke-width="4"/>
 <defs>
 <radialGradient id="paint0_radial_374_745" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(40 29.4624) rotate(90) scale(50.5376)">
-<stop stop-color="#838383"/>
-<stop offset="0.206731" stop-color="#585858"/>
-<stop offset="0.461538" stop-color="#3B3B3B"/>
-<stop offset="1" stop-color="#474747"/>
+<stop stop-color="#C0C0C0"/>
+<stop offset="0.206731" stop-color="#959595"/>
+<stop offset="0.461538" stop-color="#787878"/>
+<stop offset="1" stop-color="#848484"/>
 </radialGradient>
 </defs>
 </svg>
