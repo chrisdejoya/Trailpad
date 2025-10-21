@@ -21,7 +21,12 @@
     "images/2xko/2xko-dash-black.svg",
     "images/ggst/ggst-symbol-dash.svg",
     "images/ggst/ggst-symbol-parry.svg",
-    "images/ggst/ggst-symbol-taunt.svg"
+    "images/ggst/ggst-symbol-taunt.svg",
+    "images/dbfz/dbfz-button-black.svg",
+    "images/dbfz/dbfz-button-teal.svg",
+    "images/dbfz/dbfz-button-green.svg",
+    "images/dbfz/dbfz-button-orange.svg",
+    "images/dbfz/dbfz-button-red.svg"
   ],
   "directions": [
     "images/up.svg",
@@ -39,10 +44,15 @@
     "images/up-dark.svg",
     "images/down-dark.svg",
     "images/left-dark.svg",
-    "images/right-dark.svg"
+    "images/right-dark.svg",
+    "images/dbfz/dpad-up.svg",
+    "images/dbfz/dpad-down.svg",
+    "images/dbfz/dpad-left.svg",
+    "images/dbfz/dpad-right.svg"
   ]
 
 }
+
 
 
 
