@@ -24,13 +24,18 @@
     "images/sf/sf-throw.svg",
     "images/haute/btn-8.svg",
     "images/haute/btn-24.svg",
-    "images/haute/btn-30.svg",
-    "images/sf/sf-throw.svg",
+    "images/haute/btn-30.svg",    
     "images/dbfz/dbfz-button-black.svg",
     "images/dbfz/dbfz-button-teal.svg",
     "images/dbfz/dbfz-button-green.svg",
     "images/dbfz/dbfz-button-orange.svg",
-    "images/dbfz/dbfz-button-red.svg"
+    "images/dbfz/dbfz-button-red.svg",
+    "images/ggst/ggst-dash.svg",
+    "images/ggst/ggst-parry.svg",
+    "images/ggst/ggst-taunt.svg",
+    "images/ggst/ggst-psychburst.svg",
+    "images/ggst/ggst-exclamation.svg"
+    
   ],
   "directions": [
     "images/up.svg",
@@ -52,10 +57,15 @@
     "images/dbfz/dpad-up.svg",
     "images/dbfz/dpad-down.svg",
     "images/dbfz/dpad-left.svg",
-    "images/dbfz/dpad-right.svg"
+    "images/dbfz/dpad-right.svg",
+    "images/ggst/ggst-up.svg",
+    "images/ggst/ggst-down.svg",
+    "images/ggst/ggst-left.svg",
+    "images/ggst/ggst-right.svg"
   ]
 
 }
+
 
 
 
