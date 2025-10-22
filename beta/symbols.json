@@ -20,8 +20,12 @@
     "images/2xko/2xko-dash-white.svg",
     "images/2xko/2xko-dash-black.svg",
     "images/ggst/ggst-symbol-dash.svg",
-    "images/ggst/ggst-symbol-parry.svg",
-    "images/ggst/ggst-symbol-taunt.svg",
+    "images/sf/sf-kick-white.svg",
+    "images/sf/sf-throw.svg",
+    "images/haute/btn-8.svg",
+    "images/haute/btn-24.svg",
+    "images/haute/btn-30.svg",
+    "images/sf/sf-throw.svg",
     "images/dbfz/dbfz-button-black.svg",
     "images/dbfz/dbfz-button-teal.svg",
     "images/dbfz/dbfz-button-green.svg",
@@ -52,6 +56,7 @@
   ]
 
 }
+
 
 
 
