@@ -20,8 +20,6 @@
     "images/2xko/2xko-dash-white.svg",
     "images/2xko/2xko-dash-black.svg",
     "images/ggst/ggst-symbol-dash.svg",
-    "images/sf/sf-kick-white.svg",
-    "images/sf/sf-throw.svg",
     "images/haute/btn-8.svg",
     "images/haute/btn-24.svg",
     "images/haute/btn-30.svg",    
@@ -66,6 +64,7 @@
   ]
 
 }
+
 
 
 
