@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link href="https://db.onlinewebfonts.com/c/aef9b111c5dbb6ed6cb40376e42ee322?family=Swis721+Ex+BT+Bold" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/widgets.css">
+<link rel="stylesheet" href="css/eightway.css">
+<link rel="stylesheet" href="css/toast.css">
+<link rel="stylesheet" href="css/colorpanel.css">
+<link rel="stylesheet" href="css/helpPanel.css">
+<title>Trailpad</title>
+<style>
+</style>
+</head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-6T8TC2M316"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-6T8TC2M316');
+</script>
+<body>
+<div id="app">
+	<div id="base"></div>
+    <div id="stickWrapper" class="stickHighlight" aria-label="joystick area">
+        <div id="directionMarkers">
+            <div class="marker" id="marker0"></div>
+            <div class="marker" id="marker1"></div>
+            <div class="marker" id="marker2"></div>
+            <div class="marker" id="marker3"></div>
+            <div class="marker" id="marker4"></div>
+            <div class="marker" id="marker5"></div>
+            <div class="marker" id="marker6"></div>
+            <div class="marker" id="marker7"></div>
+        </div>
+        <canvas id="stickCanvas" width="230" height="230"></canvas>
+        <div class="joystickHead" id="joystickHead"></div>
+    </div>
+	
+	<div id="eightWayWrapper">		 
+        <div class="arrow" id="arrow0"></div>
+        <div class="arrow" id="arrow1"></div>
+        <div class="arrow" id="arrow2"></div>
+        <div class="arrow" id="arrow3"></div>
+        <div class="arrow" id="arrow4"></div>
+        <div class="arrow" id="arrow5"></div>
+        <div class="arrow" id="arrow6"></div>
+        <div class="arrow" id="arrow7"></div>
+	</div>
+
+    <div class="btn" data-btn="Up"></div>
+    <div class="btn" data-btn="Down"></div>
+    <div class="btn" data-btn="Left"></div>
+    <div class="btn" data-btn="Right"></div>
+    <div class="btn" data-btn="A" contenteditable="true">A</div>
+    <div class="btn" data-btn="B" contenteditable="true">B</div>
+    <div class="btn" data-btn="X" contenteditable="true">X</div>
+    <div class="btn" data-btn="Y" contenteditable="true">Y</div>
+    <div class="btn" data-btn="LB" contenteditable="true">LB</div>
+    <div class="btn" data-btn="RB" contenteditable="true">RB</div>
+    <div class="btn" data-btn="LT" contenteditable="true">LT</div>
+    <div class="btn" data-btn="RT" contenteditable="true">RT</div>
+	<div class="stick" id="LS"><div class="btn" data-btn="LS" contenteditable="true">LS</div></div>		
+    <div class="stick" id="RS"><div class="btn" data-btn="RS" contenteditable="true">RS</div></div>
+    <div class="btn" data-btn="View" contenteditable="true">View</div>
+    <div class="btn" data-btn="Menu" contenteditable="true">Menu</div>
+</div>
+
+<div id="helpPanel"></div>
+<div id="colorPanel" aria-hidden="true"></div>
+<div id="toast" aria-hidden="true"></div>
+
+<textarea id="clipboardInput" style="position: fixed; top:-100px; left:-100px; opacity:0;" aria-hidden="true"></textarea>
+<script src="main.js"></script>
+</body>
+</html>
