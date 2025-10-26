@@ -291,7 +291,7 @@
       "fontSize": "40px",
       "label": "RT"
     },
-    "LS": {
+    "View": {
       "display": "flex",
       "zIndex": "4",
       "top": "109px",
@@ -327,7 +327,7 @@
       "fontSize": "40px",
       "label": "rs"
     },
-    "View": {
+    "LS": {
       "display": "flex",
       "zIndex": "2",
       "top": "157px",
