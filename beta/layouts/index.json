@@ -24,6 +24,10 @@
     "name": "Haute Pad"
   },
   {
+    "file": "split.json",
+    "name": "C16-S"
+  },
+  {
     "file": "gamepad.json",
     "name": "Gamepad"
   },
