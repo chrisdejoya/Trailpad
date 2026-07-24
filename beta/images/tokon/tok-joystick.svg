@@ -23,7 +23,7 @@
 <feBlend mode="normal" in2="effect1_innerShadow_2033_343" result="effect2_innerShadow_2033_343"/>
 </filter>
 <radialGradient id="paint0_radial_2033_343" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(26.5 25.5) rotate(50.3893) scale(37.6431)">
-<stop offset="0.0991687" stop-color="#FFF0E0"/>
+<stop stop-color="#FFCFB9"/>
 <stop offset="0.317308" stop-color="#FF6E2D"/>
 <stop offset="0.485577" stop-color="#DB501D"/>
 <stop offset="0.6875" stop-color="#C53A0E"/>
