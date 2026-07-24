@@ -78,5 +78,9 @@
   {
     "file": "tekken8.json",
     "name": "Tekken 8"
+  },
+  {
+    "file": "tokon.json",
+    "name": "Tokon"
   }
 ]
