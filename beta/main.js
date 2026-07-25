@@ -788,7 +788,12 @@ window.addEventListener('DOMContentLoaded', () => {
         if (selected.classList && selected.classList.contains('btn')) { const name = selected.dataset.btn; appState.buttons[name] = appState.buttons[name] || {}; appState.buttons[name].width = selected.style.width; appState.buttons[name].height = selected.style.height; appState.buttons[name].top = selected.style.top; appState.buttons[name].left = selected.style.left; }
         saveStateData(); showToast(`height: ${height}, width: ${width}`, 1000); updated = true;
       } else {
-        if (e.key === 'ArrowUp') { top -= 10; updated = true; } if (e.key === 'ArrowDown') { top += 10; updated = true; } if (e.key === 'ArrowLeft') { left -= 10; updated = true; } if (e.key === 'ArrowRight') { left += 10; updated = true; }
+        const step = e.ctrlKey ? 1 : 10;
+        if (e.key === 'ArrowUp') { top -= step; updated = true; }
+        if (e.key === 'ArrowDown') { top += step; updated = true; }
+        if (e.key === 'ArrowLeft') { left -= step; updated = true; }
+        if (e.key === 'ArrowRight') { left += step; updated = true; }
+        
         if (updated) { selected.style.top = Math.max(0, top) + 'px'; selected.style.left = Math.max(0, left) + 'px'; saveStateData(); showToast(`x: ${left}, y: ${top}`, 1000); }
       }
       if (updated) {
