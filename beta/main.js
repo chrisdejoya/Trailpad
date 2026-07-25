@@ -1208,17 +1208,39 @@ window.addEventListener('DOMContentLoaded', () => {
   // initial render shows profiles by default
   renderProfilesList();
       // wire header toggles and set classes
-      function setActiveToggle(which) {
-        if (which === 'profiles') {
-          profilesToggle.classList.add('active'); profilesToggle.classList.remove('inactive');
-          presetsToggle.classList.remove('active'); presetsToggle.classList.add('inactive');
-        } else {
-          presetsToggle.classList.add('active'); presetsToggle.classList.remove('inactive');
-          profilesToggle.classList.remove('active'); profilesToggle.classList.add('inactive');
+        function setActiveToggle(which) {
+          if (which === 'profiles') {
+            profilesToggle.classList.add('active'); profilesToggle.classList.remove('inactive');
+            presetsToggle.classList.remove('active'); presetsToggle.classList.add('inactive');
+          } else {
+            presetsToggle.classList.add('active'); presetsToggle.classList.remove('inactive');
+            profilesToggle.classList.remove('active'); profilesToggle.classList.add('inactive');
+          }
         }
-      }
-      profilesToggle.addEventListener('click', () => { setActiveToggle('profiles'); renderProfilesList(); });
-      presetsToggle.addEventListener('click', () => { setActiveToggle('presets'); renderPresetsList(); });
+
+        function repositionPresetsMenu() {
+          const rect = menu.getBoundingClientRect();
+          const vw = window.innerWidth;
+          const vh = window.innerHeight;
+          let left = parseInt(menu.style.left, 10) || x;
+          let top = parseInt(menu.style.top, 10) || y;
+          if (left + rect.width > vw) left = Math.max(8, vw - rect.width - 10);
+          if (top + rect.height > vh) top = Math.max(8, vh - rect.height - 10);
+          menu.style.left = left + 'px';
+          menu.style.top = top + 'px';
+        }
+
+        profilesToggle.addEventListener('click', () => {
+          setActiveToggle('profiles');
+          renderProfilesList();
+          repositionPresetsMenu();
+        });
+
+        presetsToggle.addEventListener('click', () => {
+          setActiveToggle('presets');
+          renderPresetsList();
+          repositionPresetsMenu();
+      });
   setActiveToggle('profiles');
       menu.appendChild(wrapper);
       // const note = document.createElement('div'); note.className = 'presetPreviewNote'; note.textContent = 'Hover to preview. Click to apply. Click outside to cancel.'; menu.appendChild(note);
