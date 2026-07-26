@@ -159,7 +159,7 @@
       "outlineOffset": "0px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 0px",
       "backgroundColor": "rgba(0, 0, 0, 0)",
-      "backgroundImage": "url(\"http://absolute/D:/Documents/Trailpad/images/avatar/btn3.png\")",
+      "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/avatar/btn3.png\")",
       "backgroundSize": "100px auto",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "44px",
@@ -177,7 +177,7 @@
       "outlineOffset": "0px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 0px",
       "backgroundColor": "rgba(0, 0, 0, 0)",
-      "backgroundImage": "url(\"http://absolute/D:/Documents/Trailpad/images/avatar/btn4.png\")",
+      "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/avatar/btn4.png\")",
       "backgroundSize": "100px auto",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "44px",
@@ -195,7 +195,7 @@
       "outlineOffset": "0px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 0px",
       "backgroundColor": "rgba(0, 0, 0, 0)",
-      "backgroundImage": "url(\"http://absolute/D:/Documents/Trailpad/images/avatar/btn1.png\")",
+      "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/avatar/btn1.png\")",
       "backgroundSize": "100px auto",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "44px",
@@ -213,7 +213,7 @@
       "outlineOffset": "0px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 0px",
       "backgroundColor": "rgba(0, 0, 0, 0)",
-      "backgroundImage": "url(\"http://absolute/D:/Documents/Trailpad/images/avatar/btn2.png\")",
+      "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/avatar/btn2.png\")",
       "backgroundSize": "100px auto",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "44px",
@@ -233,7 +233,7 @@
       "backgroundColor": "rgb(48, 48, 48)",
       "backgroundImage": "none",
       "backgroundSize": "contain",
-      "color": "rgb(238, 238, 238)",
+      "color": "rgba(0, 0, 0, 0)",
       "fontSize": "44px",
       "label": ""
     },
@@ -251,7 +251,7 @@
       "backgroundColor": "rgb(48, 48, 48)",
       "backgroundImage": "none",
       "backgroundSize": "contain",
-      "color": "rgb(238, 238, 238)",
+      "color": "rgba(0, 0, 0, 0)",
       "fontSize": "44px",
       "label": ""
     },
@@ -269,7 +269,7 @@
       "backgroundColor": "rgb(48, 48, 48)",
       "backgroundImage": "none",
       "backgroundSize": "contain",
-      "color": "rgb(238, 238, 238)",
+      "color": "rgba(0, 0, 0, 0)",
       "fontSize": "44px",
       "label": ""
     },
@@ -287,7 +287,7 @@
       "backgroundColor": "rgb(48, 48, 48)",
       "backgroundImage": "none",
       "backgroundSize": "contain",
-      "color": "rgb(238, 238, 238)",
+      "color": "rgba(0, 0, 0, 0)",
       "fontSize": "44px",
       "label": ""
     },
@@ -305,7 +305,7 @@
       "backgroundColor": "rgb(48, 48, 48)",
       "backgroundImage": "none",
       "backgroundSize": "contain",
-      "color": "rgb(238, 238, 238)",
+      "color": "rgba(0, 0, 0, 0)",
       "fontSize": "36px",
       "label": ""
     },
@@ -323,7 +323,7 @@
       "backgroundColor": "rgb(48, 48, 48)",
       "backgroundImage": "none",
       "backgroundSize": "contain",
-      "color": "rgb(238, 238, 238)",
+      "color": "rgba(0, 0, 0, 0)",
       "fontSize": "36px",
       "label": ""
     },
@@ -341,7 +341,7 @@
       "backgroundColor": "rgb(48, 48, 48)",
       "backgroundImage": "none",
       "backgroundSize": "contain",
-      "color": "rgb(238, 238, 238)",
+      "color": "rgba(0, 0, 0, 0)",
       "fontSize": "20px",
       "label": ""
     },
@@ -359,7 +359,7 @@
       "backgroundColor": "rgb(48, 48, 48)",
       "backgroundImage": "none",
       "backgroundSize": "contain",
-      "color": "rgb(238, 238, 238)",
+      "color": "rgba(0, 0, 0, 0)",
       "fontSize": "20px",
       "label": ""
     }
