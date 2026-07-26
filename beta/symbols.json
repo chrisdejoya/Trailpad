@@ -33,7 +33,11 @@
     "images/ggst/ggst-parry.svg",
     "images/ggst/ggst-taunt.svg",
     "images/ggst/ggst-psychburst.svg",
-    "images/ggst/ggst-exclamation.svg"
+    "images/ggst/ggst-exclamation.svg",
+    "images/avatar/btn1.png",
+    "images/avatar/btn2.png",
+    "images/avatar/btn3.png",
+    "images/avatar/btn4.png"
     
   ],
   "directions": [
