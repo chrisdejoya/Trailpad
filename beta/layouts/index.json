@@ -16,6 +16,10 @@
     "name": "Arcade Stick"
   },
   {
+    "file": "avatar.json",
+    "name": "Avatar Legends"
+  },
+  {
     "file": "dbfz.json",
     "name": "DB FighterZ (Gamepad)"
   },
@@ -82,9 +86,5 @@
   {
     "file": "tokon.json",
     "name": "Tokon"
-  },
-  {
-    "file": "tokon-input.json",
-    "name": "Tokon Inputs"
   }
 ]
