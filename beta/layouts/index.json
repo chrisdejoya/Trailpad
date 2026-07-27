@@ -17,7 +17,15 @@
   },
   {
     "file": "avatar.json",
-    "name": "Avatar Legends"
+    "name": "Avatar (Default)"
+  },
+  {
+    "file": "avatar-stick.json",
+    "name": "Avatar (Arcade Stick)"
+  },
+  {
+    "file": "avatar-leverless.json",
+    "name": "Avatar (Leverless)"
   },
   {
     "file": "dbfz.json",

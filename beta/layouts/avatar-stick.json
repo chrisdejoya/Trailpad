@@ -2,10 +2,10 @@
   "base": {
     "display": "block",
     "zIndex": "0",
-    "top": "100px",
-    "left": "0px",
-    "width": "620px",
-    "height": "140px",
+    "top": "85px",
+    "left": "10px",
+    "width": "740px",
+    "height": "170px",
     "borderRadius": "0px",
     "outline": "rgb(238, 238, 238) none 0px",
     "outlineOffset": "-6px",
@@ -159,7 +159,7 @@
       "outlineOffset": "0px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 0px",
       "backgroundColor": "rgba(0, 0, 0, 0)",
-      "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/avatar/btn2.png\")",
+      "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/avatar/btn3.png\")",
       "backgroundSize": "100px auto",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "44px",
@@ -169,7 +169,7 @@
       "display": "flex",
       "zIndex": "2",
       "top": "170px",
-      "left": "430px",
+      "left": "420px",
       "width": "90px",
       "height": "90px",
       "borderRadius": "45px",
@@ -205,7 +205,7 @@
       "display": "flex",
       "zIndex": "2",
       "top": "70px",
-      "left": "430px",
+      "left": "420px",
       "width": "90px",
       "height": "90px",
       "borderRadius": "45px",
@@ -213,14 +213,14 @@
       "outlineOffset": "0px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 0px",
       "backgroundColor": "rgba(0, 0, 0, 0)",
-      "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/avatar/btn3.png\")",
+      "backgroundImage": "url(\"https://chrisdejoya.github.io/Trailpad/beta/images/avatar/btn2.png\")",
       "backgroundSize": "100px auto",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "44px",
       "label": "Y"
     },
     "LB": {
-      "display": "none",
+      "display": "flex",
       "zIndex": "2",
       "top": "70px",
       "left": "620px",
@@ -238,7 +238,7 @@
       "label": ""
     },
     "RB": {
-      "display": "none",
+      "display": "flex",
       "zIndex": "2",
       "top": "70px",
       "left": "520px",
@@ -256,7 +256,7 @@
       "label": ""
     },
     "LT": {
-      "display": "none",
+      "display": "flex",
       "zIndex": "2",
       "top": "170px",
       "left": "620px",
@@ -274,7 +274,7 @@
       "label": ""
     },
     "RT": {
-      "display": "none",
+      "display": "flex",
       "zIndex": "2",
       "top": "170px",
       "left": "520px",
