@@ -34,6 +34,7 @@
     "images/ggst/ggst-taunt.svg",
     "images/ggst/ggst-psychburst.svg",
     "images/ggst/ggst-exclamation.svg",
+    "images/avatar/btn0.png",
     "images/avatar/btn1.png",
     "images/avatar/btn2.png",
     "images/avatar/btn3.png",
@@ -64,7 +65,11 @@
     "images/ggst/ggst-up.svg",
     "images/ggst/ggst-down.svg",
     "images/ggst/ggst-left.svg",
-    "images/ggst/ggst-right.svg"
+    "images/ggst/ggst-right.svg",
+    "images/avatar/up.png",
+    "images/avatar/down.png",
+    "images/avatar/left.png",
+    "images/avatar/right.png"
   ]
 
 }
