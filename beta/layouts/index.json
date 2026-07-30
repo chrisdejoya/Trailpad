@@ -94,5 +94,9 @@
   {
     "file": "tokon.json",
     "name": "Tokon"
+  },
+  {
+    "file": "tokon-input.json",
+    "name": "Tokon (Compact)"
   }
 ]
