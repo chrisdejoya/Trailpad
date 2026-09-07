@@ -123,7 +123,7 @@ window.addEventListener('DOMContentLoaded', () => {
     if (!el || !data) return;
     if (data.display !== undefined) el.style.display = data.display;
     if (data.zIndex !== undefined) el.style.zIndex = data.zIndex;
-    ['top','left','width','height','borderRadius','outline','outlineOffset','boxShadow','backgroundColor','backgroundImage','backgroundSize','color','fontSize'].forEach(k => {
+    ['top','left','width','height','borderRadius','outline','outlineOffset','boxShadow','backgroundColor','backgroundImage','backgroundSize','color','fontSize','fontFamily'].forEach(k => {
       if (data[k] !== undefined) el.style[k] = data[k];
     });
     if (data.label !== undefined && el.dataset && el.dataset.btn) el.textContent = data.label;
@@ -143,7 +143,7 @@ window.addEventListener('DOMContentLoaded', () => {
       display: cs.display, zIndex: cs.zIndex, top: cs.top, left: cs.left, width: cs.width, height: cs.height,
       borderRadius: cs.borderRadius, outline: cs.outline, outlineOffset: cs.outlineOffset, boxShadow: cs.boxShadow,
       backgroundColor: cs.backgroundColor, backgroundImage: cs.backgroundImage, backgroundSize: cs.backgroundSize,
-      color: cs.color, fontSize: cs.fontSize, label: (el.textContent || '').trim()
+      color: cs.color, fontSize: cs.fontSize, fontFamily: cs.fontFamily, label: (el.textContent || '').trim()
     };
     if (el.dataset && el.dataset.btn) {
       const key = el.dataset.btn;
@@ -162,7 +162,7 @@ window.addEventListener('DOMContentLoaded', () => {
   function applyJoystickHeadFromState() {
     const head = appState.joystickHead || {};
     applyPropertiesToElement(joystick, head);
-    ['backgroundColor','color','boxShadow','outline','borderRadius','fontSize'].forEach(k => {
+    ['backgroundColor','color','boxShadow','outline','borderRadius','fontSize','fontFamily'].forEach(k => {
       if (head[k] !== undefined) joystick.style[k] = head[k];
     });
   }
@@ -348,6 +348,22 @@ window.addEventListener('DOMContentLoaded', () => {
   // --- color panel ---
   let colorMode = localStorage.getItem('colorMode') || 'bg';
 
+  // Fonts list (loaded from fonts/fonts.json)
+  let fontsList = null;
+  async function loadFontsList() {
+    if (fontsList) return fontsList;
+    try {
+      const res = await fetch('fonts/fonts.json');
+      if (!res.ok) throw new Error('not found');
+      fontsList = await res.json();
+      return fontsList;
+    } catch (e) {
+      console.warn('Could not load fonts/fonts.json', e);
+      fontsList = [];
+      return fontsList;
+    }
+  }
+
   async function openColorPanel(anchorTarget, x, y) {
     try {
       // defensive: ensure colorPanel exists and is attached
@@ -357,46 +373,62 @@ window.addEventListener('DOMContentLoaded', () => {
       } else if (!document.body.contains(colorPanel)) {
         document.body.appendChild(colorPanel);
       }
-      panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
+panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
 
-    // mode toggle row
-  const toggle = document.createElement('div'); toggle.className = 'modeToggle'; toggle.style.display = 'flex'; toggle.style.alignItems = 'center'; toggle.style.justifyContent = 'space-between'; toggle.style.gap = '5px';
-  const leftGroup = document.createElement('div'); leftGroup.style.display = 'flex'; leftGroup.style.gap = '8px';
-  // right group for sliders / symbol size controls
-  const rightGroup = document.createElement('div'); rightGroup.style.display = 'flex'; rightGroup.style.alignItems = 'center'; rightGroup.style.gap = '8px';
-  // declare symbolBtn early to avoid TDZ when handlers reference it
-  let symbolBtn = null;
-    const bgDiv = document.createElement('div'); bgDiv.className = 'modeBtn bgBtn'; bgDiv.textContent = 'FILL';
-    const txtDiv = document.createElement('div'); txtDiv.className = 'modeBtn txtBtn'; txtDiv.textContent = 'TEXT';
-    const outlineDiv = document.createElement('div'); outlineDiv.className = 'modeBtn outlineBtn'; outlineDiv.textContent = 'STROKE';
-  leftGroup.appendChild(bgDiv); leftGroup.appendChild(txtDiv); leftGroup.appendChild(outlineDiv); toggle.appendChild(leftGroup);
+    // mode toggle row (header)
+    const toggle = document.createElement('div'); toggle.className = 'modeToggle'; toggle.style.display = 'flex'; toggle.style.alignItems = 'center'; toggle.style.justifyContent = 'space-between'; toggle.style.gap = '5px';
+    const leftGroup = document.createElement('div'); leftGroup.style.display = 'flex'; leftGroup.style.gap = '8px';
+    // declare symbolBtn early to avoid TDZ when handlers reference it
+    let symbolBtn = null;
+    let fontBtn = null;
+      const fontDiv = document.createElement('div'); fontDiv.className = 'modeBtn fontBtn'; fontDiv.textContent = 'FONT';
+      const bgDiv = document.createElement('div'); bgDiv.className = 'modeBtn bgBtn'; bgDiv.textContent = 'FILL';
+      const txtDiv = document.createElement('div'); txtDiv.className = 'modeBtn txtBtn'; txtDiv.textContent = 'TEXT';
+      const outlineDiv = document.createElement('div'); outlineDiv.className = 'modeBtn outlineBtn'; outlineDiv.textContent = 'STROKE';
+    leftGroup.appendChild(fontDiv); leftGroup.appendChild(bgDiv); leftGroup.appendChild(txtDiv); leftGroup.appendChild(outlineDiv); toggle.appendChild(leftGroup);
 
-  const sliderWrapper = document.createElement('div'); sliderWrapper.style.display = 'none'; sliderWrapper.style.alignItems = 'center'; sliderWrapper.style.gap = '5px';
-    const innerLabel = document.createElement('span'); innerLabel.textContent = 'In';
-    const innerSlider = document.createElement('input'); innerSlider.type = 'range'; innerSlider.min = 0; innerSlider.max = 10; innerSlider.step = 1; innerSlider.style.width = '60px';
-    const innerValue = document.createElement('span');
-    const outerLabel = document.createElement('span'); outerLabel.textContent = 'Out';
-    const outerSlider = document.createElement('input'); outerSlider.type = 'range'; outerSlider.min = 0; outerSlider.max = 10; outerSlider.step = 1; outerSlider.style.width = '60px';
-    const outerValue = document.createElement('span');
-  sliderWrapper.appendChild(innerLabel); sliderWrapper.appendChild(innerSlider); sliderWrapper.appendChild(innerValue); sliderWrapper.appendChild(outerLabel); sliderWrapper.appendChild(outerSlider); sliderWrapper.appendChild(outerValue);
-    // create persistent size control in rightGroup (hidden by default; shown only in symbol mode)
-  const sizeCtrl = document.createElement('div'); sizeCtrl.className = 'symbolSizeControl'; sizeCtrl.style.display = 'none'; sizeCtrl.style.alignItems = 'left'; sizeCtrl.style.gap = '5px'; sizeCtrl.style.padding = '0px 0px';
-    const sizeLabel = document.createElement('span'); sizeLabel.textContent = 'Size'; sizeLabel.style.fontSize = '16px';
-  const sizeSlider = document.createElement('input'); sizeSlider.type = 'range'; sizeSlider.min = 0; sizeSlider.max = 200; sizeSlider.step = 10; sizeSlider.value = 100; sizeSlider.style.width = '100px'; sizeSlider.className = 'symbolSizeSlider';
-    const sizeValue = document.createElement('span'); sizeValue.textContent = sizeSlider.value + ''; sizeValue.style.minWidth = '30px'; sizeValue.className = 'symbolSizeValue'; sizeValue.style.fontSize = '16px';
+    // Content area (swatches, symbol grid, font grid)
+    const contentArea = document.createElement('div');
+    contentArea.style.flex = '1';
+    contentArea.style.overflowY = 'auto';
+    contentArea.style.minHeight = '0';
+
+    // Slider area (bottom)
+    const sliderArea = document.createElement('div');
+    sliderArea.style.display = 'flex';
+    sliderArea.style.flexDirection = 'column';
+    sliderArea.style.gap = '8px';
+    sliderArea.style.paddingTop = '8px';
+    sliderArea.style.borderTop = '1px solid #333';
+
+    // Outline sliders (In/Out)
+    const sliderWrapper = document.createElement('div'); sliderWrapper.style.display = 'none'; sliderWrapper.style.alignItems = 'center'; sliderWrapper.style.gap = '5px';
+      const innerLabel = document.createElement('span'); innerLabel.textContent = 'In';
+      const innerSlider = document.createElement('input'); innerSlider.type = 'range'; innerSlider.min = 0; innerSlider.max = 10; innerSlider.step = 1; innerSlider.style.width = '60px';
+      const innerValue = document.createElement('span');
+      const outerLabel = document.createElement('span'); outerLabel.textContent = 'Out';
+      const outerSlider = document.createElement('input'); outerSlider.type = 'range'; outerSlider.min = 0; outerSlider.max = 10; outerSlider.step = 1; outerSlider.style.width = '60px';
+      const outerValue = document.createElement('span');
+    sliderWrapper.appendChild(innerLabel); sliderWrapper.appendChild(innerSlider); sliderWrapper.appendChild(innerValue); sliderWrapper.appendChild(outerLabel); sliderWrapper.appendChild(outerSlider); sliderWrapper.appendChild(outerValue);
+
+    // Symbol size control
+    const sizeCtrl = document.createElement('div'); sizeCtrl.className = 'symbolSizeControl'; sizeCtrl.style.display = 'none'; sizeCtrl.style.alignItems = 'center'; sizeCtrl.style.gap = '5px'; sizeCtrl.style.padding = '0px 0px';
+      const sizeLabel = document.createElement('span'); sizeLabel.textContent = 'Size'; sizeLabel.style.fontSize = '16px';
+    const sizeSlider = document.createElement('input'); sizeSlider.type = 'range'; sizeSlider.min = 0; sizeSlider.max = 200; sizeSlider.step = 10; sizeSlider.value = 100; sizeSlider.style.width = '100px'; sizeSlider.className = 'symbolSizeSlider';
+      const sizeValue = document.createElement('span'); sizeValue.textContent = sizeSlider.value + ''; sizeValue.style.minWidth = '30px'; sizeValue.className = 'symbolSizeValue'; sizeValue.style.fontSize = '16px';
     sizeCtrl.appendChild(sizeLabel); sizeCtrl.appendChild(sizeSlider); sizeCtrl.appendChild(sizeValue);
     const clearBtn = document.createElement('button'); clearBtn.type = 'button'; clearBtn.className = 'clearSymbolBtn'; clearBtn.textContent = 'Clear'; clearBtn.style.marginLeft = '0px'; clearBtn.style.padding = '5px 5px'; clearBtn.style.fontSize = '16px';
     sizeCtrl.appendChild(clearBtn);
 
-    // create text-size control (0-100px) - visible only in TEXT mode
+    // Text size control (0-100px) - visible only in TEXT mode
     const textSizeCtrl = document.createElement('div'); textSizeCtrl.className = 'textSizeControl'; textSizeCtrl.style.display = 'none'; textSizeCtrl.style.alignItems = 'center'; textSizeCtrl.style.gap = '8px'; textSizeCtrl.style.padding = '0px 0px';
-    const textSizeLabel = document.createElement('span'); textSizeLabel.textContent = 'Size'; textSizeLabel.style.fontSize = '16px';
+      const textSizeLabel = document.createElement('span'); textSizeLabel.textContent = 'Size'; textSizeLabel.style.fontSize = '16px';
     const textSizeSlider = document.createElement('input'); textSizeSlider.type = 'range'; textSizeSlider.min = 0; textSizeSlider.max = 100; textSizeSlider.step = 1; textSizeSlider.value = 30; textSizeSlider.style.width = '120px'; textSizeSlider.className = 'textSizeSlider';
-  const textSizeValue = document.createElement('input'); textSizeValue.type = 'number'; textSizeValue.min = 0; textSizeValue.max = 100; textSizeValue.step = 1; textSizeValue.value = textSizeSlider.value; textSizeValue.className = 'textSizeValue'; textSizeValue.style.width = '56px'; textSizeValue.style.fontSize = '14px';
-  const textSizeUnit = document.createElement('span'); textSizeUnit.textContent = 'px'; textSizeUnit.style.color = '#ddd'; textSizeUnit.style.fontSize = '14px';
-  textSizeCtrl.appendChild(textSizeLabel); textSizeCtrl.appendChild(textSizeSlider); textSizeCtrl.appendChild(textSizeValue); //textSizeCtrl.appendChild(textSizeUnit);
+    const textSizeValue = document.createElement('input'); textSizeValue.type = 'number'; textSizeValue.min = 0; textSizeValue.max = 100; textSizeValue.step = 1; textSizeValue.value = textSizeSlider.value; textSizeValue.className = 'textSizeValue'; textSizeValue.style.width = '56px'; textSizeValue.style.fontSize = '14px';
+    const textSizeUnit = document.createElement('span'); textSizeUnit.textContent = 'px'; textSizeUnit.style.color = '#ddd'; textSizeUnit.style.fontSize = '14px';
+    textSizeCtrl.appendChild(textSizeLabel); textSizeCtrl.appendChild(textSizeSlider); textSizeCtrl.appendChild(textSizeValue); //textSizeCtrl.appendChild(textSizeUnit);
 
-    // persistent slider listener (applies size % to current selection)
+    // Symbol size slider listener (applies size % to current selection)
     sizeSlider.addEventListener('input', () => {
       sizeValue.textContent = sizeSlider.value + '';
       const applyTarget = selected || panelAnchorTarget; if (!applyTarget) return; const btnId = applyTarget.dataset?.btn;
@@ -404,7 +436,7 @@ window.addEventListener('DOMContentLoaded', () => {
       if (btnId) { appState.buttons[btnId] = appState.buttons[btnId] || {}; appState.buttons[btnId].backgroundSize = applyTarget.style.backgroundSize; saveStateData(); }
     });
 
-    // text size slider listener (applies font-size px to current selection)
+    // Text size slider listener (applies font-size px to current selection)
     textSizeSlider.addEventListener('input', () => {
       // update numeric input to match slider
       try { textSizeValue.value = textSizeSlider.value; } catch (e) {}
@@ -445,51 +477,66 @@ window.addEventListener('DOMContentLoaded', () => {
       } else {
         applyTarget.style.color = '';
       }
-      const grid = colorPanel.querySelector('.symbolGrid'); if (grid) grid.querySelectorAll('.symbolCell').forEach(c => c.classList.remove('selected'));
+      const grid = contentArea.querySelector('.symbolGrid'); if (grid) grid.querySelectorAll('.symbolCell').forEach(c => c.classList.remove('selected'));
       saveStateData();
     });
 
-  // put the slider wrapper into the rightGroup so outline sliders live there
-  rightGroup.appendChild(sliderWrapper);
-  // Pressure sensitivity controls removed from the UI by user request.
-  // Pressure settings remain in appState.analog and are still exported/imported, but are not exposed in the panel.
-  // add persistent sizeCtrl to rightGroup (visible in all modes)
-  rightGroup.appendChild(sizeCtrl);
-  // add text size control to rightGroup (visible only in TEXT mode)
-  rightGroup.appendChild(textSizeCtrl);
-  toggle.appendChild(leftGroup); toggle.appendChild(rightGroup);
-  colorPanel.appendChild(toggle);
+    // Add sliders to sliderArea
+    sliderArea.appendChild(sliderWrapper);
+    sliderArea.appendChild(sizeCtrl);
+    sliderArea.appendChild(textSizeCtrl);
+
+    // Build panel structure: header -> content -> sliders
+    colorPanel.appendChild(toggle);
+    colorPanel.appendChild(contentArea);
+    colorPanel.appendChild(sliderArea);
 
   let mode = colorMode; if (mode === 'bg') bgDiv.classList.add('active'); if (mode === 'text') txtDiv.classList.add('active');
   if (mode === 'outline') { outlineDiv.classList.add('active'); sliderWrapper.style.display = 'flex'; updatePanelForSelection(); }
 
   bgDiv.addEventListener('click', () => {
-    mode = 'bg'; colorMode = 'bg'; localStorage.setItem('colorMode', colorMode); bgDiv.classList.add('active'); txtDiv.classList.remove('active'); outlineDiv.classList.remove('active');
+    mode = 'bg'; colorMode = 'bg'; localStorage.setItem('colorMode', colorMode); bgDiv.classList.add('active'); txtDiv.classList.remove('active'); outlineDiv.classList.remove('active'); fontDiv.classList.remove('active');
     // restore UI and remove symbol grid only
     sliderWrapper.style.display = 'none'; if (typeof symbolBtn !== 'undefined') symbolBtn.classList.remove('active'); if (typeof swatchContainer !== 'undefined') swatchContainer.style.display = '';
     // hide symbol size control when not in symbol mode
     try { sizeCtrl.style.display = 'none'; } catch (e) {}
     // hide text size control when not in text mode
     try { textSizeCtrl.style.display = 'none'; } catch (e) {}
-    const grid = colorPanel.querySelector('.symbolGrid'); if (grid) grid.remove();
+    const grid = contentArea.querySelector('.symbolGrid'); if (grid) grid.remove();
+    const fontGrid = contentArea.querySelector('.fontGrid'); if (fontGrid) fontGrid.remove();
   });
   txtDiv.addEventListener('click', () => {
-    mode = 'text'; colorMode = 'text'; localStorage.setItem('colorMode', colorMode); txtDiv.classList.add('active'); bgDiv.classList.remove('active'); outlineDiv.classList.remove('active');
+    mode = 'text'; colorMode = 'text'; localStorage.setItem('colorMode', colorMode); txtDiv.classList.add('active'); bgDiv.classList.remove('active'); outlineDiv.classList.remove('active'); fontDiv.classList.remove('active');
     sliderWrapper.style.display = 'none'; if (typeof symbolBtn !== 'undefined') symbolBtn.classList.remove('active'); if (typeof swatchContainer !== 'undefined') swatchContainer.style.display = '';
     // hide symbol size control when not in symbol mode
     try { sizeCtrl.style.display = 'none'; } catch (e) {}
     // show text size control when in text mode
     try { textSizeCtrl.style.display = 'flex'; } catch (e) {}
-    const grid = colorPanel.querySelector('.symbolGrid'); if (grid) grid.remove();
+    const grid = contentArea.querySelector('.symbolGrid'); if (grid) grid.remove();
+    const fontGrid = contentArea.querySelector('.fontGrid'); if (fontGrid) fontGrid.remove();
   });
   outlineDiv.addEventListener('click', () => {
-    mode = 'outline'; colorMode = 'outline'; localStorage.setItem('colorMode', colorMode); outlineDiv.classList.add('active'); bgDiv.classList.remove('active'); txtDiv.classList.remove('active');
+    mode = 'outline'; colorMode = 'outline'; localStorage.setItem('colorMode', colorMode); outlineDiv.classList.add('active'); bgDiv.classList.remove('active'); txtDiv.classList.remove('active'); fontDiv.classList.remove('active');
     sliderWrapper.style.display = 'flex'; updatePanelForSelection(); if (typeof symbolBtn !== 'undefined') symbolBtn.classList.remove('active'); if (typeof swatchContainer !== 'undefined') swatchContainer.style.display = '';
     // hide symbol size control when not in symbol mode
     try { sizeCtrl.style.display = 'none'; } catch (e) {}
     // hide text size control when not in text mode
     try { textSizeCtrl.style.display = 'none'; } catch (e) {}
-    const grid = colorPanel.querySelector('.symbolGrid'); if (grid) grid.remove();
+    const grid = contentArea.querySelector('.symbolGrid'); if (grid) grid.remove();
+    // remove font grid if present
+    const fontGrid = contentArea.querySelector('.fontGrid'); if (fontGrid) fontGrid.remove();
+  });
+
+  fontDiv.addEventListener('click', async () => {
+    mode = 'font'; colorMode = 'font'; localStorage.setItem('colorMode', colorMode); fontDiv.classList.add('active'); bgDiv.classList.remove('active'); txtDiv.classList.remove('active'); outlineDiv.classList.remove('active');
+    sliderWrapper.style.display = 'none'; if (typeof symbolBtn !== 'undefined') symbolBtn.classList.remove('active'); if (typeof swatchContainer !== 'undefined') swatchContainer.style.display = 'none';
+    // hide symbol size control when not in symbol mode
+    try { sizeCtrl.style.display = 'none'; } catch (e) {}
+    // hide text size control when not in text mode
+    try { textSizeCtrl.style.display = 'none'; } catch (e) {}
+    const grid = contentArea.querySelector('.symbolGrid'); if (grid) grid.remove();
+    // show font grid
+    await showFontGrid();
   });
 
     innerSlider.addEventListener('input', () => {
@@ -524,12 +571,14 @@ window.addEventListener('DOMContentLoaded', () => {
       swatchContainer.appendChild(s);
     });
 
-    colorPanel.appendChild(swatchContainer);
+    contentArea.appendChild(swatchContainer);
 
   // --- Symbol selector ---
   // assign to previously-declared symbolBtn (avoid redeclaring block-scoped variable)
   symbolBtn = document.createElement('div'); symbolBtn.className = 'modeBtn symbolBtn'; symbolBtn.textContent = 'SYMBOL';
   leftGroup.appendChild(symbolBtn);
+  // assign fontBtn
+  fontBtn = fontDiv;
 
     let symbolsData = null;
     async function loadSymbols() {
@@ -549,7 +598,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     async function showSymbolGrid() {
       // clear any existing symbol area
-      const existing = colorPanel.querySelector('.symbolGrid'); if (existing) existing.remove();
+      const existing = contentArea.querySelector('.symbolGrid'); if (existing) existing.remove();
       // keep persistent symbolSizeControl in the rightGroup; do not remove it here
       const data = await loadSymbols();
       const grid = document.createElement('div'); grid.className = 'symbolGrid';
@@ -632,12 +681,73 @@ window.addEventListener('DOMContentLoaded', () => {
       });
 
   // grid appended below (sizeCtrl already in rightGroup at top)
-  colorPanel.appendChild(grid);
+  contentArea.appendChild(grid);
+    }
+
+    async function showFontGrid() {
+      // clear any existing font area
+      const existing = contentArea.querySelector('.fontGrid'); if (existing) existing.remove();
+      const fonts = await loadFontsList();
+      const grid = document.createElement('div'); grid.className = 'fontGrid';
+      grid.style.display = 'flex';
+      grid.style.flexDirection = 'column';
+      grid.style.gap = '4px';
+      grid.style.padding = '8px';
+      grid.style.maxHeight = '300px';
+      grid.style.overflowY = 'auto';
+      fonts.forEach(font => {
+        const item = document.createElement('button');
+        item.type = 'button';
+        item.textContent = font.name;
+        item.style.fontFamily = font.cssFamily;
+        item.style.padding = '10px 14px';
+        item.style.border = 'none';
+        item.style.background = 'transparent';
+        item.style.color = '#eee';
+        item.style.textAlign = 'left';
+        item.style.fontSize = '13px';
+        item.style.cursor = 'pointer';
+        item.style.borderRadius = '4px';
+        item.style.transition = 'background 0.1s';
+        item.addEventListener('mouseenter', () => { item.style.background = 'rgba(255,255,255,0.08)'; });
+        item.addEventListener('mouseleave', () => { item.style.background = 'transparent'; });
+        item.addEventListener('click', () => {
+          // Apply font to ALL editable objects
+          const targets = [base, stickWrapper, eightWayWrapper, joystick, ...Object.values(btnEls)];
+          targets.forEach(el => {
+            el.style.fontFamily = font.cssFamily;
+            if (el.dataset?.btn) {
+              appState.buttons[el.dataset.btn] = appState.buttons[el.dataset.btn] || {};
+              appState.buttons[el.dataset.btn].fontFamily = font.cssFamily;
+            } else if (el === base) {
+              appState.base.fontFamily = font.cssFamily;
+            } else if (el === stickWrapper) {
+              appState.joystick.fontFamily = font.cssFamily;
+            } else if (el === eightWayWrapper) {
+              appState.eightWayWrapper.fontFamily = font.cssFamily;
+            } else if (el === joystick) {
+              appState.joystickHead.fontFamily = font.cssFamily;
+            }
+          });
+          // Preload the font
+          const link = document.createElement('link');
+          link.rel = 'stylesheet';
+          link.href = font.url;
+          document.head.appendChild(link);
+          // Mark selected visually
+          grid.querySelectorAll('button').forEach(b => b.style.background = 'transparent');
+          item.style.background = 'rgba(255,255,255,0.15)';
+          saveStateData();
+          showToast('Font applied to all objects: ' + font.name, 1000);
+        });
+        grid.appendChild(item);
+      });
+      contentArea.appendChild(grid);
     }
 
     symbolBtn.addEventListener('click', async () => {
       // activate symbol mode UI and hide swatches + sliders
-      mode = 'symbol'; colorMode = 'symbol'; localStorage.setItem('colorMode', colorMode); bgDiv.classList.remove('active'); txtDiv.classList.remove('active'); outlineDiv.classList.remove('active'); symbolBtn.classList.add('active'); swatchContainer.style.display = 'none';
+      mode = 'symbol'; colorMode = 'symbol'; localStorage.setItem('colorMode', colorMode); bgDiv.classList.remove('active'); txtDiv.classList.remove('active'); outlineDiv.classList.remove('active'); fontDiv.classList.remove('active'); symbolBtn.classList.add('active'); swatchContainer.style.display = 'none';
       // hide the In/Out slider wrapper when symbol panel is active
       if (typeof sliderWrapper !== 'undefined') sliderWrapper.style.display = 'none';
       // show symbol size control when in symbol mode, hide text size control
@@ -647,7 +757,7 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 
   // clamp
-  colorPanel.style.display = 'block'; colorPanel.style.left = '0px'; colorPanel.style.top = '0px';
+  colorPanel.style.display = 'flex'; colorPanel.style.flexDirection = 'column'; colorPanel.style.left = '0px'; colorPanel.style.top = '0px';
     const panelRect = colorPanel.getBoundingClientRect(); const viewportWidth = window.innerWidth; const viewportHeight = window.innerHeight;
     let left = x; let top = y + 40;
     if (left + panelRect.width > viewportWidth) left = Math.max(8, viewportWidth - panelRect.width - 10);
@@ -673,18 +783,27 @@ window.addEventListener('DOMContentLoaded', () => {
         }
       } catch (e) {}
     } catch (e) { }
-    // if the remembered mode is symbol, open the symbol grid automatically
-    try {
-      if (colorMode === 'symbol') {
-        if (typeof sliderWrapper !== 'undefined') sliderWrapper.style.display = 'none';
-        if (typeof swatchContainer !== 'undefined') swatchContainer.style.display = 'none';
-        // mark symbol button active and show size control when auto-opening symbol grid
-        try { if (symbolBtn) symbolBtn.classList.add('active'); } catch (e) {}
-        try { sizeCtrl.style.display = 'flex'; } catch (e) {}
-        await showSymbolGrid();
-      }
-      // if the remembered mode is text, show text size control
-      if (colorMode === 'text') {
+// if the remembered mode is symbol, open the symbol grid automatically
+      try {
+        if (colorMode === 'symbol') {
+          if (typeof sliderWrapper !== 'undefined') sliderWrapper.style.display = 'none';
+          if (typeof swatchContainer !== 'undefined') swatchContainer.style.display = 'none';
+          // mark symbol button active and show size control when auto-opening symbol grid
+          try { if (symbolBtn) symbolBtn.classList.add('active'); } catch (e) {}
+          try { sizeCtrl.style.display = 'flex'; } catch (e) {}
+          await showSymbolGrid();
+        }
+        // if the remembered mode is font, open the font grid automatically
+        if (colorMode === 'font') {
+          if (typeof sliderWrapper !== 'undefined') sliderWrapper.style.display = 'none';
+          if (typeof swatchContainer !== 'undefined') swatchContainer.style.display = 'none';
+          try { if (fontBtn) fontBtn.classList.add('active'); } catch (e) {}
+          try { sizeCtrl.style.display = 'none'; } catch (e) {}
+          try { textSizeCtrl.style.display = 'none'; } catch (e) {}
+          await showFontGrid();
+        }
+        // if the remembered mode is text, show text size control
+        if (colorMode === 'text') {
         try { textSizeCtrl.style.display = 'flex'; } catch (e) {}
         // also sync the slider to the current selection
         try {

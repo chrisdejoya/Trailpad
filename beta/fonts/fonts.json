@@ -1,0 +1,17 @@
+[
+  { "name": "Orbitron", "url": "https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap", "cssFamily": "'Orbitron', sans-serif" },
+  { "name": "Rajdhani", "url": "https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap", "cssFamily": "'Rajdhani', sans-serif" },
+  { "name": "Exo 2", "url": "https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700&display=swap", "cssFamily": "'Exo 2', sans-serif" },
+  { "name": "Syncopate", "url": "https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&display=swap", "cssFamily": "'Syncopate', sans-serif" },
+  { "name": "Russo One", "url": "https://fonts.googleapis.com/css2?family=Russo+One&display=swap", "cssFamily": "'Russo One', sans-serif" },
+  { "name": "Teko", "url": "https://fonts.googleapis.com/css2?family=Teko:wght@400;500;600;700&display=swap", "cssFamily": "'Teko', sans-serif" },
+  { "name": "Oxanium", "url": "https://fonts.googleapis.com/css2?family=Oxanium:wght@400;500;600;700&display=swap", "cssFamily": "'Oxanium', sans-serif" },
+  { "name": "JetBrains Mono", "url": "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap", "cssFamily": "'JetBrains Mono', monospace" },
+  { "name": "Space Grotesk", "url": "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap", "cssFamily": "'Space Grotesk', sans-serif" },
+  { "name": "Outfit", "url": "https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap", "cssFamily": "'Outfit', sans-serif" },
+  { "name": "Syne", "url": "https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&display=swap", "cssFamily": "'Syne', sans-serif" },
+  { "name": "Chakra Petch", "url": "https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&display=swap", "cssFamily": "'Chakra Petch', sans-serif" },
+  { "name": "Monofett", "url": "https://fonts.googleapis.com/css2?family=Monofett&display=swap", "cssFamily": "'Monofett', cursive" },
+  { "name": "Audiowide", "url": "https://fonts.googleapis.com/css2?family=Audiowide&display=swap", "cssFamily": "'Audiowide', cursive" },
+  { "name": "Press Start 2P", "url": "https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap", "cssFamily": "'Press Start 2P', cursive" }
+]
