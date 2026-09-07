@@ -29,7 +29,7 @@
     "outlineOffset": "0px",
     "boxShadow": "none",
     "backgroundColor": "rgba(0, 0, 0, 0)",
-    "backgroundImage": "url(\"/gate_strive.svg\")",
+    "backgroundImage": "url(\"images/gate_strive.svg\")",
     "backgroundSize": "cover",
     "color": "rgb(0, 0, 0)",
     "fontSize": "16px",
@@ -71,8 +71,8 @@
     "fontSize": "16px",
     "label": "",
     "arrowSize": 45,
-    "arrowImageOn": "/arrow-on.svg",
-    "arrowImageOff": "/arrow-off.svg"
+    "arrowImageOn": "images/arrow-on.svg",
+    "arrowImageOff": "images/arrow-off.svg"
   },
   "buttons": {
     "Up": {
@@ -87,7 +87,7 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"/up.svg\")",
+      "backgroundImage": "url(\"images/up.svg\")",
       "backgroundSize": "56px auto",
       "color": "rgb(238, 238, 238)",
       "fontSize": "29px",
@@ -105,7 +105,7 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"/down.svg\")",
+      "backgroundImage": "url(\"images/down.svg\")",
       "backgroundSize": "56px auto",
       "color": "rgb(238, 238, 238)",
       "fontSize": "29px",
@@ -123,7 +123,7 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"/left.svg\")",
+      "backgroundImage": "url(\"images/left.svg\")",
       "backgroundSize": "56px auto",
       "color": "rgb(238, 238, 238)",
       "fontSize": "29px",
@@ -141,7 +141,7 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"/right.svg\")",
+      "backgroundImage": "url(\"images/right.svg\")",
       "backgroundSize": "56px auto",
       "color": "rgb(238, 238, 238)",
       "fontSize": "29px",
@@ -303,7 +303,7 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgba(0, 0, 0, 0.75) 0px 2px 5px 0px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"/hitbox/plastic-black.png\")",
+      "backgroundImage": "url(\"images/hitbox/plastic-black.png\")",
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "36px",
@@ -321,7 +321,7 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgba(0, 0, 0, 0.75) 0px 2px 5px 0px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"/hitbox/plastic-black.png\")",
+      "backgroundImage": "url(\"images/hitbox/plastic-black.png\")",
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "36px",
@@ -339,7 +339,7 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgba(0, 0, 0, 0.75) 0px 2px 5px 0px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"/hitbox/plastic-black.png\")",
+      "backgroundImage": "url(\"images/hitbox/plastic-black.png\")",
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "20px",
@@ -357,7 +357,7 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgba(0, 0, 0, 0.75) 0px 2px 5px 0px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"/hitbox/plastic-black.png\")",
+      "backgroundImage": "url(\"images/hitbox/plastic-black.png\")",
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "20px",
@@ -375,3 +375,10 @@
     "triggerDeadzone": 0
   }
 }
+
+
+
+
+
+
+

@@ -11,7 +11,7 @@
     "outlineOffset": "0px",
     "boxShadow": "none",
     "backgroundColor": "rgba(0, 0, 0, 0)",
-    "backgroundImage": "url(\"/gamepad/base-xbox-light.svg\")",
+    "backgroundImage": "url(\"images/gamepad/base-xbox-light.svg\")",
     "backgroundSize": "contain",
     "color": "rgba(0, 0, 0, 0)",
     "fontSize": "16px",
@@ -29,7 +29,7 @@
     "outlineOffset": "0px",
     "boxShadow": "none",
     "backgroundColor": "rgba(0, 0, 0, 0)",
-    "backgroundImage": "url(\"/gate_strive.svg\")",
+    "backgroundImage": "url(\"images/gate_strive.svg\")",
     "backgroundSize": "cover",
     "color": "rgb(0, 0, 0)",
     "fontSize": "16px",
@@ -71,8 +71,8 @@
     "fontSize": "16px",
     "label": "",
     "arrowSize": 90,
-    "arrowImageOn": "/arrow-on.svg",
-    "arrowImageOff": "/arrow-off.svg"
+    "arrowImageOn": "images/arrow-on.svg",
+    "arrowImageOff": "images/arrow-off.svg"
   },
   "buttons": {
     "Up": {
@@ -87,7 +87,7 @@
       "outlineOffset": "0px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 0px",
       "backgroundColor": "rgba(0, 0, 0, 0)",
-      "backgroundImage": "url(\"/gamepad/dpad-up-light.svg\")",
+      "backgroundImage": "url(\"images/gamepad/dpad-up-light.svg\")",
       "backgroundSize": "contain",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "49px",
@@ -105,7 +105,7 @@
       "outlineOffset": "0px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 0px",
       "backgroundColor": "rgba(0, 0, 0, 0)",
-      "backgroundImage": "url(\"/gamepad/dpad-down-light.svg\")",
+      "backgroundImage": "url(\"images/gamepad/dpad-down-light.svg\")",
       "backgroundSize": "contain",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "29px",
@@ -123,7 +123,7 @@
       "outlineOffset": "0px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 0px",
       "backgroundColor": "rgba(0, 0, 0, 0)",
-      "backgroundImage": "url(\"/gamepad/dpad-left-light.svg\")",
+      "backgroundImage": "url(\"images/gamepad/dpad-left-light.svg\")",
       "backgroundSize": "contain",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "29px",
@@ -141,7 +141,7 @@
       "outlineOffset": "0px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 0px",
       "backgroundColor": "rgba(0, 0, 0, 0)",
-      "backgroundImage": "url(\"/gamepad/dpad-right-light.svg\")",
+      "backgroundImage": "url(\"images/gamepad/dpad-right-light.svg\")",
       "backgroundSize": "contain",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "29px",
@@ -231,7 +231,7 @@
       "outlineOffset": "0px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 0px",
       "backgroundColor": "rgba(0, 0, 0, 0)",
-      "backgroundImage": "url(\"/gamepad/lb-light.svg\")",
+      "backgroundImage": "url(\"images/gamepad/lb-light.svg\")",
       "backgroundSize": "contain",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "44px",
@@ -249,7 +249,7 @@
       "outlineOffset": "0px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 0px",
       "backgroundColor": "rgba(0, 0, 0, 0)",
-      "backgroundImage": "url(\"/gamepad/rb-light.svg\")",
+      "backgroundImage": "url(\"images/gamepad/rb-light.svg\")",
       "backgroundSize": "contain",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "44px",
@@ -267,7 +267,7 @@
       "outlineOffset": "0px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 0px",
       "backgroundColor": "rgba(0, 0, 0, 0)",
-      "backgroundImage": "url(\"/gamepad/lt-light.svg\")",
+      "backgroundImage": "url(\"images/gamepad/lt-light.svg\")",
       "backgroundSize": "contain",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "44px",
@@ -285,7 +285,7 @@
       "outlineOffset": "0px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 0px",
       "backgroundColor": "rgba(0, 0, 0, 0)",
-      "backgroundImage": "url(\"/gamepad/rt-light.svg\")",
+      "backgroundImage": "url(\"images/gamepad/rt-light.svg\")",
       "backgroundSize": "contain",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "44px",
@@ -303,7 +303,7 @@
       "outlineOffset": "0px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 0px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"/gamepad/analog-light.svg\")",
+      "backgroundImage": "url(\"images/gamepad/analog-light.svg\")",
       "backgroundSize": "90px auto",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "46px",
@@ -321,7 +321,7 @@
       "outlineOffset": "0px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 0px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"/gamepad/analog-light.svg\")",
+      "backgroundImage": "url(\"images/gamepad/analog-light.svg\")",
       "backgroundSize": "90px auto",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "46px",
@@ -375,3 +375,10 @@
     "triggerDeadzone": 0
   }
 }
+
+
+
+
+
+
+

@@ -11,7 +11,7 @@
     "outlineOffset": "-6px",
     "boxShadow": "none",
     "backgroundColor": "rgba(0, 0, 0, 0)",
-    "backgroundImage": "url(\"/tokon/tok-base.svg\")",
+    "backgroundImage": "url(\"images/tokon/tok-base.svg\")",
     "backgroundSize": "cover",
     "color": "rgb(238, 238, 238)",
     "fontSize": "0px",
@@ -29,7 +29,7 @@
     "outlineOffset": "0px",
     "boxShadow": "none",
     "backgroundColor": "rgba(0, 0, 0, 0)",
-    "backgroundImage": "url(\"/tokon/tok-gate.svg\")",
+    "backgroundImage": "url(\"images/tokon/tok-gate.svg\")",
     "backgroundSize": "cover",
     "color": "rgb(238, 238, 238)",
     "fontSize": "16px",
@@ -47,7 +47,7 @@
     "outlineOffset": "0px",
     "boxShadow": "none",
     "backgroundColor": "rgba(0, 0, 0, 0)",
-    "backgroundImage": "url(\"/tokon/tok-joystick.svg\")",
+    "backgroundImage": "url(\"images/tokon/tok-joystick.svg\")",
     "backgroundSize": "cover",
     "color": "rgb(0, 0, 0)",
     "fontSize": "0px",
@@ -65,14 +65,14 @@
     "outlineOffset": "0px",
     "boxShadow": "none",
     "backgroundColor": "rgba(0, 0, 0, 0)",
-    "backgroundImage": "url(\"/sf/gate_strive.svg\")",
+    "backgroundImage": "url(\"images/sf/gate_strive.svg\")",
     "backgroundSize": "auto",
     "color": "rgb(238, 238, 238)",
     "fontSize": "16px",
     "label": "",
     "arrowSize": 90,
-    "arrowImageOn": "/arrow-on.svg",
-    "arrowImageOff": "/arrow-off.svg"
+    "arrowImageOn": "images/arrow-on.svg",
+    "arrowImageOff": "images/arrow-off.svg"
   },
   "buttons": {
     "Up": {
@@ -87,7 +87,7 @@
       "outlineOffset": "-4px",
       "boxShadow": "none",
       "backgroundColor": "rgb(37, 38, 34)",
-      "backgroundImage": "url(\"/tokon/tok-up.svg\")",
+      "backgroundImage": "url(\"images/tokon/tok-up.svg\")",
       "backgroundSize": "40px auto",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "12px",
@@ -105,7 +105,7 @@
       "outlineOffset": "-4px",
       "boxShadow": "none",
       "backgroundColor": "rgb(37, 38, 34)",
-      "backgroundImage": "url(\"/tokon/tok-down.svg\")",
+      "backgroundImage": "url(\"images/tokon/tok-down.svg\")",
       "backgroundSize": "40px auto",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "12px",
@@ -123,7 +123,7 @@
       "outlineOffset": "-4px",
       "boxShadow": "none",
       "backgroundColor": "rgb(37, 38, 34)",
-      "backgroundImage": "url(\"/tokon/tok-left.svg\")",
+      "backgroundImage": "url(\"images/tokon/tok-left.svg\")",
       "backgroundSize": "40px auto",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "12px",
@@ -141,7 +141,7 @@
       "outlineOffset": "-4px",
       "boxShadow": "none",
       "backgroundColor": "rgb(37, 38, 34)",
-      "backgroundImage": "url(\"/tokon/tok-right.svg\")",
+      "backgroundImage": "url(\"images/tokon/tok-right.svg\")",
       "backgroundSize": "40px auto",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "12px",
@@ -375,3 +375,10 @@
     "triggerDeadzone": 0
   }
 }
+
+
+
+
+
+
+

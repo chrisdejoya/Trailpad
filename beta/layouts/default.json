@@ -29,7 +29,7 @@
     "outlineOffset": "0px",
     "boxShadow": "none",
     "backgroundColor": "rgba(0, 0, 0, 0)",
-    "backgroundImage": "url(\"/gate_strive.svg\")",
+    "backgroundImage": "url(\"images/gate_strive.svg\")",
     "backgroundSize": "cover",
     "color": "rgb(238, 238, 238)",
     "fontSize": "16px",
@@ -65,14 +65,14 @@
     "outlineOffset": "0px",
     "boxShadow": "none",
     "backgroundColor": "rgba(0, 0, 0, 0)",
-    "backgroundImage": "url(\"/sf/gate_strive.svg\")",
+    "backgroundImage": "url(\"images/sf/gate_strive.svg\")",
     "backgroundSize": "auto",
     "color": "rgb(238, 238, 238)",
     "fontSize": "16px",
     "label": "",
     "arrowSize": 90,
-    "arrowImageOn": "/arrow-on.svg",
-    "arrowImageOff": "/arrow-off.svg"
+    "arrowImageOn": "images/arrow-on.svg",
+    "arrowImageOff": "images/arrow-off.svg"
   },
   "buttons": {
     "Up": {
@@ -87,7 +87,7 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"/up.svg\")",
+      "backgroundImage": "url(\"images/up.svg\")",
       "backgroundSize": "70px auto",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "49px",
@@ -105,7 +105,7 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"/down.svg\")",
+      "backgroundImage": "url(\"images/down.svg\")",
       "backgroundSize": "70px auto",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "29px",
@@ -123,7 +123,7 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"/left.svg\")",
+      "backgroundImage": "url(\"images/left.svg\")",
       "backgroundSize": "70px auto",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "29px",
@@ -141,7 +141,7 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"/right.svg\")",
+      "backgroundImage": "url(\"images/right.svg\")",
       "backgroundSize": "70px auto",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "29px",
@@ -375,3 +375,9 @@
     "triggerDeadzone": 0.0
   }
 }
+
+
+
+
+
+

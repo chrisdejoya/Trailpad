@@ -11,7 +11,7 @@
     "outlineOffset": "-6px",
     "boxShadow": "none",
     "backgroundColor": "rgba(0, 0, 0, 0)",
-    "backgroundImage": "url(\"/tokon/tok-dpad-base.svg\")",
+    "backgroundImage": "url(\"images/tokon/tok-dpad-base.svg\")",
     "backgroundSize": "cover",
     "color": "rgb(238, 238, 238)",
     "fontSize": "16px",
@@ -29,7 +29,7 @@
     "outlineOffset": "0px",
     "boxShadow": "none",
     "backgroundColor": "rgba(0, 0, 0, 0)",
-    "backgroundImage": "url(\"/gate_strive.svg\")",
+    "backgroundImage": "url(\"images/gate_strive.svg\")",
     "backgroundSize": "cover",
     "color": "rgb(238, 238, 238)",
     "fontSize": "16px",
@@ -71,8 +71,8 @@
     "fontSize": "16px",
     "label": "",
     "arrowSize": 110,
-    "arrowImageOn": "/tokon/tok-arrow-on.svg",
-    "arrowImageOff": "/tokon/tok-arrow-off.svg"
+    "arrowImageOn": "images/tokon/tok-arrow-on.svg",
+    "arrowImageOff": "images/tokon/tok-arrow-off.svg"
   },
   "buttons": {
     "Up": {
@@ -87,7 +87,7 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"/up.svg\")",
+      "backgroundImage": "url(\"images/up.svg\")",
       "backgroundSize": "70px auto",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "49px",
@@ -105,7 +105,7 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"/down.svg\")",
+      "backgroundImage": "url(\"images/down.svg\")",
       "backgroundSize": "70px auto",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "29px",
@@ -123,7 +123,7 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"/left.svg\")",
+      "backgroundImage": "url(\"images/left.svg\")",
       "backgroundSize": "70px auto",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "29px",
@@ -141,7 +141,7 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"/right.svg\")",
+      "backgroundImage": "url(\"images/right.svg\")",
       "backgroundSize": "70px auto",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "29px",
@@ -375,3 +375,10 @@
     "triggerDeadzone": 0
   }
 }
+
+
+
+
+
+
+

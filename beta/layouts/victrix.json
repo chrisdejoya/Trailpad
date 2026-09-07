@@ -27,7 +27,7 @@
     "outline": "rgb(0, 0, 0) none 0px",
     "outlineOffset": "0px",
     "backgroundColor": "rgba(0, 0, 0, 0)",
-    "backgroundImage": "url(\"/gate_strive.svg\")",
+    "backgroundImage": "url(\"images/gate_strive.svg\")",
     "backgroundSize": "cover",
     "color": "rgb(0, 0, 0)",
     "fontSize": "16px",
@@ -63,7 +63,7 @@
       "outline": "rgba(0, 0, 0, 0) solid 4px",
       "outlineOffset": "-4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"/up.svg\")",
+      "backgroundImage": "url(\"images/up.svg\")",
       "backgroundSize": "39px",
       "color": "rgb(238, 238, 238)",
       "fontSize": "14px",
@@ -80,7 +80,7 @@
       "outline": "rgba(0, 0, 0, 0) solid 4px",
       "outlineOffset": "-4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"/down.svg\")",
+      "backgroundImage": "url(\"images/down.svg\")",
       "backgroundSize": "39px",
       "color": "rgb(238, 238, 238)",
       "fontSize": "16px",
@@ -97,7 +97,7 @@
       "outline": "rgba(0, 0, 0, 0) solid 4px",
       "outlineOffset": "-4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"/left.svg\")",
+      "backgroundImage": "url(\"images/left.svg\")",
       "backgroundSize": "38px",
       "color": "rgb(238, 238, 238)",
       "fontSize": "18px",
@@ -114,7 +114,7 @@
       "outline": "rgba(0, 0, 0, 0) solid 4px",
       "outlineOffset": "-4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"/right.svg\")",
+      "backgroundImage": "url(\"images/right.svg\")",
       "backgroundSize": "39px",
       "color": "rgb(238, 238, 238)",
       "fontSize": "18px",
@@ -131,7 +131,7 @@
       "outline": "rgb(51, 51, 51) solid 4px",
       "outlineOffset": "-4px",
       "backgroundColor": "rgb(51, 51, 51)",
-      "backgroundImage": "url(\"/ps/ps-cross.svg\")",
+      "backgroundImage": "url(\"images/ps/ps-cross.svg\")",
       "backgroundSize": "79px",
       "color": "rgb(238, 238, 238)",
       "fontSize": "23px",
@@ -148,7 +148,7 @@
       "outline": "rgba(0, 0, 0, 0) solid 4px",
       "outlineOffset": "-4px",
       "backgroundColor": "rgb(51, 51, 51)",
-      "backgroundImage": "url(\"/ps/ps-circle.svg\")",
+      "backgroundImage": "url(\"images/ps/ps-circle.svg\")",
       "backgroundSize": "79px",
       "color": "rgb(238, 238, 238)",
       "fontSize": "23px",
@@ -165,7 +165,7 @@
       "outline": "rgba(0, 0, 0, 0) solid 4px",
       "outlineOffset": "-4px",
       "backgroundColor": "rgb(51, 51, 51)",
-      "backgroundImage": "url(\"/ps/ps-square.svg\")",
+      "backgroundImage": "url(\"images/ps/ps-square.svg\")",
       "backgroundSize": "81px",
       "color": "rgb(238, 238, 238)",
       "fontSize": "35px",
@@ -182,7 +182,7 @@
       "outline": "rgba(0, 0, 0, 0) solid 4px",
       "outlineOffset": "-4px",
       "backgroundColor": "rgb(51, 51, 51)",
-      "backgroundImage": "url(\"/ps/ps-triangle.svg\")",
+      "backgroundImage": "url(\"images/ps/ps-triangle.svg\")",
       "backgroundSize": "80px",
       "color": "rgb(238, 238, 238)",
       "fontSize": "41px",
@@ -326,3 +326,9 @@
     }
   }
 }
+
+
+
+
+
+
