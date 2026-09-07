@@ -587,7 +587,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
 
     const swatchContainer = document.createElement('div'); swatchContainer.className = 'swatchContainer';
     swatchContainer.style.display = 'grid';
-    swatchContainer.style.gridTemplateColumns = 'repeat(12, 20px)';
+    swatchContainer.style.gridTemplateColumns = 'repeat(auto-fill, minmax(20px, 1fr))';
     swatchContainer.style.gap = '6px';
     swatchContainer.style.padding = '8px';
     swatchContainer.style.justifyContent = 'center';
@@ -801,12 +801,17 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
       await showSymbolGrid();
     });
 
-  // clamp
+  // clamp - responsive sizing to fit viewport
   colorPanel.style.display = 'flex'; colorPanel.style.flexDirection = 'column'; colorPanel.style.left = '0px'; colorPanel.style.top = '0px';
-  colorPanel.style.width = '360px'; // Wider to fit tabs
-  colorPanel.style.maxHeight = '85vh'; // Limit height for OBS browser source
-    const panelRect = colorPanel.getBoundingClientRect(); const viewportWidth = window.innerWidth; const viewportHeight = window.innerHeight;
+  colorPanel.style.maxWidth = '90vw';
+  colorPanel.style.maxHeight = '85vh';
+    const viewportWidth = window.innerWidth; const viewportHeight = window.innerHeight;
+    // Initial position
     let left = x; let top = y + 40;
+    // Force layout to get actual size within constraints
+    colorPanel.style.left = left + 'px'; colorPanel.style.top = top + 'px';
+    const panelRect = colorPanel.getBoundingClientRect();
+    // Reposition if overflowing
     if (left + panelRect.width > viewportWidth) left = Math.max(8, viewportWidth - panelRect.width - 10);
     if (top + panelRect.height > viewportHeight) top = Math.max(8, viewportHeight - panelRect.height - 10);
     colorPanel.style.left = left + 'px'; colorPanel.style.top = top + 'px';
