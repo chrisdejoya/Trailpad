@@ -1,0 +1,76 @@
+#eightWayWrapper {
+	display: block;
+	position: absolute;
+	width: 230px;
+	height: 230px;
+	top: 260px;
+	left: 50px;
+	background: transparent;
+	border-radius: 50% !important;
+	transition: 0.1s;
+}
+
+#eightWayWrapper:hover {
+	outline: 4px solid #ffffff88;
+	outline-offset: -4px;
+	filter: brightness(2.0);
+}
+
+.arrow {
+	position: absolute;
+	width: 90px;
+	height: 90px;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+	background-image: url("../images/arrow-off.svg");
+}
+
+.arrow.active {
+	background-image: url("../images/arrow-on.svg");
+	z-index: 10;
+}
+
+#arrow0 {
+	transform: translate(-50%, -50%) rotate(0deg) translateX(80px);
+}
+
+/* Right */
+#arrow1 {
+	transform: translate(-50%, -50%) rotate(45deg) translateX(80px);
+}
+
+/* Down-Right */
+#arrow2 {
+	transform: translate(-50%, -50%) rotate(90deg) translateX(80px);
+}
+
+/* Down */
+#arrow3 {
+	transform: translate(-50%, -50%) rotate(135deg) translateX(80px);
+}
+
+/* Down Left */
+#arrow4 {
+	transform: translate(-50%, -50%) rotate(180deg) translateX(80px);
+}
+
+/* Left */
+#arrow5 {
+	transform: translate(-50%, -50%) rotate(225deg) translateX(80px);
+}
+
+/* Up-Left */
+#arrow6 {
+	transform: translate(-50%, -50%) rotate(270deg) translateX(80px);
+}
+
+/* Up */
+#arrow7 {
+	transform: translate(-50%, -50%) rotate(315deg) translateX(80px);
+}
+
+/* Up-Right */

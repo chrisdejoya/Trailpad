@@ -1,0 +1,87 @@
+{
+  "symbolSize": 40,
+  "symbolGap": 5,
+  "buttons": [
+    "images/ps/ps-circle.svg",
+    "images/ps/ps-square.svg",
+    "images/ps/ps-triangle.svg",
+    "images/ps/ps-cross.svg",
+    "images/ps/ps-circle-dark.svg",
+    "images/ps/ps-square-dark.svg",
+    "images/ps/ps-triangle-dark.svg",
+    "images/ps/ps-cross-dark.svg",
+    "images/ps/ps-circle-col.svg",
+    "images/ps/ps-square-col.svg",
+    "images/ps/ps-triangle-col.svg",
+    "images/ps/ps-cross-col.svg",
+    "images/sf/sf-punch-white.svg",
+    "images/sf/sf-kick-white.svg",
+    "images/sf/sf-throw.svg",
+    "images/2xko/2xko-dash-white.svg",
+    "images/2xko/2xko-dash-black.svg",
+    "images/ggst/ggst-symbol-dash.svg",
+    "images/haute/btn-8.svg",
+    "images/haute/btn-24.svg",
+    "images/haute/btn-30.svg",    
+    "images/dbfz/dbfz-button-black.svg",
+    "images/dbfz/dbfz-button-teal.svg",
+    "images/dbfz/dbfz-button-green.svg",
+    "images/dbfz/dbfz-button-orange.svg",
+    "images/dbfz/dbfz-button-red.svg",
+    "images/ggst/ggst-btn.svg",
+    "images/ggst/ggst-dash.svg",
+    "images/ggst/ggst-parry.svg",
+    "images/ggst/ggst-taunt.svg",
+    "images/ggst/ggst-psychburst.svg",
+    "images/ggst/ggst-exclamation.svg",
+    "images/avatar/btn0.png",
+    "images/avatar/btn1.png",
+    "images/avatar/btn2.png",
+    "images/avatar/btn3.png",
+    "images/avatar/btn4.png"
+    
+  ],
+  "directions": [
+    "images/up.svg",
+    "images/down.svg",
+    "images/left.svg",
+    "images/right.svg",
+    "images/sf/sf-up.svg",
+    "images/sf/sf-down.svg",
+    "images/sf/sf-left.svg",
+    "images/sf/sf-right.svg",
+    "images/hades2/chevron-up.svg",
+    "images/hades2/chevron-down.svg",
+    "images/hades2/chevron-left.svg",
+    "images/hades2/chevron-right.svg",
+    "images/up-dark.svg",
+    "images/down-dark.svg",
+    "images/left-dark.svg",
+    "images/right-dark.svg",
+    "images/dbfz/dpad-up.svg",
+    "images/dbfz/dpad-down.svg",
+    "images/dbfz/dpad-left.svg",
+    "images/dbfz/dpad-right.svg",
+    "images/ggst/ggst-up.svg",
+    "images/ggst/ggst-down.svg",
+    "images/ggst/ggst-left.svg",
+    "images/ggst/ggst-right.svg",
+    "images/tokon/tok-up.svg",
+    "images/tokon/tok-down.svg",
+    "images/tokon/tok-left.svg",
+    "images/tokon/tok-right.svg",
+    "images/avatar/up.png",
+    "images/avatar/down.png",
+    "images/avatar/left.png",
+    "images/avatar/right.png"
+  ]
+
+}
+
+
+
+
+
+
+
+
