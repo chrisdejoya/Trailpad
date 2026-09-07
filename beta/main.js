@@ -403,60 +403,124 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     sliderArea.style.borderTop = '1px solid #333';
     sliderArea.style.flexShrink = '0';
 
-    // Outline sliders (In/Out) - with numeric inputs
-    const sliderWrapper = document.createElement('div'); sliderWrapper.style.display = 'none'; sliderWrapper.style.alignItems = 'center'; sliderWrapper.style.gap = '5px';
+    // Outline sliders (In/Out) - with numeric inputs and "All" checkboxes
+    const sliderWrapper = document.createElement('div'); sliderWrapper.style.display = 'none'; sliderWrapper.style.alignItems = 'center'; sliderWrapper.style.gap = '5px'; sliderWrapper.style.flexWrap = 'wrap';
       const innerLabel = document.createElement('span'); innerLabel.textContent = 'In';
       const innerSlider = document.createElement('input'); innerSlider.type = 'range'; innerSlider.min = 0; innerSlider.max = 10; innerSlider.step = 1; innerSlider.style.width = '60px';
       const innerValue = document.createElement('input'); innerValue.type = 'number'; innerValue.min = 0; innerValue.max = 10; innerValue.step = 1; innerValue.value = 0; innerValue.style.width = '40px'; innerValue.style.fontSize = '14px'; innerValue.style.textAlign = 'center';
+      const innerAllLabel = document.createElement('label'); innerAllLabel.style.display = 'flex'; innerAllLabel.style.alignItems = 'center'; innerAllLabel.style.gap = '4px'; innerAllLabel.style.fontSize = '12px'; innerAllLabel.style.color = '#aaa'; innerAllLabel.style.cursor = 'pointer';
+      const innerAllCheckbox = document.createElement('input'); innerAllCheckbox.type = 'checkbox'; innerAllCheckbox.className = 'innerSizeAll'; innerAllLabel.appendChild(innerAllCheckbox); innerAllLabel.appendChild(document.createTextNode('All'));
       const outerLabel = document.createElement('span'); outerLabel.textContent = 'Out';
       const outerSlider = document.createElement('input'); outerSlider.type = 'range'; outerSlider.min = 0; outerSlider.max = 10; outerSlider.step = 1; outerSlider.style.width = '60px';
       const outerValue = document.createElement('input'); outerValue.type = 'number'; outerValue.min = 0; outerValue.max = 10; outerValue.step = 1; outerValue.value = 0; outerValue.style.width = '40px'; outerValue.style.fontSize = '14px'; outerValue.style.textAlign = 'center';
-    sliderWrapper.appendChild(innerLabel); sliderWrapper.appendChild(innerSlider); sliderWrapper.appendChild(innerValue); sliderWrapper.appendChild(outerLabel); sliderWrapper.appendChild(outerSlider); sliderWrapper.appendChild(outerValue);
+      const outerAllLabel = document.createElement('label'); outerAllLabel.style.display = 'flex'; outerAllLabel.style.alignItems = 'center'; outerAllLabel.style.gap = '4px'; outerAllLabel.style.fontSize = '12px'; outerAllLabel.style.color = '#aaa'; outerAllLabel.style.cursor = 'pointer';
+      const outerAllCheckbox = document.createElement('input'); outerAllCheckbox.type = 'checkbox'; outerAllCheckbox.className = 'outerSizeAll'; outerAllLabel.appendChild(outerAllCheckbox); outerAllLabel.appendChild(document.createTextNode('All'));
+    sliderWrapper.appendChild(innerLabel); sliderWrapper.appendChild(innerSlider); sliderWrapper.appendChild(innerValue); sliderWrapper.appendChild(innerAllLabel); sliderWrapper.appendChild(outerLabel); sliderWrapper.appendChild(outerSlider); sliderWrapper.appendChild(outerValue); sliderWrapper.appendChild(outerAllLabel);
 
-    // Symbol size control - with numeric input
+    // Symbol size control - with numeric input and "All" checkbox
     const sizeCtrl = document.createElement('div'); sizeCtrl.className = 'symbolSizeControl'; sizeCtrl.style.display = 'none'; sizeCtrl.style.alignItems = 'center'; sizeCtrl.style.gap = '5px'; sizeCtrl.style.padding = '0px 0px';
       const sizeLabel = document.createElement('span'); sizeLabel.textContent = 'Size'; sizeLabel.style.fontSize = '16px';
     const sizeSlider = document.createElement('input'); sizeSlider.type = 'range'; sizeSlider.min = 0; sizeSlider.max = 200; sizeSlider.step = 10; sizeSlider.value = 100; sizeSlider.style.width = '100px'; sizeSlider.className = 'symbolSizeSlider';
       const sizeValue = document.createElement('input'); sizeValue.type = 'number'; sizeValue.min = 0; sizeValue.max = 200; sizeValue.step = 10; sizeValue.value = 100; sizeValue.style.width = '50px'; sizeValue.style.fontSize = '16px'; sizeValue.style.textAlign = 'center'; sizeValue.className = 'symbolSizeValue';
-    sizeCtrl.appendChild(sizeLabel); sizeCtrl.appendChild(sizeSlider); sizeCtrl.appendChild(sizeValue);
+    const sizeAllLabel = document.createElement('label'); sizeAllLabel.style.display = 'flex'; sizeAllLabel.style.alignItems = 'center'; sizeAllLabel.style.gap = '4px'; sizeAllLabel.style.fontSize = '12px'; sizeAllLabel.style.color = '#aaa'; sizeAllLabel.style.cursor = 'pointer';
+    const sizeAllCheckbox = document.createElement('input'); sizeAllCheckbox.type = 'checkbox'; sizeAllCheckbox.className = 'symbolSizeAll'; sizeAllLabel.appendChild(sizeAllCheckbox); sizeAllLabel.appendChild(document.createTextNode('All'));
+    sizeCtrl.appendChild(sizeLabel); sizeCtrl.appendChild(sizeSlider); sizeCtrl.appendChild(sizeValue); sizeCtrl.appendChild(sizeAllLabel);
     const clearBtn = document.createElement('button'); clearBtn.type = 'button'; clearBtn.className = 'clearSymbolBtn'; clearBtn.textContent = 'Clear'; clearBtn.style.marginLeft = '0px'; clearBtn.style.padding = '5px 5px'; clearBtn.style.fontSize = '16px';
     sizeCtrl.appendChild(clearBtn);
 
-    // Text size control (0-100px) - visible only in TEXT mode
+    // Text size control (0-100px) - visible only in TEXT mode - with "All" checkbox
     const textSizeCtrl = document.createElement('div'); textSizeCtrl.className = 'textSizeControl'; textSizeCtrl.style.display = 'none'; textSizeCtrl.style.alignItems = 'center'; textSizeCtrl.style.gap = '8px'; textSizeCtrl.style.padding = '0px 0px';
       const textSizeLabel = document.createElement('span'); textSizeLabel.textContent = 'Size'; textSizeLabel.style.fontSize = '16px';
     const textSizeSlider = document.createElement('input'); textSizeSlider.type = 'range'; textSizeSlider.min = 0; textSizeSlider.max = 100; textSizeSlider.step = 1; textSizeSlider.value = 30; textSizeSlider.style.width = '120px'; textSizeSlider.className = 'textSizeSlider';
     const textSizeValue = document.createElement('input'); textSizeValue.type = 'number'; textSizeValue.min = 0; textSizeValue.max = 100; textSizeValue.step = 1; textSizeValue.value = textSizeSlider.value; textSizeValue.className = 'textSizeValue'; textSizeValue.style.width = '56px'; textSizeValue.style.fontSize = '14px';
-    const textSizeUnit = document.createElement('span'); textSizeUnit.textContent = 'px'; textSizeUnit.style.color = '#ddd'; textSizeUnit.style.fontSize = '14px';
-    textSizeCtrl.appendChild(textSizeLabel); textSizeCtrl.appendChild(textSizeSlider); textSizeCtrl.appendChild(textSizeValue); //textSizeCtrl.appendChild(textSizeUnit);
+    const textSizeAllLabel = document.createElement('label'); textSizeAllLabel.style.display = 'flex'; textSizeAllLabel.style.alignItems = 'center'; textSizeAllLabel.style.gap = '4px'; textSizeAllLabel.style.fontSize = '12px'; textSizeAllLabel.style.color = '#aaa'; textSizeAllLabel.style.cursor = 'pointer';
+    const textSizeAllCheckbox = document.createElement('input'); textSizeAllCheckbox.type = 'checkbox'; textSizeAllCheckbox.className = 'textSizeAll'; textSizeAllLabel.appendChild(textSizeAllCheckbox); textSizeAllLabel.appendChild(document.createTextNode('All'));
+    textSizeCtrl.appendChild(textSizeLabel); textSizeCtrl.appendChild(textSizeSlider); textSizeCtrl.appendChild(textSizeValue); textSizeCtrl.appendChild(textSizeAllLabel);
 
-    // Symbol size slider listener (applies size % to current selection)
+    // Helper to apply symbol size to all elements with background images
+    function applySymbolSizeToAll(pct) {
+      const targets = [...Object.values(btnEls), stickWrapper, eightWayWrapper, base];
+      targets.forEach(el => {
+        if (el.style.backgroundImage && el.style.backgroundImage !== 'none') {
+          el.style.backgroundSize = `${pct}% auto`;
+          if (el.dataset?.btn) {
+            appState.buttons[el.dataset.btn] = appState.buttons[el.dataset.btn] || {};
+            appState.buttons[el.dataset.btn].backgroundSize = el.style.backgroundSize;
+          } else if (el === base) {
+            appState.base.backgroundSize = el.style.backgroundSize;
+          } else if (el === stickWrapper) {
+            appState.joystick.backgroundSize = el.style.backgroundSize;
+          } else if (el === eightWayWrapper) {
+            appState.eightWayWrapper.backgroundSize = el.style.backgroundSize;
+          }
+        }
+      });
+      saveStateData();
+    }
+
+    // Helper to apply text size to all elements
+    function applyTextSizeToAll(px) {
+      const targets = [...Object.values(btnEls), base, stickWrapper, eightWayWrapper, joystick];
+      targets.forEach(el => {
+        el.style.fontSize = `${px}px`;
+        if (el.dataset?.btn) {
+          appState.buttons[el.dataset.btn] = appState.buttons[el.dataset.btn] || {};
+          appState.buttons[el.dataset.btn].fontSize = el.style.fontSize;
+        } else if (el === base) {
+          appState.base.fontSize = el.style.fontSize;
+        } else if (el === stickWrapper) {
+          appState.joystick.fontSize = el.style.fontSize;
+        } else if (el === eightWayWrapper) {
+          appState.eightWayWrapper.fontSize = el.style.fontSize;
+        } else if (el === joystick) {
+          appState.joystickHead.fontSize = el.style.fontSize;
+        }
+      });
+      saveStateData();
+    }
+
+    // Symbol size slider listener (applies size % to current selection or all)
     sizeSlider.addEventListener('input', () => {
       sizeValue.value = sizeSlider.value;
-      const applyTarget = selected || panelAnchorTarget; if (!applyTarget) return; const btnId = applyTarget.dataset?.btn;
-      applyTarget.style.backgroundSize = `${sizeSlider.value}% auto`;
-      if (btnId) { appState.buttons[btnId] = appState.buttons[btnId] || {}; appState.buttons[btnId].backgroundSize = applyTarget.style.backgroundSize; saveStateData(); }
+      const applyAll = sizeAllCheckbox.checked;
+      if (applyAll) {
+        applySymbolSizeToAll(sizeSlider.value);
+      } else {
+        const applyTarget = selected || panelAnchorTarget; if (!applyTarget) return; const btnId = applyTarget.dataset?.btn;
+        applyTarget.style.backgroundSize = `${sizeSlider.value}% auto`;
+        if (btnId) { appState.buttons[btnId] = appState.buttons[btnId] || {}; appState.buttons[btnId].backgroundSize = applyTarget.style.backgroundSize; saveStateData(); }
+      }
     });
 
     // Symbol size numeric input listener
     sizeValue.addEventListener('input', () => {
       let v = parseInt(sizeValue.value) || 0; if (v < 0) v = 0; if (v > 200) v = 200; sizeValue.value = v;
       try { sizeSlider.value = v; } catch (e) {}
-      const applyTarget = selected || panelAnchorTarget; if (!applyTarget) return; const btnId = applyTarget.dataset?.btn;
-      applyTarget.style.backgroundSize = `${v}% auto`;
-      if (btnId) { appState.buttons[btnId] = appState.buttons[btnId] || {}; appState.buttons[btnId].backgroundSize = applyTarget.style.backgroundSize; saveStateData(); }
+      const applyAll = sizeAllCheckbox.checked;
+      if (applyAll) {
+        applySymbolSizeToAll(v);
+      } else {
+        const applyTarget = selected || panelAnchorTarget; if (!applyTarget) return; const btnId = applyTarget.dataset?.btn;
+        applyTarget.style.backgroundSize = `${v}% auto`;
+        if (btnId) { appState.buttons[btnId] = appState.buttons[btnId] || {}; appState.buttons[btnId].backgroundSize = applyTarget.style.backgroundSize; saveStateData(); }
+      }
     });
 
-    // Text size slider listener (applies font-size px to current selection)
+    // Text size slider listener (applies font-size px to current selection or all)
     textSizeSlider.addEventListener('input', () => {
       // update numeric input to match slider
       try { textSizeValue.value = textSizeSlider.value; } catch (e) {}
-      const applyTarget = selected || panelAnchorTarget; if (!applyTarget) return; const btnId = applyTarget.dataset?.btn;
-      // apply font size in pixels
-      applyTarget.style.fontSize = textSizeSlider.value + 'px';
-      if (btnId) { appState.buttons[btnId] = appState.buttons[btnId] || {}; appState.buttons[btnId].fontSize = applyTarget.style.fontSize; }
-      else if (applyTarget === base) { appState.base.fontSize = applyTarget.style.fontSize; }
-      saveStateData();
+      const applyAll = textSizeAllCheckbox.checked;
+      if (applyAll) {
+        applyTextSizeToAll(textSizeSlider.value);
+      } else {
+        const applyTarget = selected || panelAnchorTarget; if (!applyTarget) return; const btnId = applyTarget.dataset?.btn;
+        // apply font size in pixels
+        applyTarget.style.fontSize = textSizeSlider.value + 'px';
+        if (btnId) { appState.buttons[btnId] = appState.buttons[btnId] || {}; appState.buttons[btnId].fontSize = applyTarget.style.fontSize; }
+        else if (applyTarget === base) { appState.base.fontSize = applyTarget.style.fontSize; }
+        saveStateData();
+      }
     });
 
     // allow typing a value into the numeric field
@@ -464,11 +528,16 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
       // clamp and sync slider
       let v = parseInt(textSizeValue.value) || 0; if (v < 0) v = 0; if (v > 100) v = 100; textSizeValue.value = v;
       try { textSizeSlider.value = v; } catch (e) {}
-      const applyTarget = selected || panelAnchorTarget; if (!applyTarget) return; const btnId = applyTarget.dataset?.btn;
-      applyTarget.style.fontSize = v + 'px';
-      if (btnId) { appState.buttons[btnId] = appState.buttons[btnId] || {}; appState.buttons[btnId].fontSize = applyTarget.style.fontSize; }
-      else if (applyTarget === base) { appState.base.fontSize = applyTarget.style.fontSize; }
-      saveStateData();
+      const applyAll = textSizeAllCheckbox.checked;
+      if (applyAll) {
+        applyTextSizeToAll(v);
+      } else {
+        const applyTarget = selected || panelAnchorTarget; if (!applyTarget) return; const btnId = applyTarget.dataset?.btn;
+        applyTarget.style.fontSize = v + 'px';
+        if (btnId) { appState.buttons[btnId] = appState.buttons[btnId] || {}; appState.buttons[btnId].fontSize = applyTarget.style.fontSize; }
+        else if (applyTarget === base) { appState.base.fontSize = applyTarget.style.fontSize; }
+        saveStateData();
+      }
     });
 
     clearBtn.addEventListener('click', () => {
@@ -551,38 +620,97 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
   });
 
     innerSlider.addEventListener('input', () => {
-      const applyTarget = selected || panelAnchorTarget; if (!applyTarget) return; const btnId = applyTarget.dataset?.btn;
+      const applyAll = innerAllCheckbox.checked;
       const width = Math.max(0, Math.min(15, parseInt(innerSlider.value))); innerValue.value = width;
-      let color = 'black'; if (btnId && appState.buttons[btnId]?.outlineColor) color = appState.buttons[btnId].outlineColor; else { const cs = window.getComputedStyle(applyTarget); color = cs.outlineColor && cs.outlineColor !== 'invert' ? cs.outlineColor : 'black'; }
-      applyTarget.style.outline = `${width}px solid ${color}`; applyTarget.style.outlineOffset = `-${width}px`;
-      if (btnId) { appState.buttons[btnId] = appState.buttons[btnId] || {}; appState.buttons[btnId].outlineWidth = width; appState.buttons[btnId].outlineColor = color; }
-      saveStateData();
+      if (applyAll) {
+        const targets = [...Object.values(btnEls), base, stickWrapper, eightWayWrapper, joystick];
+        targets.forEach(el => {
+          let color = 'black'; const cs = window.getComputedStyle(el); if (cs.outlineColor && cs.outlineColor !== 'invert') color = cs.outlineColor;
+          el.style.outline = `${width}px solid ${color}`; el.style.outlineOffset = `-${width}px`;
+          if (el.dataset?.btn) { appState.buttons[el.dataset.btn] = appState.buttons[el.dataset.btn] || {}; appState.buttons[el.dataset.btn].outlineWidth = width; appState.buttons[el.dataset.btn].outlineColor = color; }
+          else if (el === base) { appState.base.outlineWidth = width; appState.base.outlineColor = color; }
+          else if (el === stickWrapper) { appState.joystick.outlineWidth = width; appState.joystick.outlineColor = color; }
+          else if (el === eightWayWrapper) { appState.eightWayWrapper.outlineWidth = width; appState.eightWayWrapper.outlineColor = color; }
+          else if (el === joystick) { appState.joystickHead.outlineWidth = width; appState.joystickHead.outlineColor = color; }
+        });
+        saveStateData();
+      } else {
+        const applyTarget = selected || panelAnchorTarget; if (!applyTarget) return; const btnId = applyTarget.dataset?.btn;
+        let color = 'black'; if (btnId && appState.buttons[btnId]?.outlineColor) color = appState.buttons[btnId].outlineColor; else { const cs = window.getComputedStyle(applyTarget); color = cs.outlineColor && cs.outlineColor !== 'invert' ? cs.outlineColor : 'black'; }
+        applyTarget.style.outline = `${width}px solid ${color}`; applyTarget.style.outlineOffset = `-${width}px`;
+        if (btnId) { appState.buttons[btnId] = appState.buttons[btnId] || {}; appState.buttons[btnId].outlineWidth = width; appState.buttons[btnId].outlineColor = color; }
+        saveStateData();
+      }
     });
 
     innerValue.addEventListener('input', () => {
       let v = parseInt(innerValue.value) || 0; if (v < 0) v = 0; if (v > 10) v = 10; innerValue.value = v;
       try { innerSlider.value = v; } catch (e) {}
-      const applyTarget = selected || panelAnchorTarget; if (!applyTarget) return; const btnId = applyTarget.dataset?.btn;
-      let color = 'black'; if (btnId && appState.buttons[btnId]?.outlineColor) color = appState.buttons[btnId].outlineColor; else { const cs = window.getComputedStyle(applyTarget); color = cs.outlineColor && cs.outlineColor !== 'invert' ? cs.outlineColor : 'black'; }
-      applyTarget.style.outline = `${v}px solid ${color}`; applyTarget.style.outlineOffset = `-${v}px`;
-      if (btnId) { appState.buttons[btnId] = appState.buttons[btnId] || {}; appState.buttons[btnId].outlineWidth = v; appState.buttons[btnId].outlineColor = color; }
-      saveStateData();
+      const applyAll = innerAllCheckbox.checked;
+      if (applyAll) {
+        const targets = [...Object.values(btnEls), base, stickWrapper, eightWayWrapper, joystick];
+        targets.forEach(el => {
+          let color = 'black'; const cs = window.getComputedStyle(el); if (cs.outlineColor && cs.outlineColor !== 'invert') color = cs.outlineColor;
+          el.style.outline = `${v}px solid ${color}`; el.style.outlineOffset = `-${v}px`;
+          if (el.dataset?.btn) { appState.buttons[el.dataset.btn] = appState.buttons[el.dataset.btn] || {}; appState.buttons[el.dataset.btn].outlineWidth = v; appState.buttons[el.dataset.btn].outlineColor = color; }
+          else if (el === base) { appState.base.outlineWidth = v; appState.base.outlineColor = color; }
+          else if (el === stickWrapper) { appState.joystick.outlineWidth = v; appState.joystick.outlineColor = color; }
+          else if (el === eightWayWrapper) { appState.eightWayWrapper.outlineWidth = v; appState.eightWayWrapper.outlineColor = color; }
+          else if (el === joystick) { appState.joystickHead.outlineWidth = v; appState.joystickHead.outlineColor = color; }
+        });
+        saveStateData();
+      } else {
+        const applyTarget = selected || panelAnchorTarget; if (!applyTarget) return; const btnId = applyTarget.dataset?.btn;
+        let color = 'black'; if (btnId && appState.buttons[btnId]?.outlineColor) color = appState.buttons[btnId].outlineColor; else { const cs = window.getComputedStyle(applyTarget); color = cs.outlineColor && cs.outlineColor !== 'invert' ? cs.outlineColor : 'black'; }
+        applyTarget.style.outline = `${v}px solid ${color}`; applyTarget.style.outlineOffset = `-${v}px`;
+        if (btnId) { appState.buttons[btnId] = appState.buttons[btnId] || {}; appState.buttons[btnId].outlineWidth = v; appState.buttons[btnId].outlineColor = color; }
+        saveStateData();
+      }
     });
 
     outerSlider.addEventListener('input', () => {
-      const applyTarget = selected || panelAnchorTarget; if (!applyTarget) return; const btnId = applyTarget.dataset?.btn;
-      const spread = Math.max(0, Math.min(15, parseInt(outerSlider.value))); outerValue.value = spread; applyTarget.style.boxShadow = `0 0 0 ${spread}px black`;
-      if (btnId) { appState.buttons[btnId] = appState.buttons[btnId] || {}; appState.buttons[btnId].boxShadowSpread = spread; }
-      saveStateData();
+      const applyAll = outerAllCheckbox.checked;
+      const spread = Math.max(0, Math.min(15, parseInt(outerSlider.value))); outerValue.value = spread;
+      if (applyAll) {
+        const targets = [...Object.values(btnEls), base, stickWrapper, eightWayWrapper, joystick];
+        targets.forEach(el => {
+          el.style.boxShadow = `0 0 0 ${spread}px black`;
+          if (el.dataset?.btn) { appState.buttons[el.dataset.btn] = appState.buttons[el.dataset.btn] || {}; appState.buttons[el.dataset.btn].boxShadowSpread = spread; }
+          else if (el === base) { appState.base.boxShadowSpread = spread; }
+          else if (el === stickWrapper) { appState.joystick.boxShadowSpread = spread; }
+          else if (el === eightWayWrapper) { appState.eightWayWrapper.boxShadowSpread = spread; }
+          else if (el === joystick) { appState.joystickHead.boxShadowSpread = spread; }
+        });
+        saveStateData();
+      } else {
+        const applyTarget = selected || panelAnchorTarget; if (!applyTarget) return; const btnId = applyTarget.dataset?.btn;
+        applyTarget.style.boxShadow = `0 0 0 ${spread}px black`;
+        if (btnId) { appState.buttons[btnId] = appState.buttons[btnId] || {}; appState.buttons[btnId].boxShadowSpread = spread; }
+        saveStateData();
+      }
     });
 
     outerValue.addEventListener('input', () => {
       let v = parseInt(outerValue.value) || 0; if (v < 0) v = 0; if (v > 10) v = 10; outerValue.value = v;
       try { outerSlider.value = v; } catch (e) {}
-      const applyTarget = selected || panelAnchorTarget; if (!applyTarget) return; const btnId = applyTarget.dataset?.btn;
-      applyTarget.style.boxShadow = `0 0 0 ${v}px black`;
-      if (btnId) { appState.buttons[btnId] = appState.buttons[btnId] || {}; appState.buttons[btnId].boxShadowSpread = v; }
-      saveStateData();
+      const applyAll = outerAllCheckbox.checked;
+      if (applyAll) {
+        const targets = [...Object.values(btnEls), base, stickWrapper, eightWayWrapper, joystick];
+        targets.forEach(el => {
+          el.style.boxShadow = `0 0 0 ${v}px black`;
+          if (el.dataset?.btn) { appState.buttons[el.dataset.btn] = appState.buttons[el.dataset.btn] || {}; appState.buttons[el.dataset.btn].boxShadowSpread = v; }
+          else if (el === base) { appState.base.boxShadowSpread = v; }
+          else if (el === stickWrapper) { appState.joystick.boxShadowSpread = v; }
+          else if (el === eightWayWrapper) { appState.eightWayWrapper.boxShadowSpread = v; }
+          else if (el === joystick) { appState.joystickHead.boxShadowSpread = v; }
+        });
+        saveStateData();
+      } else {
+        const applyTarget = selected || panelAnchorTarget; if (!applyTarget) return; const btnId = applyTarget.dataset?.btn;
+        applyTarget.style.boxShadow = `0 0 0 ${v}px black`;
+        if (btnId) { appState.buttons[btnId] = appState.buttons[btnId] || {}; appState.buttons[btnId].boxShadowSpread = v; }
+        saveStateData();
+      }
     });
 
     const swatchContainer = document.createElement('div'); swatchContainer.className = 'swatchContainer';
