@@ -1,3 +1,5 @@
+import { createTrailSystem } from './js/trail.js';
+
 window.addEventListener('DOMContentLoaded', () => {
   const STORAGE_KEY = 'trailpad_1';
   const PROFILE_COUNT = 8;
@@ -86,10 +88,10 @@ window.addEventListener('DOMContentLoaded', () => {
     appState.analog = { LS: true, RS: true, analogVisualRange: 8, pressureEnabled: true, minTriggerBrightness: 1.0, maxTriggerBrightness: 3.0, triggerDeadzone: 0.1 };
   let selected = null;
   let lastPressedTimes = {};
-  let trail = [];
   let activeGamepadIndex = null;
   let panelAnchorTarget = null;
   let currentPreviewTarget = null;
+  let trailSystem = null;
 
   // capture default joystick head style
   const defaultHead = window.getComputedStyle(joystick);
@@ -990,16 +992,18 @@ window.addEventListener('DOMContentLoaded', () => {
   function detectActiveGamepad() { const gps = navigator.getGamepads ? navigator.getGamepads() : []; for (let i = 0; i < gps.length; i++) { const p = gps[i]; if (!p) continue; const anyBtn = p.buttons.some(b => b.pressed); const axisThreshold = (appState.analog && typeof appState.analog.triggerDeadzone === 'number') ? appState.analog.triggerDeadzone : cfg.deadzone; const anyAx = p.axes.some(a => Math.abs(a) > axisThreshold); if (anyBtn || anyAx) return i; } return null; }
 
   // draw trail
-  function resizeJoystickWrapper() { canvas.width = stickWrapper.clientWidth; canvas.height = stickWrapper.clientHeight; }
+  function resizeJoystickWrapper() { 
+    canvas.width = stickWrapper.clientWidth; 
+    canvas.height = stickWrapper.clientHeight; 
+    if (trailSystem) trailSystem.resize();
+  }
   window.addEventListener('resize', resizeJoystickWrapper);
   resizeJoystickWrapper();
 
-  function drawTrail(tr) {
-    ctx.clearRect(0,0,canvas.width,canvas.height); if (!tr || tr.length < 2) return; const cx = canvas.width / 2, cy = canvas.height / 2, cr = Math.min(canvas.width, canvas.height) / 2 - 12; const trailColor = getComputedStyle(document.documentElement).getPropertyValue('--trail-color')?.trim() || appState.trailColor || '#CEEC73';
-    for (let i = 1; i < tr.length; i++) {
-      const p0 = tr[i-1], p1 = tr[i], t = i / tr.length; const x0 = cx + p0.x * cr, y0 = cy + p0.y * cr, x1 = cx + p1.x * cr, y1 = cy + p1.y * cr; if (!isFinite(x0) || !isFinite(y0) || !isFinite(x1) || !isFinite(y1)) continue; ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y1); ctx.lineWidth = 12 * (t*2); ctx.lineCap = 'round'; ctx.strokeStyle = trailColor; ctx.stroke();
-    }
-  }
+  // Initialize trail system
+  trailSystem = createTrailSystem(canvas, ctx, cfg, () => 
+    getComputedStyle(document.documentElement).getPropertyValue('--trail-color')?.trim() || appState.trailColor || '#CEEC73'
+  );
 
   // --- Profiles: save/load unified with helpers ---
   function saveProfile(n) {
@@ -1278,7 +1282,10 @@ window.addEventListener('DOMContentLoaded', () => {
     updateButtonsFromPad(pad);
     const dpadDir = handleDpadMovement(pad); updateArrowHighlights(dpadDir);
     const { x, y } = getStickXY(pad); const cx = canvas.width/2, cy = canvas.height/2; const radius = canvas.width/2 - 25; const jx = cx + x * radius, jy = cy + y * radius; joystick.style.left = jx + 'px'; joystick.style.top = jy + 'px';
-    trail.push({ x, y }); if (trail.length > cfg.trail) trail.shift(); drawTrail(trail);
+    if (trailSystem) {
+      trailSystem.addPoint(x, y);
+      trailSystem.draw(trailSystem.getTrail());
+    }
     handleStickMovement(pad);
     for (let i = 0; i < markers.length; i++) markers[i].classList.toggle('active', i === dpadDir);
     requestAnimationFrame(animate);
