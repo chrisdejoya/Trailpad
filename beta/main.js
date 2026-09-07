@@ -277,8 +277,8 @@ window.addEventListener('DOMContentLoaded', () => {
         let bgSize = cs.backgroundSize || selected.style.backgroundSize || '';
         // try to extract percent value
         const m = (selected.style.backgroundSize || bgSize).match(/(\d+)%/);
-        if (m) { slider.value = parseInt(m[1]); if (valEl) valEl.textContent = slider.value + ''; }
-        else { slider.value = 100; if (valEl) valEl.textContent = slider.value + ''; }
+        if (m) { slider.value = parseInt(m[1]); if (valEl) valEl.value = slider.value; }
+        else { slider.value = 100; if (valEl) valEl.value = slider.value; }
       }
     } catch (e) { }
 
@@ -375,16 +375,16 @@ window.addEventListener('DOMContentLoaded', () => {
       }
 panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
 
-    // mode toggle row (header)
-    const toggle = document.createElement('div'); toggle.className = 'modeToggle'; toggle.style.display = 'flex'; toggle.style.alignItems = 'center'; toggle.style.justifyContent = 'space-between'; toggle.style.gap = '5px';
-    const leftGroup = document.createElement('div'); leftGroup.style.display = 'flex'; leftGroup.style.gap = '8px';
+    // mode toggle row (header) - horizontally scrollable for many tabs
+    const toggle = document.createElement('div'); toggle.className = 'modeToggle'; toggle.style.display = 'flex'; toggle.style.alignItems = 'center'; toggle.style.gap = '4px'; toggle.style.overflowX = 'auto'; toggle.style.padding = '4px 8px'; toggle.style.borderBottom = '1px solid #333'; toggle.style.flexShrink = '0';
+    const leftGroup = document.createElement('div'); leftGroup.style.display = 'flex'; leftGroup.style.gap = '4px'; leftGroup.style.whiteSpace = 'nowrap';
     // declare symbolBtn early to avoid TDZ when handlers reference it
     let symbolBtn = null;
     let fontBtn = null;
-      const fontDiv = document.createElement('div'); fontDiv.className = 'modeBtn fontBtn'; fontDiv.textContent = 'FONT';
-      const bgDiv = document.createElement('div'); bgDiv.className = 'modeBtn bgBtn'; bgDiv.textContent = 'FILL';
-      const txtDiv = document.createElement('div'); txtDiv.className = 'modeBtn txtBtn'; txtDiv.textContent = 'TEXT';
-      const outlineDiv = document.createElement('div'); outlineDiv.className = 'modeBtn outlineBtn'; outlineDiv.textContent = 'STROKE';
+      const fontDiv = document.createElement('div'); fontDiv.className = 'modeBtn fontBtn'; fontDiv.textContent = 'FONT'; fontDiv.style.padding = '6px 10px'; fontDiv.style.fontSize = '11px';
+      const bgDiv = document.createElement('div'); bgDiv.className = 'modeBtn bgBtn'; bgDiv.textContent = 'FILL'; bgDiv.style.padding = '6px 10px'; bgDiv.style.fontSize = '11px';
+      const txtDiv = document.createElement('div'); txtDiv.className = 'modeBtn txtBtn'; txtDiv.textContent = 'TEXT'; txtDiv.style.padding = '6px 10px'; txtDiv.style.fontSize = '11px';
+      const outlineDiv = document.createElement('div'); outlineDiv.className = 'modeBtn outlineBtn'; outlineDiv.textContent = 'STROKE'; outlineDiv.style.padding = '6px 10px'; outlineDiv.style.fontSize = '11px';
     leftGroup.appendChild(fontDiv); leftGroup.appendChild(bgDiv); leftGroup.appendChild(txtDiv); leftGroup.appendChild(outlineDiv); toggle.appendChild(leftGroup);
 
     // Content area (swatches, symbol grid, font grid)
@@ -392,30 +392,32 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     contentArea.style.flex = '1';
     contentArea.style.overflowY = 'auto';
     contentArea.style.minHeight = '0';
+    contentArea.style.minWidth = '0';
 
     // Slider area (bottom)
     const sliderArea = document.createElement('div');
     sliderArea.style.display = 'flex';
     sliderArea.style.flexDirection = 'column';
-    sliderArea.style.gap = '8px';
-    sliderArea.style.paddingTop = '8px';
+    sliderArea.style.gap = '6px';
+    sliderArea.style.paddingTop = '6px';
     sliderArea.style.borderTop = '1px solid #333';
+    sliderArea.style.flexShrink = '0';
 
-    // Outline sliders (In/Out)
+    // Outline sliders (In/Out) - with numeric inputs
     const sliderWrapper = document.createElement('div'); sliderWrapper.style.display = 'none'; sliderWrapper.style.alignItems = 'center'; sliderWrapper.style.gap = '5px';
       const innerLabel = document.createElement('span'); innerLabel.textContent = 'In';
       const innerSlider = document.createElement('input'); innerSlider.type = 'range'; innerSlider.min = 0; innerSlider.max = 10; innerSlider.step = 1; innerSlider.style.width = '60px';
-      const innerValue = document.createElement('span');
+      const innerValue = document.createElement('input'); innerValue.type = 'number'; innerValue.min = 0; innerValue.max = 10; innerValue.step = 1; innerValue.value = 0; innerValue.style.width = '40px'; innerValue.style.fontSize = '14px'; innerValue.style.textAlign = 'center';
       const outerLabel = document.createElement('span'); outerLabel.textContent = 'Out';
       const outerSlider = document.createElement('input'); outerSlider.type = 'range'; outerSlider.min = 0; outerSlider.max = 10; outerSlider.step = 1; outerSlider.style.width = '60px';
-      const outerValue = document.createElement('span');
+      const outerValue = document.createElement('input'); outerValue.type = 'number'; outerValue.min = 0; outerValue.max = 10; outerValue.step = 1; outerValue.value = 0; outerValue.style.width = '40px'; outerValue.style.fontSize = '14px'; outerValue.style.textAlign = 'center';
     sliderWrapper.appendChild(innerLabel); sliderWrapper.appendChild(innerSlider); sliderWrapper.appendChild(innerValue); sliderWrapper.appendChild(outerLabel); sliderWrapper.appendChild(outerSlider); sliderWrapper.appendChild(outerValue);
 
-    // Symbol size control
+    // Symbol size control - with numeric input
     const sizeCtrl = document.createElement('div'); sizeCtrl.className = 'symbolSizeControl'; sizeCtrl.style.display = 'none'; sizeCtrl.style.alignItems = 'center'; sizeCtrl.style.gap = '5px'; sizeCtrl.style.padding = '0px 0px';
       const sizeLabel = document.createElement('span'); sizeLabel.textContent = 'Size'; sizeLabel.style.fontSize = '16px';
     const sizeSlider = document.createElement('input'); sizeSlider.type = 'range'; sizeSlider.min = 0; sizeSlider.max = 200; sizeSlider.step = 10; sizeSlider.value = 100; sizeSlider.style.width = '100px'; sizeSlider.className = 'symbolSizeSlider';
-      const sizeValue = document.createElement('span'); sizeValue.textContent = sizeSlider.value + ''; sizeValue.style.minWidth = '30px'; sizeValue.className = 'symbolSizeValue'; sizeValue.style.fontSize = '16px';
+      const sizeValue = document.createElement('input'); sizeValue.type = 'number'; sizeValue.min = 0; sizeValue.max = 200; sizeValue.step = 10; sizeValue.value = 100; sizeValue.style.width = '50px'; sizeValue.style.fontSize = '16px'; sizeValue.style.textAlign = 'center'; sizeValue.className = 'symbolSizeValue';
     sizeCtrl.appendChild(sizeLabel); sizeCtrl.appendChild(sizeSlider); sizeCtrl.appendChild(sizeValue);
     const clearBtn = document.createElement('button'); clearBtn.type = 'button'; clearBtn.className = 'clearSymbolBtn'; clearBtn.textContent = 'Clear'; clearBtn.style.marginLeft = '0px'; clearBtn.style.padding = '5px 5px'; clearBtn.style.fontSize = '16px';
     sizeCtrl.appendChild(clearBtn);
@@ -430,9 +432,18 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
 
     // Symbol size slider listener (applies size % to current selection)
     sizeSlider.addEventListener('input', () => {
-      sizeValue.textContent = sizeSlider.value + '';
+      sizeValue.value = sizeSlider.value;
       const applyTarget = selected || panelAnchorTarget; if (!applyTarget) return; const btnId = applyTarget.dataset?.btn;
       applyTarget.style.backgroundSize = `${sizeSlider.value}% auto`;
+      if (btnId) { appState.buttons[btnId] = appState.buttons[btnId] || {}; appState.buttons[btnId].backgroundSize = applyTarget.style.backgroundSize; saveStateData(); }
+    });
+
+    // Symbol size numeric input listener
+    sizeValue.addEventListener('input', () => {
+      let v = parseInt(sizeValue.value) || 0; if (v < 0) v = 0; if (v > 200) v = 200; sizeValue.value = v;
+      try { sizeSlider.value = v; } catch (e) {}
+      const applyTarget = selected || panelAnchorTarget; if (!applyTarget) return; const btnId = applyTarget.dataset?.btn;
+      applyTarget.style.backgroundSize = `${v}% auto`;
       if (btnId) { appState.buttons[btnId] = appState.buttons[btnId] || {}; appState.buttons[btnId].backgroundSize = applyTarget.style.backgroundSize; saveStateData(); }
     });
 
@@ -541,23 +552,54 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
 
     innerSlider.addEventListener('input', () => {
       const applyTarget = selected || panelAnchorTarget; if (!applyTarget) return; const btnId = applyTarget.dataset?.btn;
-      const width = Math.max(0, Math.min(15, parseInt(innerSlider.value))); innerSlider.nextElementSibling.textContent = width;
+      const width = Math.max(0, Math.min(15, parseInt(innerSlider.value))); innerValue.value = width;
       let color = 'black'; if (btnId && appState.buttons[btnId]?.outlineColor) color = appState.buttons[btnId].outlineColor; else { const cs = window.getComputedStyle(applyTarget); color = cs.outlineColor && cs.outlineColor !== 'invert' ? cs.outlineColor : 'black'; }
       applyTarget.style.outline = `${width}px solid ${color}`; applyTarget.style.outlineOffset = `-${width}px`;
       if (btnId) { appState.buttons[btnId] = appState.buttons[btnId] || {}; appState.buttons[btnId].outlineWidth = width; appState.buttons[btnId].outlineColor = color; }
       saveStateData();
     });
 
+    innerValue.addEventListener('input', () => {
+      let v = parseInt(innerValue.value) || 0; if (v < 0) v = 0; if (v > 10) v = 10; innerValue.value = v;
+      try { innerSlider.value = v; } catch (e) {}
+      const applyTarget = selected || panelAnchorTarget; if (!applyTarget) return; const btnId = applyTarget.dataset?.btn;
+      let color = 'black'; if (btnId && appState.buttons[btnId]?.outlineColor) color = appState.buttons[btnId].outlineColor; else { const cs = window.getComputedStyle(applyTarget); color = cs.outlineColor && cs.outlineColor !== 'invert' ? cs.outlineColor : 'black'; }
+      applyTarget.style.outline = `${v}px solid ${color}`; applyTarget.style.outlineOffset = `-${v}px`;
+      if (btnId) { appState.buttons[btnId] = appState.buttons[btnId] || {}; appState.buttons[btnId].outlineWidth = v; appState.buttons[btnId].outlineColor = color; }
+      saveStateData();
+    });
+
     outerSlider.addEventListener('input', () => {
       const applyTarget = selected || panelAnchorTarget; if (!applyTarget) return; const btnId = applyTarget.dataset?.btn;
-      const spread = Math.max(0, Math.min(15, parseInt(outerSlider.value))); outerSlider.nextElementSibling.textContent = spread; applyTarget.style.boxShadow = `0 0 0 ${spread}px black`;
+      const spread = Math.max(0, Math.min(15, parseInt(outerSlider.value))); outerValue.value = spread; applyTarget.style.boxShadow = `0 0 0 ${spread}px black`;
       if (btnId) { appState.buttons[btnId] = appState.buttons[btnId] || {}; appState.buttons[btnId].boxShadowSpread = spread; }
       saveStateData();
     });
 
+    outerValue.addEventListener('input', () => {
+      let v = parseInt(outerValue.value) || 0; if (v < 0) v = 0; if (v > 10) v = 10; outerValue.value = v;
+      try { outerSlider.value = v; } catch (e) {}
+      const applyTarget = selected || panelAnchorTarget; if (!applyTarget) return; const btnId = applyTarget.dataset?.btn;
+      applyTarget.style.boxShadow = `0 0 0 ${v}px black`;
+      if (btnId) { appState.buttons[btnId] = appState.buttons[btnId] || {}; appState.buttons[btnId].boxShadowSpread = v; }
+      saveStateData();
+    });
+
     const swatchContainer = document.createElement('div'); swatchContainer.className = 'swatchContainer';
+    swatchContainer.style.display = 'grid';
+    swatchContainer.style.gridTemplateColumns = 'repeat(12, 20px)';
+    swatchContainer.style.gap = '6px';
+    swatchContainer.style.padding = '8px';
+    swatchContainer.style.justifyContent = 'center';
+    swatchContainer.style.minWidth = '0';
     palette.forEach(c => {
       const s = document.createElement('div'); s.className = 'swatch'; s.dataset.color = c; s.title = c; s.style.background = c;
+      s.style.borderRadius = '50%';
+      s.style.cursor = 'pointer';
+      s.style.transition = 'transform 0.1s, box-shadow 0.1s';
+      s.style.border = '2px solid transparent';
+      s.addEventListener('mouseenter', () => { s.style.transform = 'scale(1.2)'; s.style.boxShadow = '0 0 8px rgba(0,0,0,0.5)'; });
+      s.addEventListener('mouseleave', () => { s.style.transform = 'scale(1)'; s.style.boxShadow = 'none'; });
       s.addEventListener('click', () => {
         const applyTarget = selected || panelAnchorTarget; if (!applyTarget) return; const btnId = applyTarget.dataset?.btn;
         if (mode === 'bg') { applyTarget.style.backgroundColor = c; if (btnId) { appState.buttons[btnId] = appState.buttons[btnId] || {}; appState.buttons[btnId].backgroundColor = c; } }
@@ -689,9 +731,9 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
       const existing = contentArea.querySelector('.fontGrid'); if (existing) existing.remove();
       const fonts = await loadFontsList();
       const grid = document.createElement('div'); grid.className = 'fontGrid';
-      grid.style.display = 'flex';
-      grid.style.flexDirection = 'column';
-      grid.style.gap = '4px';
+      grid.style.display = 'grid';
+      grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
+      grid.style.gap = '8px';
       grid.style.padding = '8px';
       grid.style.maxHeight = '300px';
       grid.style.overflowY = 'auto';
@@ -700,17 +742,20 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
         item.type = 'button';
         item.textContent = font.name;
         item.style.fontFamily = font.cssFamily;
-        item.style.padding = '10px 14px';
+        item.style.padding = '12px 10px';
         item.style.border = 'none';
         item.style.background = 'transparent';
         item.style.color = '#eee';
-        item.style.textAlign = 'left';
+        item.style.textAlign = 'center';
         item.style.fontSize = '13px';
         item.style.cursor = 'pointer';
         item.style.borderRadius = '4px';
-        item.style.transition = 'background 0.1s';
-        item.addEventListener('mouseenter', () => { item.style.background = 'rgba(255,255,255,0.08)'; });
-        item.addEventListener('mouseleave', () => { item.style.background = 'transparent'; });
+        item.style.transition = 'background 0.1s, transform 0.1s';
+        item.style.whiteSpace = 'nowrap';
+        item.style.overflow = 'hidden';
+        item.style.textOverflow = 'ellipsis';
+        item.addEventListener('mouseenter', () => { item.style.background = 'rgba(255,255,255,0.08)'; item.style.transform = 'scale(1.02)'; });
+        item.addEventListener('mouseleave', () => { item.style.background = 'transparent'; item.style.transform = 'scale(1)'; });
         item.addEventListener('click', () => {
           // Apply font to ALL editable objects
           const targets = [base, stickWrapper, eightWayWrapper, joystick, ...Object.values(btnEls)];
@@ -758,6 +803,8 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
 
   // clamp
   colorPanel.style.display = 'flex'; colorPanel.style.flexDirection = 'column'; colorPanel.style.left = '0px'; colorPanel.style.top = '0px';
+  colorPanel.style.width = '360px'; // Wider to fit tabs
+  colorPanel.style.maxHeight = '85vh'; // Limit height for OBS browser source
     const panelRect = colorPanel.getBoundingClientRect(); const viewportWidth = window.innerWidth; const viewportHeight = window.innerHeight;
     let left = x; let top = y + 40;
     if (left + panelRect.width > viewportWidth) left = Math.max(8, viewportWidth - panelRect.width - 10);
@@ -769,8 +816,8 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
       const applyTarget = selected || panelAnchorTarget; if (slider && applyTarget) {
         const cs = window.getComputedStyle(applyTarget); let bgSize = cs.backgroundSize || applyTarget.style.backgroundSize || '';
         const m = (applyTarget.style.backgroundSize || bgSize).match(/(\d+)/);
-        if (m) { slider.value = parseInt(m[1]); if (valEl) valEl.textContent = slider.value + ''; }
-        else { slider.value = 100; if (valEl) valEl.textContent = slider.value + ''; }
+        if (m) { slider.value = parseInt(m[1]); if (valEl) valEl.value = slider.value; }
+        else { slider.value = 100; if (valEl) valEl.value = slider.value; }
       }
       // sync text size slider value from applyTarget fontSize when in text mode
       try {
@@ -835,7 +882,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     if (btnId && appState.buttons[btnId]?.boxShadowSpread != null) spread = appState.buttons[btnId].boxShadowSpread;
     else { const boxShadow = cs.boxShadow; if (boxShadow && boxShadow !== 'none') { const parts = boxShadow.match(/-?\d+px/g); if (parts && parts.length >= 4) spread = parseInt(parts[3]) || 0; } }
     spread = Math.max(0, Math.min(10, spread));
-    innerSlider.value = outlineWidth; if (innerValue) innerValue.textContent = outlineWidth; outerSlider.value = spread; if (outerValue) outerValue.textContent = spread;
+    innerSlider.value = outlineWidth; if (innerValue) innerValue.value = outlineWidth; outerSlider.value = spread; if (outerValue) outerValue.value = spread;
   }
 
   // --- Keyboard/hotkeys ---

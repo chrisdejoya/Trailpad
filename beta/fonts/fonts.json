@@ -13,5 +13,8 @@
   { "name": "Chakra Petch", "url": "https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&display=swap", "cssFamily": "'Chakra Petch', sans-serif" },
   { "name": "Monofett", "url": "https://fonts.googleapis.com/css2?family=Monofett&display=swap", "cssFamily": "'Monofett', cursive" },
   { "name": "Audiowide", "url": "https://fonts.googleapis.com/css2?family=Audiowide&display=swap", "cssFamily": "'Audiowide', cursive" },
-  { "name": "Press Start 2P", "url": "https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap", "cssFamily": "'Press Start 2P', cursive" }
+  { "name": "Press Start 2P", "url": "https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap", "cssFamily": "'Press Start 2P', cursive" },
+  { "name": "Bangers", "url": "https://fonts.googleapis.com/css2?family=Bangers&display=swap", "cssFamily": "'Bangers', cursive" },
+  { "name": "Permanent Marker", "url": "https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap", "cssFamily": "'Permanent Marker', cursive" },
+  { "name": "Black Ops One", "url": "https://fonts.googleapis.com/css2?family=Black+Ops+One&display=swap", "cssFamily": "'Black Ops One', cursive" }
 ]
