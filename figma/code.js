@@ -1,8 +1,8 @@
 const ROLE_NAMES = [
   { key: 'base', label: 'Base' },
   { key: 'joystick', label: 'Joystick' },
-  { key: 'joystickHead', label: 'Joystick head' },
-  { key: 'eightWayWrapper', label: 'Eight-way wrapper' }
+  { key: 'joystickHead', label: 'Joystick Head' },
+  { key: 'eightWayWrapper', label: '8-way Wrapper' }
 ];
 
 const BUTTON_NAMES = [
@@ -10,7 +10,7 @@ const BUTTON_NAMES = [
   'Up', 'Down', 'Left', 'Right'
 ];
 
-figma.showUI(__html__, { width: 360, height: 620, themeColors: true });
+figma.showUI(__html__, { width: 320, height: 550, themeColors: true });
 figma.ui.postMessage({ type: 'CONFIG', roles: ROLE_NAMES, buttons: BUTTON_NAMES });
 
 function selectedNode() {
