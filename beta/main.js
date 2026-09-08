@@ -1162,21 +1162,21 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     if (!pad) return -1; const now = performance.now(); let direction = -1;
     const dirs = [ { btn: 12, dx: 0, dy: -moveStep, key: 'up', idx: 6 }, { btn: 13, dx: 0, dy: moveStep, key: 'down', idx: 2 }, { btn: 14, dx: -moveStep, dy: 0, key: 'left', idx: 4 }, { btn: 15, dx: moveStep, dy: 0, key: 'right', idx: 0 } ];
     const pressed = {};
-    dirs.forEach(d => { if (pad.buttons[d.btn]?.pressed) { pressed[d.key] = true; if (now - elementMoveTimers[d.key] > moveDelay) moveSelected(d.dx, d.dy, d.key); } });
+    dirs.forEach(d => { if (pad.buttons[d.btn]?.pressed) pressed[d.key] = true; });
     if (pressed.up && pressed.left) direction = 5; else if (pressed.up && pressed.right) direction = 7; else if (pressed.down && pressed.left) direction = 3; else if (pressed.down && pressed.right) direction = 1; else if (pressed.up) direction = 6; else if (pressed.down) direction = 2; else if (pressed.left) direction = 4; else if (pressed.right) direction = 0;
 
     if (direction === -1 && pad.axes && pad.axes.length > 9) {
-      const hat = pad.axes[9]; if (typeof hat === 'number' && now - elementMoveTimers['hat'] > moveDelay) {
+      const hat = pad.axes[9]; if (typeof hat === 'number') {
         const rounded = Math.round(hat * 7);
         switch (rounded) {
-          case -7: direction = 6; moveSelected(0, -moveStep, 'hat'); break;
-          case -5: direction = 7; moveSelected(moveStep, -moveStep, 'hat'); break;
-          case -3: direction = 0; moveSelected(moveStep, 0, 'hat'); break;
-          case -1: direction = 1; moveSelected(moveStep, moveStep, 'hat'); break;
-          case 1: direction = 2; moveSelected(0, moveStep, 'hat'); break;
-          case 3: direction = 3; moveSelected(-moveStep, moveStep, 'hat'); break;
-          case 5: direction = 4; moveSelected(-moveStep, 0, 'hat'); break;
-          case 7: direction = 5; moveSelected(-moveStep, -moveStep, 'hat'); break;
+          case -7: direction = 6; break;
+          case -5: direction = 7; break;
+          case -3: direction = 0; break;
+          case -1: direction = 1; break;
+          case 1: direction = 2; break;
+          case 3: direction = 3; break;
+          case 5: direction = 4; break;
+          case 7: direction = 5; break;
         }
       }
     }
@@ -1194,18 +1194,9 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
       return;
     }
 
-    if (selected) {
-      // move selected only if corresponding analog is enabled
-      const lsMove = appState.analog?.LS !== false;
-      const rsMove = appState.analog?.RS !== false;
-  const ls = getAnalogStick(pad, 'left', cfg.deadzone, cfg.invertY); const rs = getAnalogStick(pad, 'right', cfg.deadzone, cfg.invertY);
-      if (lsMove && (Math.abs(ls.x) > 0.15 || Math.abs(ls.y) > 0.15) && now - (elementMoveTimers['ls'] || 0) > moveDelay) moveSelected(ls.x * moveStep, ls.y * moveStep, 'ls');
-      if (rsMove && (Math.abs(rs.x) > 0.15 || Math.abs(rs.y) > 0.15) && now - (elementMoveTimers['rs'] || 0) > moveDelay) moveSelected(rs.x * moveStep, rs.y * moveStep, 'rs');
-    }
-
     // Visual movement of LS/RS buttons: only when enabled
     const ls = getAnalogStick(pad, 'left', cfg.deadzone, cfg.invertY);
-      if (appState.analog?.LS === false) {
+    if (appState.analog?.LS === false) {
       if (btnEls['LS']) btnEls['LS'].style.transform = 'translate(0px, 0px)';
     } else {
       if (ls.x === 0 && ls.y === 0) { if (btnEls['LS']) btnEls['LS'].style.transform = 'translate(0px, 0px)'; }
