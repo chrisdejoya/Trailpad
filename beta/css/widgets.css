@@ -36,6 +36,22 @@
 	z-index: 0
 }
 
+.analogTrailCanvas {
+	position: absolute;
+	pointer-events: none;
+	display: block;
+	z-index: 1;
+}
+
+.analogStickBase {
+	position: absolute;
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
+	pointer-events: none;
+	z-index: 1;
+}
+
 .joystickHead {
 	position: absolute;
 	left: 50%;

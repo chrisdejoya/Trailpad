@@ -73,6 +73,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // stick container refs (parents of .btn for LS/RS)
   const stickContainers = { LS: document.getElementById('LS'), RS: document.getElementById('RS') };
+  const stickTrailCanvases = { LS: document.getElementById('LSTrailCanvas'), RS: document.getElementById('RSTrailCanvas') };
+  const analogStickBases = { LS: document.getElementById('LSBase'), RS: document.getElementById('RSBase') };
 
   // distance readouts removed (no on-screen numeric distance)
 
@@ -115,6 +117,7 @@ window.addEventListener('DOMContentLoaded', () => {
   let panelAnchorTarget = null;
   let currentPreviewTarget = null;
   let trailSystem = null;
+  const stickTrailSystems = {};
 
   // capture default joystick head style
   const defaultHead = window.getComputedStyle(joystick);
@@ -219,6 +222,16 @@ window.addEventListener('DOMContentLoaded', () => {
       const key = el.dataset.btn;
       if (appState.buttons?.[key]?.label !== undefined) snap.label = appState.buttons[key].label;
       else snap.label = (el.textContent || '').trim();
+      if (key === 'LS' || key === 'RS') {
+        const stickState = appState.buttons?.[key] || {};
+        snap.stickMovement = stickState.stickMovement ?? appState.analog?.[key] !== false;
+        snap.showTrail = stickState.showTrail !== false;
+        snap.stickRadius = Math.max(0, Math.min(100, parseInt(stickState.stickRadius ?? appState.analog?.analogVisualRange ?? 8, 10) || 0));
+        snap.trailSize = Math.max(1, Math.min(60, parseInt(stickState.trailSize ?? cfg.trail, 10) || cfg.trail));
+        snap.trailWidth = Math.max(1, Math.min(40, parseInt(stickState.trailWidth ?? 12, 10) || 12));
+        snap.showBase = stickState.showBase !== false;
+        snap.baseSize = Math.max(20, Math.min(300, parseInt(stickState.baseSize ?? 100, 10) || 100));
+      }
     }
     if (snap.backgroundSize && snap.backgroundSize !== 'auto') {
       const num = parseInt(snap.backgroundSize);
@@ -365,6 +378,19 @@ window.addEventListener('DOMContentLoaded', () => {
     } catch (e) {}
   }
 
+  function stateForElement(el) {
+    if (el === base) return appState.base;
+    if (el === stickWrapper) return appState.joystick;
+    if (el === joystick) return appState.joystickHead;
+    if (el === eightWayWrapper) return appState.eightWayWrapper;
+    if (el?.classList?.contains('btn')) {
+      const name = el.dataset.btn;
+      appState.buttons[name] = appState.buttons[name] || {};
+      return appState.buttons[name];
+    }
+    return null;
+  }
+
   function deselect() { selectElement(null); }
 
   // arrow highlight helper
@@ -445,6 +471,8 @@ window.addEventListener('DOMContentLoaded', () => {
         document.body.appendChild(colorPanel);
       }
 panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
+  const stickId = anchorTarget?.dataset?.btn;
+  const isStickTarget = stickId === 'LS' || stickId === 'RS';
 
     // mode toggle row (header) - horizontally scrollable for many tabs
     const toggle = document.createElement('div'); toggle.className = 'modeToggle ui-tabs'; toggle.style.display = 'flex'; toggle.style.alignItems = 'center'; toggle.style.gap = '4px'; toggle.style.overflowX = 'auto'; toggle.style.padding = '4px 8px'; toggle.style.borderBottom = '1px solid var(--border-subtle)'; toggle.style.flexShrink = '0';
@@ -456,14 +484,88 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
       const bgDiv = document.createElement('button'); bgDiv.className = 'modeBtn bgBtn ui-tab'; bgDiv.textContent = 'FILL'; bgDiv.style.padding = '6px 10px'; bgDiv.style.fontSize = '11px';
       const txtDiv = document.createElement('button'); txtDiv.className = 'modeBtn txtBtn ui-tab'; txtDiv.textContent = 'TEXT'; txtDiv.style.padding = '6px 10px'; txtDiv.style.fontSize = '11px';
       const outlineDiv = document.createElement('button'); outlineDiv.className = 'modeBtn outlineBtn ui-tab'; outlineDiv.textContent = 'STROKE'; outlineDiv.style.padding = '6px 10px'; outlineDiv.style.fontSize = '11px';
+    let stickDiv = null;
+    if (isStickTarget) {
+      stickDiv = document.createElement('button'); stickDiv.className = 'modeBtn stickBtn ui-tab'; stickDiv.textContent = 'STICK'; stickDiv.style.padding = '6px 10px'; stickDiv.style.fontSize = '11px';
+    }
+    if (stickDiv) leftGroup.appendChild(stickDiv);
     leftGroup.appendChild(fontDiv); leftGroup.appendChild(bgDiv); leftGroup.appendChild(txtDiv); leftGroup.appendChild(outlineDiv); toggle.appendChild(leftGroup);
 
     // Content area (swatches, symbol grid, font grid)
+    let swatchContainer = null;
     const contentArea = document.createElement('div');
     contentArea.style.flex = '1';
     contentArea.style.overflowY = 'auto';
     contentArea.style.minHeight = '0';
     contentArea.style.minWidth = '0';
+
+    const stickControls = document.createElement('div');
+    stickControls.className = 'stickControls';
+    stickControls.style.display = 'none';
+    stickControls.style.flexDirection = 'column';
+    stickControls.style.gap = '12px';
+    stickControls.style.padding = '12px 8px';
+    const stickState = isStickTarget ? (appState.buttons[stickId] = appState.buttons[stickId] || {}) : {};
+    const stickMovement = getStickMovementEnabled(stickId);
+    const showTrail = stickState.showTrail !== false;
+    const stickRadius = Math.max(0, Math.min(100, parseInt(stickState.stickRadius ?? appState.analog?.analogVisualRange ?? 8, 10) || 0));
+    const trailSize = Math.max(1, Math.min(60, parseInt(stickState.trailSize ?? cfg.trail, 10) || cfg.trail));
+    const trailWidth = Math.max(1, Math.min(40, parseInt(stickState.trailWidth ?? 12, 10) || 12));
+    const showBase = stickState.showBase !== false;
+    const baseSize = Math.max(20, Math.min(300, parseInt(stickState.baseSize ?? 100, 10) || 100));
+    const makeGroupTitle = text => {
+      const title = document.createElement('div'); title.textContent = text; title.style.fontSize = '11px'; title.style.color = 'var(--text-muted)'; title.style.borderBottom = '1px solid var(--border-subtle)'; title.style.paddingBottom = '4px'; return title;
+    };
+    function makeStickCheckbox(labelText, checked, onChange) {
+      const label = document.createElement('label'); label.className = 'ui-checkbox-label'; label.style.display = 'flex'; label.style.alignItems = 'center'; label.style.gap = '8px'; label.style.fontSize = '13px'; label.style.cursor = 'pointer';
+      const checkbox = document.createElement('input'); checkbox.type = 'checkbox'; checkbox.className = 'ui-checkbox'; checkbox.checked = checked;
+      checkbox.addEventListener('change', () => { onChange(checkbox.checked); saveStateData(); });
+      label.appendChild(checkbox); label.appendChild(document.createTextNode(labelText)); stickControls.appendChild(label);
+      return checkbox;
+    }
+    stickControls.appendChild(makeGroupTitle('Movement'));
+    makeStickCheckbox('Stick Movement', stickMovement, value => { stickState.stickMovement = value; });
+    const radiusRow = document.createElement('div'); radiusRow.style.display = 'grid'; radiusRow.style.gridTemplateColumns = '54px 1fr 48px'; radiusRow.style.alignItems = 'center'; radiusRow.style.gap = '8px'; radiusRow.style.fontSize = '13px';
+    const radiusLabel = document.createElement('span'); radiusLabel.textContent = 'Radius';
+    const radiusSlider = document.createElement('input'); radiusSlider.type = 'range'; radiusSlider.min = '0'; radiusSlider.max = '100'; radiusSlider.step = '1'; radiusSlider.value = String(stickRadius); radiusSlider.className = 'ui-slider'; radiusSlider.style.flex = '1';
+    const radiusValue = document.createElement('input'); radiusValue.type = 'number'; radiusValue.min = '0'; radiusValue.max = '100'; radiusValue.step = '1'; radiusValue.value = String(stickRadius); radiusValue.className = 'ui-input'; radiusValue.style.width = '48px';
+    const updateRadius = value => {
+      if (value === '') return;
+      const next = Math.max(0, Math.min(100, parseInt(value, 10) || 0));
+      radiusSlider.value = String(next); radiusValue.value = String(next); stickState.stickRadius = next; saveStateData();
+    };
+    radiusSlider.addEventListener('input', () => updateRadius(radiusSlider.value));
+    radiusValue.addEventListener('input', () => updateRadius(radiusValue.value));
+    radiusValue.addEventListener('blur', () => { if (radiusValue.value === '') updateRadius(radiusSlider.value); });
+    radiusRow.appendChild(radiusLabel); radiusRow.appendChild(radiusSlider); radiusRow.appendChild(radiusValue); stickControls.appendChild(radiusRow);
+    stickControls.appendChild(makeGroupTitle('Trail'));
+    makeStickCheckbox('Show Trail', showTrail, value => { stickState.showTrail = value; if (!value) stickTrailSystems[stickId]?.clear(); });
+    const makeTrailSlider = (labelText, initialValue, min, max, key) => {
+      const row = document.createElement('div'); row.style.display = 'grid'; row.style.gridTemplateColumns = '54px 1fr 48px'; row.style.alignItems = 'center'; row.style.gap = '8px'; row.style.fontSize = '13px';
+      const label = document.createElement('span'); label.textContent = labelText;
+      const slider = document.createElement('input'); slider.type = 'range'; slider.min = String(min); slider.max = String(max); slider.step = '1'; slider.value = String(initialValue); slider.className = 'ui-slider';
+      const value = document.createElement('input'); value.type = 'number'; value.min = String(min); value.max = String(max); value.step = '1'; value.value = String(initialValue); value.className = 'ui-input'; value.style.width = '48px';
+      const update = raw => {
+        if (raw === '') return;
+        const parsed = parseInt(raw, 10);
+        if (!Number.isFinite(parsed) || parsed < min || parsed > max) return;
+        const next = parsed;
+        slider.value = String(next); value.value = String(next); stickState[key] = next;
+        if (stickTrailSystems[stickId]) stickTrailSystems[stickId].config[key] = next;
+        if (key === 'baseSize') updateAnalogStickBases();
+        saveStateData();
+      };
+      slider.addEventListener('input', () => update(slider.value));
+      value.addEventListener('input', () => update(value.value));
+      value.addEventListener('blur', () => { const parsed = parseInt(value.value, 10); if (!Number.isFinite(parsed) || parsed < min || parsed > max) update(slider.value); });
+      row.appendChild(label); row.appendChild(slider); row.appendChild(value); stickControls.appendChild(row);
+    };
+    makeTrailSlider('Width', trailWidth, 1, 40, 'trailWidth');
+    makeTrailSlider('Size', trailSize, 1, 60, 'trailSize');
+    stickControls.appendChild(makeGroupTitle('Appearance'));
+    makeStickCheckbox('Show Base', showBase, value => { stickState.showBase = value; updateAnalogStickBases(); });
+    makeTrailSlider('Base Size', baseSize, 20, 300, 'baseSize');
+    contentArea.appendChild(stickControls);
 
     // Slider area (bottom)
     const sliderArea = document.createElement('div');
@@ -607,11 +709,22 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     colorPanel.appendChild(contentArea);
     colorPanel.appendChild(sliderArea);
 
-  let mode = colorMode; if (mode === 'bg') bgDiv.classList.add('active'); if (mode === 'text') txtDiv.classList.add('active');
+  function setStickPanelVisible(visible) {
+    if (stickControls) stickControls.style.display = visible ? 'flex' : 'none';
+    if (swatchContainer) swatchContainer.style.display = visible ? 'none' : '';
+    if (visible) {
+      sliderWrapper.style.display = 'none';
+      sizeCtrl.style.display = 'none';
+      textSizeCtrl.style.display = 'none';
+      contentArea.querySelector('.symbolGrid')?.remove();
+      contentArea.querySelector('.fontGrid')?.remove();
+    }
+  }
+  let mode = isStickTarget ? 'stick' : colorMode; if (mode === 'bg') bgDiv.classList.add('active'); if (mode === 'text') txtDiv.classList.add('active'); if (mode === 'stick') { stickDiv?.classList.add('active'); setStickPanelVisible(true); }
   if (mode === 'outline') { outlineDiv.classList.add('active'); sliderWrapper.style.display = 'flex'; updatePanelForSelection(); }
 
   bgDiv.addEventListener('click', () => {
-    mode = 'bg'; colorMode = 'bg'; localStorage.setItem('colorMode', colorMode); bgDiv.classList.add('active'); txtDiv.classList.remove('active'); outlineDiv.classList.remove('active'); fontDiv.classList.remove('active');
+    mode = 'bg'; colorMode = 'bg'; localStorage.setItem('colorMode', colorMode); bgDiv.classList.add('active'); txtDiv.classList.remove('active'); outlineDiv.classList.remove('active'); fontDiv.classList.remove('active'); stickDiv?.classList.remove('active'); setStickPanelVisible(false);
     // restore UI and remove symbol grid only
     sliderWrapper.style.display = 'none'; if (typeof symbolBtn !== 'undefined') symbolBtn.classList.remove('active'); if (typeof swatchContainer !== 'undefined') swatchContainer.style.display = '';
     // hide symbol size control when not in symbol mode
@@ -622,7 +735,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     const fontGrid = contentArea.querySelector('.fontGrid'); if (fontGrid) fontGrid.remove();
   });
   txtDiv.addEventListener('click', () => {
-    mode = 'text'; colorMode = 'text'; localStorage.setItem('colorMode', colorMode); txtDiv.classList.add('active'); bgDiv.classList.remove('active'); outlineDiv.classList.remove('active'); fontDiv.classList.remove('active');
+    mode = 'text'; colorMode = 'text'; localStorage.setItem('colorMode', colorMode); txtDiv.classList.add('active'); bgDiv.classList.remove('active'); outlineDiv.classList.remove('active'); fontDiv.classList.remove('active'); stickDiv?.classList.remove('active'); setStickPanelVisible(false);
     sliderWrapper.style.display = 'none'; if (typeof symbolBtn !== 'undefined') symbolBtn.classList.remove('active'); if (typeof swatchContainer !== 'undefined') swatchContainer.style.display = '';
     // hide symbol size control when not in symbol mode
     try { sizeCtrl.style.display = 'none'; } catch (e) {}
@@ -632,7 +745,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     const fontGrid = contentArea.querySelector('.fontGrid'); if (fontGrid) fontGrid.remove();
   });
   outlineDiv.addEventListener('click', () => {
-    mode = 'outline'; colorMode = 'outline'; localStorage.setItem('colorMode', colorMode); outlineDiv.classList.add('active'); bgDiv.classList.remove('active'); txtDiv.classList.remove('active'); fontDiv.classList.remove('active');
+    mode = 'outline'; colorMode = 'outline'; localStorage.setItem('colorMode', colorMode); outlineDiv.classList.add('active'); bgDiv.classList.remove('active'); txtDiv.classList.remove('active'); fontDiv.classList.remove('active'); stickDiv?.classList.remove('active'); setStickPanelVisible(false);
     sliderWrapper.style.display = 'flex'; updatePanelForSelection(); if (typeof symbolBtn !== 'undefined') symbolBtn.classList.remove('active'); if (typeof swatchContainer !== 'undefined') swatchContainer.style.display = '';
     // hide symbol size control when not in symbol mode
     try { sizeCtrl.style.display = 'none'; } catch (e) {}
@@ -644,7 +757,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
   });
 
   fontDiv.addEventListener('click', async () => {
-    mode = 'font'; colorMode = 'font'; localStorage.setItem('colorMode', colorMode); fontDiv.classList.add('active'); bgDiv.classList.remove('active'); txtDiv.classList.remove('active'); outlineDiv.classList.remove('active');
+    mode = 'font'; colorMode = 'font'; localStorage.setItem('colorMode', colorMode); fontDiv.classList.add('active'); bgDiv.classList.remove('active'); txtDiv.classList.remove('active'); outlineDiv.classList.remove('active'); stickDiv?.classList.remove('active'); setStickPanelVisible(false);
     sliderWrapper.style.display = 'none'; if (typeof symbolBtn !== 'undefined') symbolBtn.classList.remove('active'); if (typeof swatchContainer !== 'undefined') swatchContainer.style.display = 'none';
     // hide symbol size control when not in symbol mode
     try { sizeCtrl.style.display = 'none'; } catch (e) {}
@@ -653,6 +766,10 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     const grid = contentArea.querySelector('.symbolGrid'); if (grid) grid.remove();
     // show font grid
     await showFontGrid();
+  });
+
+  stickDiv?.addEventListener('click', () => {
+    mode = 'stick'; stickDiv.classList.add('active'); fontDiv.classList.remove('active'); bgDiv.classList.remove('active'); txtDiv.classList.remove('active'); outlineDiv.classList.remove('active'); setStickPanelVisible(true);
   });
 
     innerSlider.addEventListener('input', () => {
@@ -733,7 +850,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
       }
     });
 
-    const swatchContainer = document.createElement('div'); swatchContainer.className = 'swatchContainer';
+    swatchContainer = document.createElement('div'); swatchContainer.className = 'swatchContainer';
     swatchContainer.style.display = 'grid';
     swatchContainer.style.gridTemplateColumns = 'repeat(auto-fill, minmax(20px, 1fr))';
     swatchContainer.style.gap = '6px';
@@ -756,6 +873,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     });
 
     contentArea.appendChild(swatchContainer);
+    if (mode === 'stick') setStickPanelVisible(true);
 
   // --- Symbol selector ---
   // assign to previously-declared symbolBtn (avoid redeclaring block-scoped variable)
@@ -980,7 +1098,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     } catch (e) { }
 // if the remembered mode is symbol, open the symbol grid automatically
       try {
-        if (colorMode === 'symbol') {
+        if (!isStickTarget && colorMode === 'symbol') {
           if (typeof sliderWrapper !== 'undefined') sliderWrapper.style.display = 'none';
           if (typeof swatchContainer !== 'undefined') swatchContainer.style.display = 'none';
           // mark symbol button active and show size control when auto-opening symbol grid
@@ -989,7 +1107,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
           await showSymbolGrid();
         }
         // if the remembered mode is font, open the font grid automatically
-        if (colorMode === 'font') {
+        if (!isStickTarget && colorMode === 'font') {
           if (typeof sliderWrapper !== 'undefined') sliderWrapper.style.display = 'none';
           if (typeof swatchContainer !== 'undefined') swatchContainer.style.display = 'none';
           try { if (fontBtn) fontBtn.classList.add('active'); } catch (e) {}
@@ -998,7 +1116,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
           await showFontGrid();
         }
         // if the remembered mode is text, show text size control
-        if (colorMode === 'text') {
+        if (!isStickTarget && colorMode === 'text') {
         try { textSizeCtrl.style.display = 'flex'; } catch (e) {}
         // also sync the slider to the current selection
         try {
@@ -1056,6 +1174,20 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     if (e.ctrlKey && e.key.toLowerCase() === 'c') { e.preventDefault(); copyLayoutToClipboard(); return; }
     if (e.ctrlKey && e.key.toLowerCase() === 'v') { e.preventDefault(); pasteLayoutFromClipboard(); return; }
 
+    // Change the selected element's stacking order.
+    if (e.ctrlKey && e.shiftKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+      e.preventDefault();
+      if (!selected) { showToast('Select an element first', 1000); return; }
+      const current = parseInt(window.getComputedStyle(selected).zIndex, 10);
+      const next = (Number.isFinite(current) ? current : 0) + (e.key === 'ArrowUp' ? 1 : -1);
+      const state = stateForElement(selected);
+      selected.style.zIndex = String(next);
+      if (state) state.zIndex = String(next);
+      saveStateData();
+      showToast(`Z-index: ${next}`, 1000);
+      return;
+    }
+
     // font size adjustments when ctrl+[ or ]
     if (e.ctrlKey && (e.key === '[' || e.key === ']')) {
       if (selected) {
@@ -1097,7 +1229,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     if (selected) {
       const cs = window.getComputedStyle(selected);
       let top = parseInt(cs.top) || 0; let left = parseInt(cs.left) || 0; let width = parseInt(cs.width) || selected.offsetWidth || 0; let height = parseInt(cs.height) || selected.offsetHeight || 0; let updated = false;
-      if (e.shiftKey) {
+      if (e.shiftKey && !e.ctrlKey) {
         const centerX = left + width / 2; const centerY = top + height / 2;
         if (e.key === 'ArrowUp') height += 10; if (e.key === 'ArrowDown') height = Math.max(10, height - 10); if (e.key === 'ArrowRight') width += 10; if (e.key === 'ArrowLeft') width = Math.max(10, width - 10);
         if (selected === stickWrapper || selected === eightWayWrapper) { let newSize; if (e.key === 'ArrowUp' || e.key === 'ArrowRight') newSize = Math.max(width, height); else newSize = Math.min(width, height); width = Math.max(10, newSize); height = Math.max(10, newSize); }
@@ -1116,7 +1248,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
       if (updated) {
         if (selected === stickWrapper) { resizeJoystickWrapper(); joystick.style.left = (width / 2) + 'px'; joystick.style.top = (height / 2) + 'px'; appState.joystick.top = selected.style.top; appState.joystick.left = selected.style.left; appState.joystick.width = selected.style.width; appState.joystick.height = selected.style.height; }
         else if (selected === eightWayWrapper) { appState.eightWayWrapper.top = selected.style.top; appState.eightWayWrapper.left = selected.style.left; appState.eightWayWrapper.width = selected.style.width; appState.eightWayWrapper.height = selected.style.height; }
-        else if (selected.classList && selected.classList.contains('btn')) { const name = selected.dataset.btn; appState.buttons[name] = appState.buttons[name] || {}; appState.buttons[name].top = selected.style.top; appState.buttons[name].left = selected.style.left; }
+        else if (selected.classList && selected.classList.contains('btn')) { const name = selected.dataset.btn; appState.buttons[name] = appState.buttons[name] || {}; appState.buttons[name].top = selected.style.top; appState.buttons[name].left = selected.style.left; if (name === 'LS' || name === 'RS') { resizeStickTrails(); updateAnalogStickBases(); } }
         saveStateData();
       }
     }
@@ -1128,7 +1260,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
 
   function moveSelected(dx, dy, key) {
     if (!selected) return; const cs = window.getComputedStyle(selected); let top = parseInt(cs.top) || 0; let left = parseInt(cs.left) || 0; top = Math.max(0, top + dy); left = Math.max(0, left + dx); selected.style.top = top + 'px'; selected.style.left = left + 'px';
-    if (selected.classList.contains('btn')) { const name = selected.dataset.btn; appState.buttons[name] = appState.buttons[name] || {}; appState.buttons[name].top = selected.style.top; appState.buttons[name].left = selected.style.left; }
+    if (selected.classList.contains('btn')) { const name = selected.dataset.btn; appState.buttons[name] = appState.buttons[name] || {}; appState.buttons[name].top = selected.style.top; appState.buttons[name].left = selected.style.left; if (name === 'LS' || name === 'RS') { resizeStickTrails(); updateAnalogStickBases(); } }
     else if (selected === stickWrapper) { appState.joystick.top = selected.style.top; appState.joystick.left = selected.style.left; }
     else if (selected === eightWayWrapper) { appState.eightWayWrapper.top = selected.style.top; appState.eightWayWrapper.left = selected.style.left; }
     saveStateData(); showToast(`x:${left}, y:${top}`, 500); elementMoveTimers[key] = performance.now();
@@ -1161,6 +1293,11 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     return direction;
   }
 
+  function getStickMovementEnabled(id) {
+    const state = appState.buttons[id] || {};
+    return state.stickMovement !== undefined ? state.stickMovement : appState.analog?.[id] !== false;
+  }
+
   function handleStickMovement(pad) {
     const now = performance.now();
     // if no pad, reset both sticks to center and clear distances
@@ -1172,19 +1309,21 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
 
     // Visual movement of LS/RS buttons: only when enabled
     const ls = getAnalogStick(pad, 'left', cfg.deadzone, cfg.invertY);
-    if (appState.analog?.LS === false) {
+    const lsRadius = Math.max(0, Math.min(100, parseInt(appState.buttons.LS?.stickRadius ?? appState.analog?.analogVisualRange ?? 8, 10) || 0));
+    if (!getStickMovementEnabled('LS')) {
       if (btnEls['LS']) btnEls['LS'].style.transform = 'translate(0px, 0px)';
     } else {
       if (ls.x === 0 && ls.y === 0) { if (btnEls['LS']) btnEls['LS'].style.transform = 'translate(0px, 0px)'; }
-      else { if (btnEls['LS']) btnEls['LS'].style.transform = `translate(${ls.x * (appState.analog?.analogVisualRange ?? 8)}px, ${ls.y * (appState.analog?.analogVisualRange ?? 8)}px)`; }
+      else { if (btnEls['LS']) btnEls['LS'].style.transform = `translate(${ls.x * lsRadius}px, ${ls.y * lsRadius}px)`; }
     }
 
     const rs = getAnalogStick(pad, 'right', cfg.deadzone, cfg.invertY);
-    if (appState.analog?.RS === false) {
+    const rsRadius = Math.max(0, Math.min(100, parseInt(appState.buttons.RS?.stickRadius ?? appState.analog?.analogVisualRange ?? 8, 10) || 0));
+    if (!getStickMovementEnabled('RS')) {
       if (btnEls['RS']) btnEls['RS'].style.transform = 'translate(0px, 0px)';
     } else {
       if (rs.x === 0 && rs.y === 0) { if (btnEls['RS']) btnEls['RS'].style.transform = 'translate(0px, 0px)'; }
-      else { if (btnEls['RS']) btnEls['RS'].style.transform = `translate(${rs.x * (appState.analog?.analogVisualRange ?? 8)}px, ${rs.y * (appState.analog?.analogVisualRange ?? 8)}px)`; }
+      else { if (btnEls['RS']) btnEls['RS'].style.transform = `translate(${rs.x * rsRadius}px, ${rs.y * rsRadius}px)`; }
     }
   }
 
@@ -1202,7 +1341,14 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
 
   function getAnalogStick(pad, stick = 'left', deadzone = 0.1, invertY = false) {
     if (!pad) return { x: 0, y: 0 };
-    const axisOffset = stick === 'left' ? 0 : 2; let x = pad.axes[axisOffset] || 0; let y = pad.axes[axisOffset + 1] || 0; if (invertY) y = -y;
+    const axes = pad.axes || [];
+    let axisOffset = stick === 'left' ? 0 : 2;
+    if (stick === 'right' && pad.mapping !== 'standard' && axes.length >= 5) {
+      const standardMagnitude = Math.hypot(axes[2] || 0, axes[3] || 0);
+      const alternateMagnitude = Math.hypot(axes[3] || 0, axes[4] || 0);
+      if (standardMagnitude < deadzone && alternateMagnitude >= deadzone) axisOffset = 3;
+    }
+    let x = axes[axisOffset] || 0; let y = axes[axisOffset + 1] || 0; if (invertY) y = -y;
     // allow default deadzone from appState.analog if not explicitly provided
   const dz = (typeof deadzone === 'number' && deadzone !== undefined) ? deadzone : ((appState.analog && typeof appState.analog.triggerDeadzone === 'number') ? appState.analog.triggerDeadzone : 0.1);
     const mag = Math.hypot(x, y); if (mag < dz) return { x: 0, y: 0 }; const scale = (mag - dz) / (1 - dz); return { x: (x / mag) * scale, y: (y / mag) * scale };
@@ -1292,7 +1438,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
   function snapLayoutToGrid(grid = 10) {
     const snap = v => Math.round((parseInt(v) || 0) / grid) * grid + 'px';
     function snapElement(el, store) { if (!el) return; const cs = getComputedStyle(el); el.style.top = snap(cs.top); el.style.left = snap(cs.left); store.top = el.style.top; store.left = el.style.left; let br = parseInt(cs.borderRadius) || 0; if (br > 0) { const maxBr = Math.max(el.offsetWidth, el.offsetHeight) / 2; br = Math.min(br, maxBr); br = Math.round(br / grid) * grid; br = Math.min(br, maxBr); el.style.borderRadius = br + 'px'; store.borderRadius = el.style.borderRadius; } }
-    Object.entries(btnEls).forEach(([k, el]) => { appState.buttons[k] = appState.buttons[k] || {}; snapElement(el, appState.buttons[k]); }); snapElement(stickWrapper, appState.joystick = appState.joystick || {}); snapElement(eightWayWrapper, appState.eightWayWrapper = appState.eightWayWrapper || {}); snapElement(base, appState.base = appState.base || {}); saveStateData(); showToast('Snapped layout to grid!', 1000);
+    Object.entries(btnEls).forEach(([k, el]) => { appState.buttons[k] = appState.buttons[k] || {}; snapElement(el, appState.buttons[k]); }); snapElement(stickWrapper, appState.joystick = appState.joystick || {}); snapElement(eightWayWrapper, appState.eightWayWrapper = appState.eightWayWrapper || {}); snapElement(base, appState.base = appState.base || {}); resizeStickTrails(); updateAnalogStickBases(); saveStateData(); showToast('Snapped layout to grid!', 1000);
   }
 
   function detectActiveGamepad() { const gps = navigator.getGamepads ? navigator.getGamepads() : []; for (let i = 0; i < gps.length; i++) { const p = gps[i]; if (!p) continue; const anyBtn = p.buttons.some(b => b.pressed); const axisThreshold = (appState.analog && typeof appState.analog.triggerDeadzone === 'number') ? appState.analog.triggerDeadzone : cfg.deadzone; const anyAx = p.axes.some(a => Math.abs(a) > axisThreshold); if (anyBtn || anyAx) return i; } return null; }
@@ -1303,13 +1449,74 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     canvas.height = stickWrapper.clientHeight; 
     if (trailSystem) trailSystem.resize();
   }
+  function resizeStickTrails() {
+    Object.entries(stickTrailCanvases).forEach(([id, trailCanvas]) => {
+      const button = btnEls[id];
+      if (!trailCanvas || !button) return;
+      const styles = getComputedStyle(button);
+      const state = appState.buttons[id] || {};
+      const radius = Math.max(0, Math.min(100, parseInt(state.stickRadius ?? appState.analog?.analogVisualRange ?? 8, 10) || 0));
+      const size = Math.max(button.offsetWidth, button.offsetHeight, radius * 2 + 24, 1);
+      const centerX = (button.offsetLeft || parseFloat(styles.left) || 0) + button.offsetWidth / 2;
+      const centerY = (button.offsetTop || parseFloat(styles.top) || 0) + button.offsetHeight / 2;
+      trailCanvas.style.left = `${centerX - size / 2}px`;
+      trailCanvas.style.top = `${centerY - size / 2}px`;
+      trailCanvas.style.width = `${size}px`;
+      trailCanvas.style.height = `${size}px`;
+      if (stickTrailSystems[id]) stickTrailSystems[id].config.radius = radius;
+      if (trailCanvas.width !== size || trailCanvas.height !== size) {
+        trailCanvas.width = size;
+        trailCanvas.height = size;
+      }
+    });
+  }
+  function updateAnalogStickBases() {
+    const baseImage = getBgImagePath(stickWrapper);
+    Object.entries(analogStickBases).forEach(([id, analogBase]) => {
+      const button = btnEls[id];
+      if (!analogBase || !button) return;
+      const state = appState.buttons[id] || {};
+      const size = Math.max(20, Math.min(300, parseInt(state.baseSize ?? 100, 10) || 100));
+      const container = stickContainers[id];
+      const buttonStyles = getComputedStyle(button);
+      const containerStyles = container ? getComputedStyle(container) : null;
+      const containerRect = container?.getBoundingClientRect();
+      const containerLeft = containerRect?.left ?? (parseFloat(containerStyles?.left) || 0);
+      const containerTop = containerRect?.top ?? (parseFloat(containerStyles?.top) || 0);
+      const layoutLeft = parseFloat(buttonStyles.left) || 0;
+      const layoutTop = parseFloat(buttonStyles.top) || 0;
+      const centerX = containerLeft + layoutLeft + button.offsetWidth / 2;
+      const centerY = containerTop + layoutTop + button.offsetHeight / 2;
+      analogBase.style.width = `${size}px`;
+      analogBase.style.height = `${size}px`;
+      analogBase.style.left = `${centerX - size / 2}px`;
+      analogBase.style.top = `${centerY - size / 2}px`;
+      analogBase.style.display = state.showBase === false ? 'none' : 'block';
+      applyBgImage(analogBase, baseImage);
+    });
+  }
   window.addEventListener('resize', resizeJoystickWrapper);
+  window.addEventListener('resize', resizeStickTrails);
+  window.addEventListener('resize', updateAnalogStickBases);
   resizeJoystickWrapper();
 
   // Initialize trail system
   trailSystem = createTrailSystem(canvas, ctx, cfg, () => 
     getComputedStyle(document.documentElement).getPropertyValue('--trail-color')?.trim() || appState.trailColor || '#CEEC73'
   );
+  Object.entries(stickTrailCanvases).forEach(([id, trailCanvas]) => {
+    if (!trailCanvas) return;
+    const stickState = appState.buttons[id] || {};
+    stickTrailSystems[id] = createTrailSystem(trailCanvas, trailCanvas.getContext('2d'), {
+      trail: cfg.trail,
+      trailSize: Math.max(1, Math.min(60, parseInt(stickState.trailSize ?? cfg.trail, 10) || cfg.trail)),
+      trailWidth: Math.max(1, Math.min(40, parseInt(stickState.trailWidth ?? 12, 10) || 12))
+    }, () =>
+      getComputedStyle(document.documentElement).getPropertyValue('--trail-color')?.trim() || appState.trailColor || '#CEEC73'
+    );
+  });
+  resizeStickTrails();
+  updateAnalogStickBases();
 
   // --- Profiles: save/load unified with helpers ---
   function saveProfile(n) {
@@ -1345,6 +1552,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     });
 
   if (appState.joystick) { applyPropertiesToElement(stickWrapper, appState.joystick); if (appState.joystick.display !== undefined) stickWrapper.style.display = appState.joystick.display; }
+  updateAnalogStickBases();
   if (appState.base) { applyPropertiesToElement(base, appState.base); if (appState.base.display !== undefined) base.style.display = appState.base.display; }
   if (appState.eightWayWrapper) { applyPropertiesToElement(eightWayWrapper, appState.eightWayWrapper); if (appState.eightWayWrapper.display !== undefined) eightWayWrapper.style.display = appState.eightWayWrapper.display; if (appState.eightWayWrapper.arrowSize !== undefined) { arrowSize = appState.eightWayWrapper.arrowSize || 90; resizeEightWayArrows(); } }
   if (appState.trailColor) document.documentElement.style.setProperty('--trail-color', appState.trailColor);
@@ -1606,6 +1814,18 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
       trailSystem.draw(trailSystem.getTrail());
     }
     handleStickMovement(pad);
+    const stickValues = { LS: getAnalogStick(pad, 'left', cfg.deadzone, cfg.invertY), RS: getAnalogStick(pad, 'right', cfg.deadzone, cfg.invertY) };
+    Object.entries(stickValues).forEach(([id, value]) => {
+      const system = stickTrailSystems[id];
+      if (!system) return;
+      const state = appState.buttons[id] || {};
+      if (state.showTrail === false) { system.clear(); return; }
+      system.config.trailSize = Math.max(1, Math.min(60, parseInt(state.trailSize ?? cfg.trail, 10) || cfg.trail));
+      system.config.trailWidth = Math.max(1, Math.min(40, parseInt(state.trailWidth ?? 12, 10) || 12));
+      system.addPoint(value.x, value.y);
+      system.draw(system.getTrail());
+    });
+    resizeStickTrails();
     for (let i = 0; i < markers.length; i++) markers[i].classList.toggle('active', i === dpadDir);
     requestAnimationFrame(animate);
   }

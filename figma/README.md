@@ -12,6 +12,6 @@ This Figma plugin imports and exports the layout JSON consumed by `beta/main.js`
 
 To import an existing layout, click **Import JSON to canvas** and choose one of the files in `beta/layouts`. You can multi-select the JSON and its referenced image files in the same picker; image paths are matched by relative path when available, then by filename. The plugin creates a new frame centered in the viewport, names each imported layer using its schema key, and recreates geometry, image and solid fills, text, borders, corner radii, shadows, visibility, and labels as editable Figma layers. Import always creates a new frame and does not modify an existing selection. Unselected or unavailable image assets are reported in the Figma notification and fall back to the layer's solid background color.
 
-Solid fills, text, corner radii, strokes, drop shadows, visibility, geometry, and labels are exported.
+Solid fills, text, corner radii, strokes, drop shadows, visibility, geometry, labels, and z-index are exported. Z-index follows the selected frame's flattened Figma layer order, with later layers receiving higher values.
 
 Every recognized element missing from the selected frame is still emitted in the JSON with `display: "none"`.

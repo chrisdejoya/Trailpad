@@ -15,7 +15,7 @@ export function createTrailSystem(canvas, ctx, config, getTrailColor) {
     
     const cx = canvas.width / 2;
     const cy = canvas.height / 2;
-    const cr = Math.min(canvas.width, canvas.height) / 2 - 12;
+    const cr = config.radius ?? Math.min(canvas.width, canvas.height) / 2 - 12;
     const trailColor = getTrailColor();
     
     for (let i = 1; i < trailData.length; i++) {
@@ -32,7 +32,7 @@ export function createTrailSystem(canvas, ctx, config, getTrailColor) {
       ctx.beginPath();
       ctx.moveTo(x0, y0);
       ctx.lineTo(x1, y1);
-      ctx.lineWidth = 12 * (t * 2);
+      ctx.lineWidth = (config.trailWidth ?? 12) * (t * 2);
       ctx.lineCap = 'round';
       ctx.strokeStyle = trailColor;
       ctx.stroke();
@@ -41,7 +41,8 @@ export function createTrailSystem(canvas, ctx, config, getTrailColor) {
   
   function addPoint(x, y) {
     trail.push({ x, y });
-    if (trail.length > config.trail) trail.shift();
+    const trailSize = config.trailSize ?? config.trail ?? 8;
+    while (trail.length > trailSize) trail.shift();
   }
   
   function getTrail() {
@@ -54,6 +55,7 @@ export function createTrailSystem(canvas, ctx, config, getTrailColor) {
   }
   
   return {
+    config,
     resize,
     draw,
     addPoint,

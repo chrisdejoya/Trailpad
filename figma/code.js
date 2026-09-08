@@ -95,12 +95,12 @@ function absoluteBounds(node, rootBounds) {
   };
 }
 
-function elementProperties(node, rootBounds) {
+function elementProperties(node, rootBounds, zIndex) {
   const fill = firstPaint(node.fills);
   const text = textDescendant(node);
   const properties = {
     display: node.visible === false ? 'none' : 'flex',
-    zIndex: 'auto',
+    zIndex: String(zIndex),
     ...absoluteBounds(node, rootBounds),
     borderRadius: radius(node),
     outline: outline(node),
@@ -140,11 +140,13 @@ function exportLayout(root) {
   const byName = new Map(nodes.map(node => [node.name, node]));
   const rootBounds = root.absoluteBoundingBox || { x: root.x, y: root.y, width: root.width, height: root.height };
   const hidden = () => ({ display: 'none' });
+  const zIndexes = new Map(nodes.map((node, index) => [node.id, index]));
+  const properties = node => elementProperties(node, rootBounds, zIndexes.get(node.id));
   const layout = {
-    base: byName.has('base') ? elementProperties(byName.get('base'), rootBounds) : hidden(),
-    joystick: byName.has('joystick') ? elementProperties(byName.get('joystick'), rootBounds) : hidden(),
-    joystickHead: byName.has('joystickHead') ? elementProperties(byName.get('joystickHead'), rootBounds) : hidden(),
-    eightWayWrapper: byName.has('eightWayWrapper') ? elementProperties(byName.get('eightWayWrapper'), rootBounds) : hidden(),
+    base: byName.has('base') ? properties(byName.get('base')) : hidden(),
+    joystick: byName.has('joystick') ? properties(byName.get('joystick')) : hidden(),
+    joystickHead: byName.has('joystickHead') ? properties(byName.get('joystickHead')) : hidden(),
+    eightWayWrapper: byName.has('eightWayWrapper') ? properties(byName.get('eightWayWrapper')) : hidden(),
     buttons: {},
     trailColor: '#CEEC73',
     analog: {
@@ -163,7 +165,7 @@ function exportLayout(root) {
   }
   for (const button of BUTTON_NAMES) {
     const node = byName.get(button);
-    layout.buttons[button] = node ? elementProperties(node, rootBounds) : hidden();
+    layout.buttons[button] = node ? properties(node) : hidden();
   }
   return { layout, missing };
 }
@@ -355,11 +357,17 @@ async function importLayout(layout, fileName, assets) {
     ['joystickHead', layout.joystickHead],
     ['eightWayWrapper', layout.eightWayWrapper]
   ];
-  for (const [name, data] of layers) {
-    if (data) await createImportedNode(name, data, root, root, assets);
-  }
-  for (const [name, data] of Object.entries(layout.buttons || {})) {
-    if (data) await createImportedNode(name, data, root, root, assets);
+  const buttonLayers = Object.entries(layout.buttons || {});
+  const orderedLayers = layers.concat(buttonLayers).filter(([, data]) => data);
+  orderedLayers.sort((a, b) => {
+    const aIndex = Number(a[1].zIndex);
+    const bIndex = Number(b[1].zIndex);
+    const aValue = Number.isFinite(aIndex) ? aIndex : 0;
+    const bValue = Number.isFinite(bIndex) ? bIndex : 0;
+    return aValue - bValue;
+  });
+  for (const [name, data] of orderedLayers) {
+    await createImportedNode(name, data, root, root, assets);
   }
   figma.currentPage.selection = [root];
   figma.viewport.scrollAndZoomIntoView([root]);
