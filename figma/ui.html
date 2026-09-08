@@ -1,0 +1,144 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    :root {
+      font: 12px Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #e8eee9;
+      background: #111613;
+      --panel: #171d19;
+      --panel-raised: #1d251f;
+      --border: #303b32;
+      --muted: #8b9a8e;
+      --green: #9be564;
+      --green-dark: #294d2d;
+    }
+    * { box-sizing: border-box; }
+    body { display: flex; flex-direction: column; min-height: 100vh; margin: 0; padding: 14px; background: #111613; }
+    body::before { content: ""; display: block; height: 2px; margin: -14px -14px 14px; background: #9be564; box-shadow: 0 0 12px rgba(155, 229, 100, .35); }
+    .actions { display: flex; gap: 8px; margin-top: auto; padding-top: 14px; border-top: 1px solid var(--border); }
+    .actions button { flex: 1; }
+    .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; padding: 10px 0; }
+    #buttons { border-top: 1px solid var(--border); }
+    button { min-height: 32px; border: 1px solid var(--border); border-radius: 4px; background: var(--panel); color: #dce7de; cursor: pointer; font: 700 11px/1 Inter, sans-serif; letter-spacing: .08em; }
+    button:hover { border-color: var(--green); background: var(--green-dark); color: #f3ffe9; }
+    button:active { background: #396b3c; }
+    .primary { min-height: 38px; border-color: var(--green); background: var(--green-dark); color: var(--green); font-size: 12px; letter-spacing: .14em; box-shadow: inset 0 0 0 1px rgba(155, 229, 100, .08); }
+    .primary:hover { background: #37673a; color: white; }
+    #status { min-height: 30px; margin-top: 8px; padding: 8px 9px; border-left: 2px solid var(--green); background: var(--panel); color: var(--muted); line-height: 1.35; }
+  </style>
+</head>
+<body>
+  <input id="import-file" type="file" accept="application/json,.json,image/*" multiple hidden>
+  <div id="roles" class="grid"></div>
+  <div id="buttons" class="grid"></div>
+  <div id="status" role="status"></div>
+  <div class="actions">
+    <button id="import" class="primary">IMPORT</button>
+    <button id="export" class="primary">EXPORT</button>
+  </div>
+  <script>
+    const $ = id => document.getElementById(id);
+    const addButtons = (target, items) => items.forEach(item => {
+      const button = document.createElement('button');
+      button.textContent = item.label || item;
+      button.onclick = () => parent.postMessage({ pluginMessage: { type: 'NAME', name: item.key || item } }, '*');
+      target.appendChild(button);
+    });
+    $('import').onclick = () => $('import-file').click();
+    $('import-file').onchange = async event => {
+      const files = Array.from(event.target.files);
+      const file = files.find(candidate => /\.json$/i.test(candidate.name) || candidate.type === 'application/json');
+      if (!file) {
+        $('status').textContent = 'Choose one layout JSON file.';
+        event.target.value = '';
+        return;
+      }
+      try {
+        const json = await file.text();
+        const assets = {};
+        await Promise.all(files.filter(candidate => candidate !== file).map(async asset => {
+          const bytes = Array.from(new Uint8Array(await asset.arrayBuffer()));
+          const path = (asset.webkitRelativePath || asset.name).replace(/\\/g, '/').toLowerCase();
+          assets[path] = bytes;
+          assets[asset.name.toLowerCase()] = bytes;
+        }));
+        parent.postMessage({ pluginMessage: { type: 'IMPORT', json, fileName: file.name, assets } }, '*');
+        $('status').textContent = `Importing ${file.name}...`;
+      } catch (error) {
+        $('status').textContent = `Could not read ${file.name}.`;
+      }
+      event.target.value = '';
+    };
+    $('export').onclick = () => parent.postMessage({ pluginMessage: { type: 'EXPORT' } }, '*');
+    async function saveFile(path, bytes, type) {
+      const blob = new Blob([new Uint8Array(bytes)], { type });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = path;
+      link.click();
+      URL.revokeObjectURL(link.href);
+    }
+    function concatBytes(parts) {
+      const length = parts.reduce((total, part) => total + part.length, 0);
+      const result = new Uint8Array(length);
+      let offset = 0;
+      parts.forEach(part => { result.set(part, offset); offset += part.length; });
+      return result;
+    }
+    function crc32(bytes) {
+      let crc = 0xffffffff;
+      for (const byte of bytes) {
+        crc ^= byte;
+        for (let bit = 0; bit < 8; bit++) crc = (crc >>> 1) ^ (0xedb88320 & -(crc & 1));
+      }
+      return (crc ^ 0xffffffff) >>> 0;
+    }
+    function word(value) {
+      return new Uint8Array([value & 255, (value >>> 8) & 255, (value >>> 16) & 255, (value >>> 24) & 255]);
+    }
+    function short(value) {
+      return new Uint8Array([value & 255, (value >>> 8) & 255]);
+    }
+    function zipStore(entries) {
+      const local = [];
+      const central = [];
+      let offset = 0;
+      entries.forEach(entry => {
+        const name = new TextEncoder().encode(entry.name);
+        const data = new Uint8Array(entry.bytes);
+        const crc = crc32(data);
+        const header = concatBytes([new Uint8Array([80, 75, 3, 4]), short(20), short(0), short(0), short(0), short(0), word(crc), word(data.length), word(data.length), short(name.length), short(0), name]);
+        local.push(header, data);
+        const directory = concatBytes([new Uint8Array([80, 75, 1, 2]), short(20), short(20), short(0), short(0), short(0), short(0), word(crc), word(data.length), word(data.length), short(name.length), short(0), short(0), short(0), short(0), word(0), word(offset), name]);
+        central.push(directory);
+        offset += header.length + data.length;
+      });
+      const centralBytes = concatBytes(central);
+      const end = concatBytes([new Uint8Array([80, 75, 5, 6]), short(0), short(0), short(entries.length), short(entries.length), word(centralBytes.length), word(offset), short(0)]);
+      return concatBytes([...local, centralBytes, end]);
+    }
+    async function saveExport(message) {
+      const jsonBytes = Array.from(new TextEncoder().encode(message.json));
+      const entries = [{ name: message.fileName, bytes: jsonBytes }];
+      for (const asset of message.assets || []) entries.push({ name: asset.path, bytes: asset.bytes });
+      await saveFile(`${message.assetFolder || 'trailpad-layout'}.zip`, zipStore(entries), 'application/zip');
+    }
+    onmessage = event => {
+      const message = event.data.pluginMessage;
+      if (!message) return;
+      if (message.type === 'CONFIG') {
+        addButtons($('roles'), message.roles);
+        addButtons($('buttons'), message.buttons);
+      }
+      if (message.type === 'NAMED') $('status').textContent = `Named selected layer "${message.name}".`;
+      if (message.type === 'EXPORT_JSON') {
+        saveExport(message).then(() => {
+          $('status').textContent = message.missing.length ? `Exported. Hidden: ${message.missing.join(', ')}.` : 'Exported frame package.';
+        }).catch(error => $('status').textContent = `Export failed: ${error.message}`);
+      }
+    };
+  </script>
+</body>
+</html>
