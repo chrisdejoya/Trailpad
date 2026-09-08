@@ -1,6 +1,7 @@
 @font-face {
   font-family: 'Swiss 721';
-  src: url('../fonts/Swiss721BT-Black.woff2') format('woff2');
+  src: url('../fonts/Swiss 721 Bold Extended BT V2.woff2') format('woff2'),
+       url('../fonts/Swiss 721 Bold Extended BT V2.woff') format('woff');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -8,6 +9,8 @@
 
 :root {
   --trail-color: #CEEC73;
+  --accent-green: #CEEC73;
+  --accent-green-hover: #dfff7a;
   --bg-primary: #1a1a1a;
   --bg-secondary: #222;
   --bg-tertiary: #2a2a2a;
@@ -17,7 +20,7 @@
   --border-subtle: #3a3a3a;
   --border-default: #4a4a4a;
   --border-focus: #fff;
-  --border-accent: #0af;
+  --border-accent: var(--accent-green);
   --text-primary: #fff;
   --text-secondary: #ddd;
   --text-muted: #999;
@@ -129,7 +132,7 @@ input.btn-edit {
 .ui-input:not(.btn-edit):focus,
 .ui-select:focus {
   border-color: var(--border-accent);
-  box-shadow: 0 0 0 2px rgba(0, 170, 255, 0.2);
+  box-shadow: 0 0 0 2px rgba(206, 236, 115, 0.2);
 }
 
 .ui-input:not(.btn-edit)::placeholder {
@@ -174,8 +177,8 @@ input.btn-edit {
 }
 
 .ui-button:not(.btn).primary:hover {
-  background: #00d4ff;
-  border-color: #00d4ff;
+  background: var(--accent-green-hover);
+  border-color: var(--accent-green-hover);
 }
 
 .ui-button:not(.btn).ghost {
@@ -252,17 +255,25 @@ input[type="range"]:not(.btn-edit) {
   -moz-appearance: none;
   appearance: none;
   width: 100%;
-  height: 6px;
-  background: var(--bg-secondary);
-  border-radius: 3px;
+  height: 8px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
   outline: none;
   cursor: pointer;
-  transition: background var(--transition-fast);
+  transition: background var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .ui-slider:hover,
 input[type="range"]:not(.btn-edit):hover {
-  background: var(--bg-tertiary);
+  background: var(--bg-elevated);
+  border-color: var(--border-focus);
+}
+
+.ui-slider:focus,
+input[type="range"]:not(.btn-edit):focus {
+  border-color: var(--border-accent);
+  box-shadow: 0 0 0 2px rgba(206, 236, 115, 0.3);
 }
 
 .ui-slider::-webkit-slider-thumb,
@@ -283,7 +294,7 @@ input[type="range"]:not(.btn-edit)::-webkit-slider-thumb {
 input[type="range"]:not(.btn-edit)::-webkit-slider-thumb:hover {
   transform: scale(1.2);
   box-shadow: var(--shadow-md);
-  background: #00d4ff;
+  background: var(--accent-green-hover);
 }
 
 .ui-slider::-webkit-slider-thumb:active,
@@ -307,25 +318,25 @@ input[type="range"]:not(.btn-edit)::-moz-range-thumb {
 input[type="range"]:not(.btn-edit)::-moz-range-thumb:hover {
   transform: scale(1.2);
   box-shadow: var(--shadow-md);
-  background: #00d4ff;
+  background: var(--accent-green-hover);
 }
 
 .ui-slider::-moz-range-track,
 input[type="range"]:not(.btn-edit)::-moz-range-track {
-  height: 6px;
-  background: var(--bg-secondary);
-  border-radius: 3px;
-  border: none;
+  height: 8px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
 }
 
 .ui-slider:focus::-webkit-slider-thumb,
 input[type="range"]:not(.btn-edit):focus::-webkit-slider-thumb {
-  box-shadow: 0 0 0 3px rgba(0, 170, 255, 0.3), var(--shadow-sm);
+  box-shadow: 0 0 0 3px rgba(206, 236, 115, 0.3), var(--shadow-sm);
 }
 
 .ui-slider:focus::-moz-range-thumb,
 input[type="range"]:not(.btn-edit):focus::-moz-range-thumb {
-  box-shadow: 0 0 0 3px rgba(0, 170, 255, 0.3), var(--shadow-sm);
+  box-shadow: 0 0 0 3px rgba(206, 236, 115, 0.3), var(--shadow-sm);
 }
 
 .ui-slider:disabled,
@@ -384,7 +395,7 @@ input[type="checkbox"]:not(.btn-edit):checked::after {
 .ui-checkbox:focus,
 input[type="checkbox"]:not(.btn-edit):focus {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(0, 170, 255, 0.3);
+  box-shadow: 0 0 0 2px rgba(206, 236, 115, 0.3);
 }
 
 .ui-checkbox:disabled,
@@ -455,7 +466,7 @@ input[type="checkbox"]:not(.btn-edit):disabled {
 .ui-tab:focus,
 .tab-header:focus {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(0, 170, 255, 0.3);
+  box-shadow: 0 0 0 2px rgba(206, 236, 115, 0.3);
 }
 
 .ui-tab:disabled,

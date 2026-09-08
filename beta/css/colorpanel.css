@@ -82,7 +82,7 @@
 }
 .textSizeControl .textSizeValue:focus {
     border-color: var(--border-accent);
-    box-shadow: 0 0 0 2px rgba(0, 170, 255, 0.2);
+    box-shadow: 0 0 0 2px rgba(206, 236, 115, 0.2);
     background: var(--bg-elevated);
 }
 
