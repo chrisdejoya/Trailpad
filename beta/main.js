@@ -120,7 +120,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const defaultHead = window.getComputedStyle(joystick);
   appState.joystickHead = {
     backgroundColor: defaultHead.backgroundColor,
-    backgroundImage: defaultHead.backgroundImage,
+    backgroundImage: joystick.style.backgroundImage && joystick.style.backgroundImage !== 'none' ? normalizeBgImage(joystick.style.backgroundImage) : normalizeBgImage(defaultHead.backgroundImage),
     color: defaultHead.color,
     borderRadius: defaultHead.borderRadius,
     boxShadow: defaultHead.boxShadow,
@@ -181,12 +181,38 @@ window.addEventListener('DOMContentLoaded', () => {
     el.style.backgroundImage = `url('${normalized}')`;
   }
 
+  // Helper to get backgroundImage path while preserving relative URLs
+  function getBgImagePath(el) {
+    const btnId = el.dataset && el.dataset.btn;
+    const inlineBg = el.style.backgroundImage;
+    if (inlineBg && inlineBg !== 'none') return normalizeBgImage(inlineBg);
+    if (btnId && appState.buttons?.[btnId]?.backgroundImage) return normalizeBgImage(appState.buttons[btnId].backgroundImage);
+    if (el === base && appState.base?.backgroundImage) return normalizeBgImage(appState.base.backgroundImage);
+    if (el === stickWrapper && appState.joystick?.backgroundImage) return normalizeBgImage(appState.joystick.backgroundImage);
+    if (el === eightWayWrapper && appState.eightWayWrapper?.backgroundImage) return normalizeBgImage(appState.eightWayWrapper.backgroundImage);
+    if (el === joystick && appState.joystickHead?.backgroundImage) return normalizeBgImage(appState.joystickHead.backgroundImage);
+    const cs = window.getComputedStyle(el);
+    const abs = cs.backgroundImage;
+    if (!abs || abs === 'none') return '';
+    const m = abs.match(/^url\(["']?([^"')]+)["']?\)$/i);
+    if (!m) return abs;
+    try {
+      const url = new URL(m[1], document.baseURI);
+      const docDir = new URL('.', document.baseURI).pathname;
+      let rel = url.pathname;
+      if (rel.startsWith(docDir)) rel = rel.slice(docDir.length);
+      return rel + url.search;
+    } catch (e) {
+      return m[1];
+    }
+  }
+
   function captureElementProperties(el) {
     const cs = window.getComputedStyle(el);
     const snap = {
       display: cs.display, zIndex: cs.zIndex, top: cs.top, left: cs.left, width: cs.width, height: cs.height,
       borderRadius: cs.borderRadius, outline: cs.outline, outlineOffset: cs.outlineOffset, boxShadow: cs.boxShadow,
-      backgroundColor: cs.backgroundColor, backgroundImage: normalizeBgImage(cs.backgroundImage), backgroundSize: cs.backgroundSize,
+      backgroundColor: cs.backgroundColor, backgroundImage: getBgImagePath(el), backgroundSize: cs.backgroundSize,
       color: cs.color, fontSize: cs.fontSize, fontFamily: cs.fontFamily, label: (el.textContent || '').trim()
     };
     if (el.dataset && el.dataset.btn) {
@@ -1079,6 +1105,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
 
     if (e.ctrlKey && e.key.toLowerCase() === 'o') { e.preventDefault(); importInput.click(); return; }
     if (e.ctrlKey && e.key.toLowerCase() === 'c') { e.preventDefault(); copyLayoutToClipboard(); return; }
+    if (e.ctrlKey && e.key.toLowerCase() === 'v') { e.preventDefault(); pasteLayoutFromClipboard(); return; }
 
     // font size adjustments when ctrl+[ or ]
     if (e.ctrlKey && (e.key === '[' || e.key === ']')) {
@@ -1389,6 +1416,17 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     saveStateData();
   }
 
+  async function pasteLayoutFromClipboard() {
+    try {
+      const text = await navigator.clipboard.readText();
+      const parsed = JSON.parse(text);
+      importLayout(parsed);
+      showToast('Pasted layout from clipboard', 1000);
+    } catch (err) {
+      showToast('Paste failed: invalid JSON or no permission', 1000);
+    }
+  }
+
   // Import input
   const importInput = document.createElement('input'); importInput.type = 'file'; importInput.accept = '.json,application/json'; importInput.style.display = 'none'; document.body.appendChild(importInput);
   importInput.addEventListener('change', e => {
@@ -1653,6 +1691,6 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
   animate(); showToast('Click Interact to start customizing', 5000);
 
   // expose helpers
-  window.trailpad = { saveStateData, loadStateData, copyLayoutToClipboard };
+  window.trailpad = { saveStateData, loadStateData, copyLayoutToClipboard, pasteLayoutFromClipboard };
 
 });
