@@ -354,11 +354,14 @@ window.addEventListener('DOMContentLoaded', () => {
     if (!colorPanel.contains(e.target)) { colorPanel.style.display = 'none'; revertPreview(); stopUiHideTimer(); }
   });
 
-  [base, stickWrapper, eightWayWrapper, joystick].forEach(el => el.addEventListener('mousedown', e => { selectElement(el); e.stopPropagation(); }));
+  [base, stickWrapper, eightWayWrapper, joystick].forEach(el => {
+    el.addEventListener('mousedown', e => { selectElement(el); e.stopPropagation(); });
+    el.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); selectElement(el); openColorPanel(el, e.pageX, e.pageY).catch(err => console.error('openColorPanel error', err)); });
+  });
 
   Object.values(btnEls).forEach(btn => {
     btn.addEventListener('click', e => { selectElement(btn); lastPressedTimes[btn.dataset.btn] = performance.now(); showToast(btn.dataset.btn, 1000); e.stopPropagation(); if (colorPanel.style.display === 'block' || colorPanel.style.display === 'flex') panelAnchorTarget = btn; });
-    btn.addEventListener('contextmenu', e => { e.preventDefault(); selectElement(btn); openColorPanel(btn, e.pageX, e.pageY).catch(err => console.error('openColorPanel error', err)); });
+    btn.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); selectElement(btn); openColorPanel(btn, e.pageX, e.pageY).catch(err => console.error('openColorPanel error', err)); });
 
     btn.addEventListener('dblclick', e => {
       if (btn.querySelector('input')) return;
