@@ -82,6 +82,29 @@ window.addEventListener('DOMContentLoaded', () => {
   let appState = {
     buttons: {}, joystick: {}, joystickHead: {}, base: {}, eightWayWrapper: { arrowSize: 90 }, hiddenButtons: [], trailColor: getComputedStyle(document.documentElement).getPropertyValue('--trail-color') || '#CEEC73', profiles: {}
   };
+
+  // Auto-hide timer for UI menus (color panel, presets menu)
+  let uiHideTimer = null;
+  const UI_HIDE_DELAY = 5000;
+  function startUiHideTimer() {
+    stopUiHideTimer();
+    uiHideTimer = setTimeout(() => {
+      if (colorPanel && (colorPanel.style.display === 'block' || colorPanel.style.display === 'flex')) {
+        colorPanel.style.display = 'none';
+        revertPreview();
+      }
+      if (presetsMenuEl) {
+        closePresetsMenu(true);
+      }
+    }, UI_HIDE_DELAY);
+  }
+  function stopUiHideTimer() {
+    if (uiHideTimer) { clearTimeout(uiHideTimer); uiHideTimer = null; }
+  }
+  function resetUiHideTimer() {
+    stopUiHideTimer();
+    startUiHideTimer();
+  }
   // Add analog configuration to appState (persisted)
   // pressureEnabled: whether LT/RT respond to analog pressure
   // minTriggerBrightness/maxTriggerBrightness: mapping from 0..1 trigger value to brightness
@@ -105,6 +128,12 @@ window.addEventListener('DOMContentLoaded', () => {
     outlineOffset: defaultHead.outlineOffset,
     fontSize: defaultHead.fontSize
   };
+
+  // Global mouse activity listener to reset auto-hide timer
+  document.addEventListener('mousemove', resetUiHideTimer);
+  document.addEventListener('mousedown', resetUiHideTimer);
+  document.addEventListener('keydown', resetUiHideTimer);
+  document.addEventListener('wheel', resetUiHideTimer, { passive: true });
 
   // --- Helpers (centralized to reduce repetition) ---
 
@@ -322,7 +351,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const br = base.getBoundingClientRect();
     if (e.clientX >= br.left && e.clientX <= br.right && e.clientY >= br.top && e.clientY <= br.bottom) { selectElement(base); return; }
     deselect();
-    if (!colorPanel.contains(e.target)) { colorPanel.style.display = 'none'; revertPreview(); }
+    if (!colorPanel.contains(e.target)) { colorPanel.style.display = 'none'; revertPreview(); stopUiHideTimer(); }
   });
 
   [base, stickWrapper, eightWayWrapper, joystick].forEach(el => el.addEventListener('mousedown', e => { selectElement(el); e.stopPropagation(); }));
@@ -937,6 +966,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     if (left + panelRect.width > viewportWidth) left = Math.max(8, viewportWidth - panelRect.width - 10);
     if (top + panelRect.height > viewportHeight) top = Math.max(8, viewportHeight - panelRect.height - 10);
     colorPanel.style.left = left + 'px'; colorPanel.style.top = top + 'px';
+    startUiHideTimer();
     // sync size slider and text-size slider to target
     try {
       const slider = colorPanel.querySelector('.symbolSizeSlider'); const valEl = colorPanel.querySelector('.symbolSizeValue');
@@ -993,7 +1023,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     } catch (e) { console.warn('Could not auto-open symbol grid', e); }
     } catch (err) {
       console.error('openColorPanel failed', err);
-      try { colorPanel.style.display = 'none'; } catch (_) {}
+      try { colorPanel.style.display = 'none'; stopUiHideTimer(); } catch (_) {}
     }
   }
 
@@ -1429,6 +1459,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     _prevLayoutSnapshot = null; _menuSelectionMade = false;
     document.removeEventListener('mousedown', _presetsOutsideClickHandler);
     document.removeEventListener('keydown', _presetsKeyHandler);
+    stopUiHideTimer();
   }
 
   function _presetsOutsideClickHandler(e) {
@@ -1551,6 +1582,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
   // register global handlers to close
       document.addEventListener('mousedown', _presetsOutsideClickHandler);
       document.addEventListener('keydown', _presetsKeyHandler);
+      startUiHideTimer();
     } catch (e) { console.warn('openPresetsMenu failed', e); }
   }
 
