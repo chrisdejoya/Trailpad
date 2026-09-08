@@ -474,28 +474,24 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     sliderArea.style.borderTop = '1px solid var(--border-subtle)';
     sliderArea.style.flexShrink = '0';
 
-    // Outline sliders (In/Out) - with numeric inputs and "All" checkboxes
+    // Outline sliders (In/Out) - with numeric inputs and a single shared "All" toggle
     const sliderWrapper = document.createElement('div'); sliderWrapper.style.display = 'none'; sliderWrapper.style.alignItems = 'center'; sliderWrapper.style.gap = '5px'; sliderWrapper.style.flexWrap = 'wrap';
       const innerLabel = document.createElement('span'); innerLabel.textContent = 'In'; innerLabel.style.fontSize = '12px'; innerLabel.style.color = 'var(--text-secondary)';
       const innerSlider = document.createElement('input'); innerSlider.type = 'range'; innerSlider.min = 0; innerSlider.max = 10; innerSlider.step = 1; innerSlider.style.width = '60px'; innerSlider.className = 'ui-slider';
       const innerValue = document.createElement('input'); innerValue.type = 'number'; innerValue.min = 0; innerValue.max = 10; innerValue.step = 1; innerValue.value = 0; innerValue.style.width = '40px'; innerValue.style.fontSize = '14px'; innerValue.style.textAlign = 'center'; innerValue.className = 'ui-input';
-      const innerAllLabel = document.createElement('label'); innerAllLabel.className = 'ui-checkbox-label'; innerAllLabel.style.display = 'flex'; innerAllLabel.style.alignItems = 'center'; innerAllLabel.style.gap = '4px'; innerAllLabel.style.fontSize = '12px'; innerAllLabel.style.color = 'var(--text-muted)'; innerAllLabel.style.cursor = 'pointer';
-      const innerAllCheckbox = document.createElement('input'); innerAllCheckbox.type = 'checkbox'; innerAllCheckbox.className = 'innerSizeAll ui-checkbox'; innerAllLabel.appendChild(innerAllCheckbox); innerAllLabel.appendChild(document.createTextNode('All'));
       const outerLabel = document.createElement('span'); outerLabel.textContent = 'Out'; outerLabel.style.fontSize = '12px'; outerLabel.style.color = 'var(--text-secondary)';
       const outerSlider = document.createElement('input'); outerSlider.type = 'range'; outerSlider.min = 0; outerSlider.max = 10; outerSlider.step = 1; outerSlider.style.width = '60px'; outerSlider.className = 'ui-slider';
       const outerValue = document.createElement('input'); outerValue.type = 'number'; outerValue.min = 0; outerValue.max = 10; outerValue.step = 1; outerValue.value = 0; outerValue.style.width = '40px'; outerValue.style.fontSize = '14px'; outerValue.style.textAlign = 'center'; outerValue.className = 'ui-input';
-      const outerAllLabel = document.createElement('label'); outerAllLabel.className = 'ui-checkbox-label'; outerAllLabel.style.display = 'flex'; outerAllLabel.style.alignItems = 'center'; outerAllLabel.style.gap = '4px'; outerAllLabel.style.fontSize = '12px'; outerAllLabel.style.color = 'var(--text-muted)'; outerAllLabel.style.cursor = 'pointer';
-      const outerAllCheckbox = document.createElement('input'); outerAllCheckbox.type = 'checkbox'; outerAllCheckbox.className = 'outerSizeAll ui-checkbox'; outerAllLabel.appendChild(outerAllCheckbox); outerAllLabel.appendChild(document.createTextNode('All'));
-    sliderWrapper.appendChild(innerLabel); sliderWrapper.appendChild(innerSlider); sliderWrapper.appendChild(innerValue); sliderWrapper.appendChild(innerAllLabel); sliderWrapper.appendChild(outerLabel); sliderWrapper.appendChild(outerSlider); sliderWrapper.appendChild(outerValue); sliderWrapper.appendChild(outerAllLabel);
+      const outlineAllLabel = document.createElement('label'); outlineAllLabel.className = 'ui-checkbox-label'; outlineAllLabel.style.display = 'flex'; outlineAllLabel.style.alignItems = 'center'; outlineAllLabel.style.gap = '4px'; outlineAllLabel.style.fontSize = '12px'; outlineAllLabel.style.color = 'var(--text-muted)'; outlineAllLabel.style.cursor = 'pointer';
+      const outlineAllCheckbox = document.createElement('input'); outlineAllCheckbox.type = 'checkbox'; outlineAllCheckbox.className = 'outlineSizeAll ui-checkbox'; outlineAllLabel.appendChild(outlineAllCheckbox); outlineAllLabel.appendChild(document.createTextNode('All'));
+    sliderWrapper.appendChild(innerLabel); sliderWrapper.appendChild(innerSlider); sliderWrapper.appendChild(innerValue); sliderWrapper.appendChild(outerLabel); sliderWrapper.appendChild(outerSlider); sliderWrapper.appendChild(outerValue); sliderWrapper.appendChild(outlineAllLabel);
 
-    // Symbol size control - with numeric input and "All" checkbox
+    // Symbol size control - with numeric input
     const sizeCtrl = document.createElement('div'); sizeCtrl.className = 'symbolSizeControl'; sizeCtrl.style.display = 'none'; sizeCtrl.style.alignItems = 'center'; sizeCtrl.style.gap = '5px'; sizeCtrl.style.padding = '0px 0px';
       const sizeLabel = document.createElement('span'); sizeLabel.textContent = 'Size'; sizeLabel.style.fontSize = '16px'; sizeLabel.style.color = 'var(--text-secondary)';
     const sizeSlider = document.createElement('input'); sizeSlider.type = 'range'; sizeSlider.min = 0; sizeSlider.max = 200; sizeSlider.step = 10; sizeSlider.value = 100; sizeSlider.style.width = '100px'; sizeSlider.className = 'symbolSizeSlider ui-slider';
       const sizeValue = document.createElement('input'); sizeValue.type = 'number'; sizeValue.min = 0; sizeValue.max = 200; sizeValue.step = 10; sizeValue.value = 100; sizeValue.style.width = '50px'; sizeValue.style.fontSize = '16px'; sizeValue.style.textAlign = 'center'; sizeValue.className = 'symbolSizeValue ui-input';
-    const sizeAllLabel = document.createElement('label'); sizeAllLabel.className = 'ui-checkbox-label'; sizeAllLabel.style.display = 'flex'; sizeAllLabel.style.alignItems = 'center'; sizeAllLabel.style.gap = '4px'; sizeAllLabel.style.fontSize = '12px'; sizeAllLabel.style.color = 'var(--text-muted)'; sizeAllLabel.style.cursor = 'pointer';
-    const sizeAllCheckbox = document.createElement('input'); sizeAllCheckbox.type = 'checkbox'; sizeAllCheckbox.className = 'symbolSizeAll ui-checkbox'; sizeAllLabel.appendChild(sizeAllCheckbox); sizeAllLabel.appendChild(document.createTextNode('All'));
-    sizeCtrl.appendChild(sizeLabel); sizeCtrl.appendChild(sizeSlider); sizeCtrl.appendChild(sizeValue); sizeCtrl.appendChild(sizeAllLabel);
+    sizeCtrl.appendChild(sizeLabel); sizeCtrl.appendChild(sizeSlider); sizeCtrl.appendChild(sizeValue);
     const clearBtn = document.createElement('button'); clearBtn.type = 'button'; clearBtn.className = 'clearSymbolBtn ui-button'; clearBtn.textContent = 'Clear'; clearBtn.style.marginLeft = '0px'; clearBtn.style.padding = '5px 5px'; clearBtn.style.fontSize = '16px';
     sizeCtrl.appendChild(clearBtn);
 
@@ -507,27 +503,6 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     const textSizeAllLabel = document.createElement('label'); textSizeAllLabel.className = 'ui-checkbox-label'; textSizeAllLabel.style.display = 'flex'; textSizeAllLabel.style.alignItems = 'center'; textSizeAllLabel.style.gap = '4px'; textSizeAllLabel.style.fontSize = '12px'; textSizeAllLabel.style.color = 'var(--text-muted)'; textSizeAllLabel.style.cursor = 'pointer';
     const textSizeAllCheckbox = document.createElement('input'); textSizeAllCheckbox.type = 'checkbox'; textSizeAllCheckbox.className = 'textSizeAll ui-checkbox'; textSizeAllLabel.appendChild(textSizeAllCheckbox); textSizeAllLabel.appendChild(document.createTextNode('All'));
     textSizeCtrl.appendChild(textSizeLabel); textSizeCtrl.appendChild(textSizeSlider); textSizeCtrl.appendChild(textSizeValue); textSizeCtrl.appendChild(textSizeAllLabel);
-
-    // Helper to apply symbol size to all elements with background images
-    function applySymbolSizeToAll(pct) {
-      const targets = [...Object.values(btnEls), stickWrapper, eightWayWrapper, base];
-      targets.forEach(el => {
-        if (el.style.backgroundImage && el.style.backgroundImage !== 'none') {
-          el.style.backgroundSize = `${pct}% auto`;
-          if (el.dataset?.btn) {
-            appState.buttons[el.dataset.btn] = appState.buttons[el.dataset.btn] || {};
-            appState.buttons[el.dataset.btn].backgroundSize = el.style.backgroundSize;
-          } else if (el === base) {
-            appState.base.backgroundSize = el.style.backgroundSize;
-          } else if (el === stickWrapper) {
-            appState.joystick.backgroundSize = el.style.backgroundSize;
-          } else if (el === eightWayWrapper) {
-            appState.eightWayWrapper.backgroundSize = el.style.backgroundSize;
-          }
-        }
-      });
-      saveStateData();
-    }
 
     // Helper to apply text size to all elements
     function applyTextSizeToAll(px) {
@@ -550,31 +525,21 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
       saveStateData();
     }
 
-    // Symbol size slider listener (applies size % to current selection or all)
+    // Symbol size slider listener (applies size % to current selection)
     sizeSlider.addEventListener('input', () => {
       sizeValue.value = sizeSlider.value;
-      const applyAll = sizeAllCheckbox.checked;
-      if (applyAll) {
-        applySymbolSizeToAll(sizeSlider.value);
-      } else {
-        const applyTarget = selected || panelAnchorTarget; if (!applyTarget) return; const btnId = applyTarget.dataset?.btn;
-        applyTarget.style.backgroundSize = `${sizeSlider.value}% auto`;
-        if (btnId) { appState.buttons[btnId] = appState.buttons[btnId] || {}; appState.buttons[btnId].backgroundSize = applyTarget.style.backgroundSize; saveStateData(); }
-      }
+      const applyTarget = selected || panelAnchorTarget; if (!applyTarget) return; const btnId = applyTarget.dataset?.btn;
+      applyTarget.style.backgroundSize = `${sizeSlider.value}% auto`;
+      if (btnId) { appState.buttons[btnId] = appState.buttons[btnId] || {}; appState.buttons[btnId].backgroundSize = applyTarget.style.backgroundSize; saveStateData(); }
     });
 
     // Symbol size numeric input listener
     sizeValue.addEventListener('input', () => {
       let v = parseInt(sizeValue.value) || 0; if (v < 0) v = 0; if (v > 200) v = 200; sizeValue.value = v;
       try { sizeSlider.value = v; } catch (e) {}
-      const applyAll = sizeAllCheckbox.checked;
-      if (applyAll) {
-        applySymbolSizeToAll(v);
-      } else {
-        const applyTarget = selected || panelAnchorTarget; if (!applyTarget) return; const btnId = applyTarget.dataset?.btn;
-        applyTarget.style.backgroundSize = `${v}% auto`;
-        if (btnId) { appState.buttons[btnId] = appState.buttons[btnId] || {}; appState.buttons[btnId].backgroundSize = applyTarget.style.backgroundSize; saveStateData(); }
-      }
+      const applyTarget = selected || panelAnchorTarget; if (!applyTarget) return; const btnId = applyTarget.dataset?.btn;
+      applyTarget.style.backgroundSize = `${v}% auto`;
+      if (btnId) { appState.buttons[btnId] = appState.buttons[btnId] || {}; appState.buttons[btnId].backgroundSize = applyTarget.style.backgroundSize; saveStateData(); }
     });
 
     // Text size slider listener (applies font-size px to current selection or all)
@@ -691,18 +656,14 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
   });
 
     innerSlider.addEventListener('input', () => {
-      const applyAll = innerAllCheckbox.checked;
+      const applyAll = outlineAllCheckbox.checked;
       const width = Math.max(0, Math.min(15, parseInt(innerSlider.value))); innerValue.value = width;
       if (applyAll) {
-        const targets = [...Object.values(btnEls), base, stickWrapper, eightWayWrapper, joystick];
+        const targets = [...Object.values(btnEls)];
         targets.forEach(el => {
           let color = 'black'; const cs = window.getComputedStyle(el); if (cs.outlineColor && cs.outlineColor !== 'invert') color = cs.outlineColor;
           el.style.outline = `${width}px solid ${color}`; el.style.outlineOffset = `-${width}px`;
           if (el.dataset?.btn) { appState.buttons[el.dataset.btn] = appState.buttons[el.dataset.btn] || {}; appState.buttons[el.dataset.btn].outlineWidth = width; appState.buttons[el.dataset.btn].outlineColor = color; }
-          else if (el === base) { appState.base.outlineWidth = width; appState.base.outlineColor = color; }
-          else if (el === stickWrapper) { appState.joystick.outlineWidth = width; appState.joystick.outlineColor = color; }
-          else if (el === eightWayWrapper) { appState.eightWayWrapper.outlineWidth = width; appState.eightWayWrapper.outlineColor = color; }
-          else if (el === joystick) { appState.joystickHead.outlineWidth = width; appState.joystickHead.outlineColor = color; }
         });
         saveStateData();
       } else {
@@ -717,17 +678,13 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     innerValue.addEventListener('input', () => {
       let v = parseInt(innerValue.value) || 0; if (v < 0) v = 0; if (v > 10) v = 10; innerValue.value = v;
       try { innerSlider.value = v; } catch (e) {}
-      const applyAll = innerAllCheckbox.checked;
+      const applyAll = outlineAllCheckbox.checked;
       if (applyAll) {
-        const targets = [...Object.values(btnEls), base, stickWrapper, eightWayWrapper, joystick];
+        const targets = [...Object.values(btnEls)];
         targets.forEach(el => {
           let color = 'black'; const cs = window.getComputedStyle(el); if (cs.outlineColor && cs.outlineColor !== 'invert') color = cs.outlineColor;
           el.style.outline = `${v}px solid ${color}`; el.style.outlineOffset = `-${v}px`;
           if (el.dataset?.btn) { appState.buttons[el.dataset.btn] = appState.buttons[el.dataset.btn] || {}; appState.buttons[el.dataset.btn].outlineWidth = v; appState.buttons[el.dataset.btn].outlineColor = color; }
-          else if (el === base) { appState.base.outlineWidth = v; appState.base.outlineColor = color; }
-          else if (el === stickWrapper) { appState.joystick.outlineWidth = v; appState.joystick.outlineColor = color; }
-          else if (el === eightWayWrapper) { appState.eightWayWrapper.outlineWidth = v; appState.eightWayWrapper.outlineColor = color; }
-          else if (el === joystick) { appState.joystickHead.outlineWidth = v; appState.joystickHead.outlineColor = color; }
         });
         saveStateData();
       } else {
@@ -740,17 +697,13 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     });
 
     outerSlider.addEventListener('input', () => {
-      const applyAll = outerAllCheckbox.checked;
+      const applyAll = outlineAllCheckbox.checked;
       const spread = Math.max(0, Math.min(15, parseInt(outerSlider.value))); outerValue.value = spread;
       if (applyAll) {
-        const targets = [...Object.values(btnEls), base, stickWrapper, eightWayWrapper, joystick];
+        const targets = [...Object.values(btnEls)];
         targets.forEach(el => {
           el.style.boxShadow = `0 0 0 ${spread}px black`;
           if (el.dataset?.btn) { appState.buttons[el.dataset.btn] = appState.buttons[el.dataset.btn] || {}; appState.buttons[el.dataset.btn].boxShadowSpread = spread; }
-          else if (el === base) { appState.base.boxShadowSpread = spread; }
-          else if (el === stickWrapper) { appState.joystick.boxShadowSpread = spread; }
-          else if (el === eightWayWrapper) { appState.eightWayWrapper.boxShadowSpread = spread; }
-          else if (el === joystick) { appState.joystickHead.boxShadowSpread = spread; }
         });
         saveStateData();
       } else {
@@ -764,16 +717,12 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     outerValue.addEventListener('input', () => {
       let v = parseInt(outerValue.value) || 0; if (v < 0) v = 0; if (v > 10) v = 10; outerValue.value = v;
       try { outerSlider.value = v; } catch (e) {}
-      const applyAll = outerAllCheckbox.checked;
+      const applyAll = outlineAllCheckbox.checked;
       if (applyAll) {
-        const targets = [...Object.values(btnEls), base, stickWrapper, eightWayWrapper, joystick];
+        const targets = [...Object.values(btnEls)];
         targets.forEach(el => {
           el.style.boxShadow = `0 0 0 ${v}px black`;
           if (el.dataset?.btn) { appState.buttons[el.dataset.btn] = appState.buttons[el.dataset.btn] || {}; appState.buttons[el.dataset.btn].boxShadowSpread = v; }
-          else if (el === base) { appState.base.boxShadowSpread = v; }
-          else if (el === stickWrapper) { appState.joystick.boxShadowSpread = v; }
-          else if (el === eightWayWrapper) { appState.eightWayWrapper.boxShadowSpread = v; }
-          else if (el === joystick) { appState.joystickHead.boxShadowSpread = v; }
         });
         saveStateData();
       } else {
