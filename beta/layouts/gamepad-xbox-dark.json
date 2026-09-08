@@ -11,7 +11,7 @@
     "outlineOffset": "0px",
     "boxShadow": "none",
     "backgroundColor": "rgba(0, 0, 0, 0)",
-    "backgroundImage": "url(\"images/gamepad/base-xbox-dark.svg\")",
+    "backgroundImage": "images/gamepad/base-xbox-dark.svg",
     "backgroundSize": "contain",
     "color": "rgba(0, 0, 0, 0)",
     "fontSize": "16px",
@@ -29,7 +29,7 @@
     "outlineOffset": "0px",
     "boxShadow": "none",
     "backgroundColor": "rgba(0, 0, 0, 0)",
-    "backgroundImage": "url(\"images/gate_strive.svg\")",
+    "backgroundImage": "images/gate_strive.svg",
     "backgroundSize": "cover",
     "color": "rgb(0, 0, 0)",
     "fontSize": "16px",
@@ -87,7 +87,7 @@
       "outlineOffset": "0px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 0px",
       "backgroundColor": "rgba(0, 0, 0, 0)",
-      "backgroundImage": "url(\"images/gamepad/dpad-up-dark.svg\")",
+      "backgroundImage": "images/gamepad/dpad-up-dark.svg",
       "backgroundSize": "contain",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "49px",
@@ -105,7 +105,7 @@
       "outlineOffset": "0px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 0px",
       "backgroundColor": "rgba(0, 0, 0, 0)",
-      "backgroundImage": "url(\"images/gamepad/dpad-down-dark.svg\")",
+      "backgroundImage": "images/gamepad/dpad-down-dark.svg",
       "backgroundSize": "contain",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "29px",
@@ -123,7 +123,7 @@
       "outlineOffset": "0px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 0px",
       "backgroundColor": "rgba(0, 0, 0, 0)",
-      "backgroundImage": "url(\"images/gamepad/dpad-left-dark.svg\")",
+      "backgroundImage": "images/gamepad/dpad-left-dark.svg",
       "backgroundSize": "contain",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "29px",
@@ -141,7 +141,7 @@
       "outlineOffset": "0px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 0px",
       "backgroundColor": "rgba(0, 0, 0, 0)",
-      "backgroundImage": "url(\"images/gamepad/dpad-right-dark.svg\")",
+      "backgroundImage": "images/gamepad/dpad-right-dark.svg",
       "backgroundSize": "contain",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "29px",
@@ -231,7 +231,7 @@
       "outlineOffset": "0px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 0px",
       "backgroundColor": "rgba(0, 0, 0, 0)",
-      "backgroundImage": "url(\"images/gamepad/lb-dark.svg\")",
+      "backgroundImage": "images/gamepad/lb-dark.svg",
       "backgroundSize": "contain",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "44px",
@@ -249,7 +249,7 @@
       "outlineOffset": "0px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 0px",
       "backgroundColor": "rgba(0, 0, 0, 0)",
-      "backgroundImage": "url(\"images/gamepad/rb-dark.svg\")",
+      "backgroundImage": "images/gamepad/rb-dark.svg",
       "backgroundSize": "contain",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "44px",
@@ -267,7 +267,7 @@
       "outlineOffset": "0px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 0px",
       "backgroundColor": "rgba(0, 0, 0, 0)",
-      "backgroundImage": "url(\"images/gamepad/lt-dark.svg\")",
+      "backgroundImage": "images/gamepad/lt-dark.svg",
       "backgroundSize": "contain",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "44px",
@@ -285,7 +285,7 @@
       "outlineOffset": "0px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 0px",
       "backgroundColor": "rgba(0, 0, 0, 0)",
-      "backgroundImage": "url(\"images/gamepad/rt-dark.svg\")",
+      "backgroundImage": "images/gamepad/rt-dark.svg",
       "backgroundSize": "contain",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "44px",
@@ -303,7 +303,7 @@
       "outlineOffset": "0px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 0px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"images/gamepad/analog-dark.svg\")",
+      "backgroundImage": "images/gamepad/analog-dark.svg",
       "backgroundSize": "90px auto",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "46px",
@@ -321,7 +321,7 @@
       "outlineOffset": "0px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 0px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"images/gamepad/analog-dark.svg\")",
+      "backgroundImage": "images/gamepad/analog-dark.svg",
       "backgroundSize": "90px auto",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "46px",
@@ -375,10 +375,3 @@
     "triggerDeadzone": 0
   }
 }
-
-
-
-
-
-
-

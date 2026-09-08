@@ -29,7 +29,7 @@
     "outlineOffset": "0px",
     "boxShadow": "none",
     "backgroundColor": "rgba(0, 0, 0, 0)",
-    "backgroundImage": "url(\"images/gate_strive.svg\")",
+    "backgroundImage": "images/gate_strive.svg",
     "backgroundSize": "cover",
     "color": "rgb(0, 0, 0)",
     "fontSize": "16px",
@@ -65,7 +65,7 @@
     "outlineOffset": "0px",
     "boxShadow": "none",
     "backgroundColor": "rgba(0, 0, 0, 0)",
-    "backgroundImage": "url(\"images/sf/gate_strive.svg\")",
+    "backgroundImage": "images/sf/gate_strive.svg",
     "backgroundSize": "auto",
     "color": "rgb(238, 238, 238)",
     "fontSize": "16px",
@@ -87,7 +87,7 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"images/up.svg\")",
+      "backgroundImage": "images/up.svg",
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "44px",
@@ -105,7 +105,7 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"images/down.svg\")",
+      "backgroundImage": "images/down.svg",
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "44px",
@@ -123,7 +123,7 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"images/left.svg\")",
+      "backgroundImage": "images/left.svg",
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "44px",
@@ -141,7 +141,7 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"images/right.svg\")",
+      "backgroundImage": "images/right.svg",
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "44px",
@@ -375,9 +375,3 @@
     "triggerDeadzone": 0
   }
 }
-
-
-
-
-
-

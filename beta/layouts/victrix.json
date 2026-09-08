@@ -27,7 +27,7 @@
     "outline": "rgb(0, 0, 0) none 0px",
     "outlineOffset": "0px",
     "backgroundColor": "rgba(0, 0, 0, 0)",
-    "backgroundImage": "url(\"images/gate_strive.svg\")",
+    "backgroundImage": "images/gate_strive.svg",
     "backgroundSize": "cover",
     "color": "rgb(0, 0, 0)",
     "fontSize": "16px",
@@ -63,7 +63,7 @@
       "outline": "rgba(0, 0, 0, 0) solid 4px",
       "outlineOffset": "-4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"images/up.svg\")",
+      "backgroundImage": "images/up.svg",
       "backgroundSize": "39px",
       "color": "rgb(238, 238, 238)",
       "fontSize": "14px",
@@ -80,7 +80,7 @@
       "outline": "rgba(0, 0, 0, 0) solid 4px",
       "outlineOffset": "-4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"images/down.svg\")",
+      "backgroundImage": "images/down.svg",
       "backgroundSize": "39px",
       "color": "rgb(238, 238, 238)",
       "fontSize": "16px",
@@ -97,7 +97,7 @@
       "outline": "rgba(0, 0, 0, 0) solid 4px",
       "outlineOffset": "-4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"images/left.svg\")",
+      "backgroundImage": "images/left.svg",
       "backgroundSize": "38px",
       "color": "rgb(238, 238, 238)",
       "fontSize": "18px",
@@ -114,7 +114,7 @@
       "outline": "rgba(0, 0, 0, 0) solid 4px",
       "outlineOffset": "-4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"images/right.svg\")",
+      "backgroundImage": "images/right.svg",
       "backgroundSize": "39px",
       "color": "rgb(238, 238, 238)",
       "fontSize": "18px",
@@ -131,7 +131,7 @@
       "outline": "rgb(51, 51, 51) solid 4px",
       "outlineOffset": "-4px",
       "backgroundColor": "rgb(51, 51, 51)",
-      "backgroundImage": "url(\"images/ps/ps-cross.svg\")",
+      "backgroundImage": "images/ps/ps-cross.svg",
       "backgroundSize": "79px",
       "color": "rgb(238, 238, 238)",
       "fontSize": "23px",
@@ -148,7 +148,7 @@
       "outline": "rgba(0, 0, 0, 0) solid 4px",
       "outlineOffset": "-4px",
       "backgroundColor": "rgb(51, 51, 51)",
-      "backgroundImage": "url(\"images/ps/ps-circle.svg\")",
+      "backgroundImage": "images/ps/ps-circle.svg",
       "backgroundSize": "79px",
       "color": "rgb(238, 238, 238)",
       "fontSize": "23px",
@@ -165,7 +165,7 @@
       "outline": "rgba(0, 0, 0, 0) solid 4px",
       "outlineOffset": "-4px",
       "backgroundColor": "rgb(51, 51, 51)",
-      "backgroundImage": "url(\"images/ps/ps-square.svg\")",
+      "backgroundImage": "images/ps/ps-square.svg",
       "backgroundSize": "81px",
       "color": "rgb(238, 238, 238)",
       "fontSize": "35px",
@@ -182,7 +182,7 @@
       "outline": "rgba(0, 0, 0, 0) solid 4px",
       "outlineOffset": "-4px",
       "backgroundColor": "rgb(51, 51, 51)",
-      "backgroundImage": "url(\"images/ps/ps-triangle.svg\")",
+      "backgroundImage": "images/ps/ps-triangle.svg",
       "backgroundSize": "80px",
       "color": "rgb(238, 238, 238)",
       "fontSize": "41px",
@@ -326,9 +326,3 @@
     }
   }
 }
-
-
-
-
-
-

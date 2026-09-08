@@ -7,7 +7,7 @@
   { "name": "Teko", "url": "https://fonts.googleapis.com/css2?family=Teko:wght@600;700&display=swap", "cssFamily": "'Teko', sans-serif" },
   { "name": "Oxanium", "url": "https://fonts.googleapis.com/css2?family=Oxanium:wght@600;700;800&display=swap", "cssFamily": "'Oxanium', sans-serif" },
   { "name": "JetBrains Mono", "url": "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700;800&display=swap", "cssFamily": "'JetBrains Mono', monospace" },
-  { "name": "Space Grotesk", "url": "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&display=swap", "cssFamily": "'Space Grotesk', sans-serif" },
+  { "name": "Space Grotesk", "url": "https://fonts.googleapis.com/css2?family=Space+Grotesk", "cssFamily": "'Space Grotesk', sans-serif" },
   { "name": "Outfit", "url": "https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&display=swap", "cssFamily": "'Outfit', sans-serif" },
   { "name": "Syne", "url": "https://fonts.googleapis.com/css2?family=Syne:wght@700;800&display=swap", "cssFamily": "'Syne', sans-serif" },
   { "name": "Chakra Petch", "url": "https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&display=swap", "cssFamily": "'Chakra Petch', sans-serif" },

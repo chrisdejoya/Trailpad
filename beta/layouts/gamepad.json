@@ -29,7 +29,7 @@
     "outlineOffset": "0px",
     "boxShadow": "none",
     "backgroundColor": "rgba(0, 0, 0, 0)",
-    "backgroundImage": "url(\"images/gate_strive.svg\")",
+    "backgroundImage": "images/gate_strive.svg",
     "backgroundSize": "cover",
     "color": "rgb(0, 0, 0)",
     "fontSize": "16px",
@@ -87,7 +87,7 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"images/ps/ps-up.svg\")",
+      "backgroundImage": "images/ps/ps-up.svg",
       "backgroundSize": "78px auto",
       "color": "rgb(238, 238, 238)",
       "fontSize": "40px",
@@ -105,7 +105,7 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"images/ps/ps-down.svg\")",
+      "backgroundImage": "images/ps/ps-down.svg",
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "40px",
@@ -123,7 +123,7 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"images/ps/ps-left.svg\")",
+      "backgroundImage": "images/ps/ps-left.svg",
       "backgroundSize": "78px auto",
       "color": "rgb(238, 238, 238)",
       "fontSize": "40px",
@@ -141,7 +141,7 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"images/ps/ps-right.svg\")",
+      "backgroundImage": "images/ps/ps-right.svg",
       "backgroundSize": "78px auto",
       "color": "rgb(238, 238, 238)",
       "fontSize": "40px",
@@ -159,7 +159,7 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"images/ps/ps-cross.svg\")",
+      "backgroundImage": "images/ps/ps-cross.svg",
       "backgroundSize": "96px auto",
       "color": "rgb(238, 238, 238)",
       "fontSize": "33px",
@@ -177,7 +177,7 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"images/ps/ps-circle.svg\")",
+      "backgroundImage": "images/ps/ps-circle.svg",
       "backgroundSize": "93px auto",
       "color": "rgb(238, 238, 238)",
       "fontSize": "30px",
@@ -195,7 +195,7 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"images/ps/ps-square.svg\")",
+      "backgroundImage": "images/ps/ps-square.svg",
       "backgroundSize": "95px auto",
       "color": "rgb(238, 238, 238)",
       "fontSize": "42px",
@@ -213,7 +213,7 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"images/ps/ps-triangle.svg\")",
+      "backgroundImage": "images/ps/ps-triangle.svg",
       "backgroundSize": "auto",
       "color": "rgb(238, 238, 238)",
       "fontSize": "40px",
@@ -375,9 +375,3 @@
     "triggerDeadzone": 0
   }
 }
-
-
-
-
-
-

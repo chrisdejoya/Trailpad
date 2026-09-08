@@ -152,9 +152,10 @@ window.addEventListener('DOMContentLoaded', () => {
     if (!el || !data) return;
     if (data.display !== undefined) el.style.display = data.display;
     if (data.zIndex !== undefined) el.style.zIndex = data.zIndex;
-    ['top','left','width','height','borderRadius','outline','outlineOffset','boxShadow','backgroundColor','backgroundImage','backgroundSize','color','fontSize','fontFamily'].forEach(k => {
+    ['top','left','width','height','borderRadius','outline','outlineOffset','boxShadow','backgroundColor','backgroundSize','color','fontSize','fontFamily'].forEach(k => {
       if (data[k] !== undefined) el.style[k] = data[k];
     });
+    if (data.backgroundImage !== undefined) applyBgImage(el, data.backgroundImage);
     if (data.label !== undefined && el.dataset && el.dataset.btn) el.textContent = data.label;
   }
 
@@ -166,12 +167,26 @@ window.addEventListener('DOMContentLoaded', () => {
     if (data.display !== undefined) el.style.display = data.display;
   }
 
+  // Helper to normalize backgroundImage: strip url("...") wrapper, return just the path
+  function normalizeBgImage(val) {
+    if (!val || val === 'none') return '';
+    const m = val.match(/^url\(["']?([^"')]+)["']?\)$/i);
+    return m ? m[1] : val;
+  }
+
+  // Helper to apply backgroundImage: wrap path with url('...') if needed
+  function applyBgImage(el, val) {
+    if (!val || val === 'none') { el.style.backgroundImage = 'none'; return; }
+    const normalized = normalizeBgImage(val);
+    el.style.backgroundImage = `url('${normalized}')`;
+  }
+
   function captureElementProperties(el) {
     const cs = window.getComputedStyle(el);
     const snap = {
       display: cs.display, zIndex: cs.zIndex, top: cs.top, left: cs.left, width: cs.width, height: cs.height,
       borderRadius: cs.borderRadius, outline: cs.outline, outlineOffset: cs.outlineOffset, boxShadow: cs.boxShadow,
-      backgroundColor: cs.backgroundColor, backgroundImage: cs.backgroundImage, backgroundSize: cs.backgroundSize,
+      backgroundColor: cs.backgroundColor, backgroundImage: normalizeBgImage(cs.backgroundImage), backgroundSize: cs.backgroundSize,
       color: cs.color, fontSize: cs.fontSize, fontFamily: cs.fontFamily, label: (el.textContent || '').trim()
     };
     if (el.dataset && el.dataset.btn) {
@@ -207,8 +222,8 @@ window.addEventListener('DOMContentLoaded', () => {
       trailColor: appState.trailColor || getComputedStyle(document.documentElement).getPropertyValue('--trail-color') || '#CEEC73'
     };
     // Add arrowImageOn/Off if present
-    if (appState.eightWayWrapper?.arrowImageOn) snap.eightWayWrapper.arrowImageOn = appState.eightWayWrapper.arrowImageOn;
-    if (appState.eightWayWrapper?.arrowImageOff) snap.eightWayWrapper.arrowImageOff = appState.eightWayWrapper.arrowImageOff;
+    if (appState.eightWayWrapper?.arrowImageOn) snap.eightWayWrapper.arrowImageOn = normalizeBgImage(appState.eightWayWrapper.arrowImageOn);
+    if (appState.eightWayWrapper?.arrowImageOff) snap.eightWayWrapper.arrowImageOff = normalizeBgImage(appState.eightWayWrapper.arrowImageOff);
     Object.keys(btnEls).forEach(k => snap.buttons[k] = captureElementProperties(btnEls[k]));
   // include analog prefs (LS/RS enabled, analogVisualRange) so layouts can control analog behavior
   if (appState.analog) {
@@ -240,17 +255,17 @@ window.addEventListener('DOMContentLoaded', () => {
     }
     // Set arrowImageOn/Off if present
     if (parsed.eightWayWrapper?.arrowImageOn) {
-      appState.eightWayWrapper.arrowImageOn = parsed.eightWayWrapper.arrowImageOn;
+      appState.eightWayWrapper.arrowImageOn = normalizeBgImage(parsed.eightWayWrapper.arrowImageOn);
     }
     if (parsed.eightWayWrapper?.arrowImageOff) {
-      appState.eightWayWrapper.arrowImageOff = parsed.eightWayWrapper.arrowImageOff;
+      appState.eightWayWrapper.arrowImageOff = normalizeBgImage(parsed.eightWayWrapper.arrowImageOff);
     }
     // Apply to all arrows
     for (let i = 0; i < 8; i++) {
       const arrow = document.getElementById('arrow' + i);
       if (!arrow) continue;
       if (appState.eightWayWrapper.arrowImageOff) {
-        arrow.style.backgroundImage = `url('${appState.eightWayWrapper.arrowImageOff}')`;
+        applyBgImage(arrow, appState.eightWayWrapper.arrowImageOff);
       }
     }
     if (parsed.trailColor) {
@@ -284,7 +299,7 @@ window.addEventListener('DOMContentLoaded', () => {
     if (!currentPreviewTarget) return;
     if (currentPreviewTarget.dataset._prevBg !== undefined) { currentPreviewTarget.style.backgroundColor = currentPreviewTarget.dataset._prevBg || ''; delete currentPreviewTarget.dataset._prevBg; }
     if (currentPreviewTarget.dataset._prevColor !== undefined) { currentPreviewTarget.style.color = currentPreviewTarget.dataset._prevColor || ''; delete currentPreviewTarget.dataset._prevColor; }
-    if (currentPreviewTarget.dataset._prevBgImage !== undefined) { currentPreviewTarget.style.backgroundImage = currentPreviewTarget.dataset._prevBgImage || ''; delete currentPreviewTarget.dataset._prevBgImage; }
+    if (currentPreviewTarget.dataset._prevBgImage !== undefined) { applyBgImage(currentPreviewTarget, currentPreviewTarget.dataset._prevBgImage || ''); delete currentPreviewTarget.dataset._prevBgImage; }
     if (currentPreviewTarget.dataset._prevBgSize !== undefined) { currentPreviewTarget.style.backgroundSize = currentPreviewTarget.dataset._prevBgSize || ''; delete currentPreviewTarget.dataset._prevBgSize; }
     currentPreviewTarget = null;
   }
@@ -335,9 +350,7 @@ window.addEventListener('DOMContentLoaded', () => {
       arrow.classList.toggle('active', isActive);
       // Set background image based on state
       if (appState.eightWayWrapper?.arrowImageOn && appState.eightWayWrapper?.arrowImageOff) {
-        arrow.style.backgroundImage = isActive
-          ? `url('${appState.eightWayWrapper.arrowImageOn}')`
-          : `url('${appState.eightWayWrapper.arrowImageOff}')`;
+        applyBgImage(arrow, isActive ? appState.eightWayWrapper.arrowImageOn : appState.eightWayWrapper.arrowImageOff);
       }
     }
   }
@@ -574,7 +587,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
 
     clearBtn.addEventListener('click', () => {
       const applyTarget = selected || panelAnchorTarget; if (!applyTarget) return; const btnId = applyTarget.dataset?.btn;
-      applyTarget.style.backgroundImage = '';
+      applyBgImage(applyTarget, '');
       applyTarget.style.backgroundSize = '';
       if (btnId && appState.buttons[btnId]) {
         // restore previous text color if available
@@ -817,7 +830,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
 
       // Build cells
       images.forEach(src => {
-        const cell = document.createElement('div'); cell.className = 'symbolCell'; cell.title = src; cell.style.backgroundImage = `url('${src}')`;
+        const cell = document.createElement('div'); cell.className = 'symbolCell'; cell.title = src; applyBgImage(cell, src);
         // preview on mouseenter
         cell.addEventListener('mouseenter', () => {
           const applyTarget = selected || panelAnchorTarget; if (!applyTarget) return;
@@ -825,7 +838,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
           if (currentPreviewTarget && currentPreviewTarget !== applyTarget) revertPreview();
           if (applyTarget.dataset._prevBgImage === undefined) applyTarget.dataset._prevBgImage = applyTarget.style.backgroundImage || '';
           if (applyTarget.dataset._prevBgSize === undefined) applyTarget.dataset._prevBgSize = applyTarget.style.backgroundSize || '';
-          applyTarget.style.backgroundImage = `url('${src}')`;
+          applyBgImage(applyTarget, src);
           // use percent slider value for preview if present
           const persistentSlider = colorPanel.querySelector('.symbolSizeSlider'); const pct = persistentSlider ? parseInt(persistentSlider.value) || 100 : 100; applyTarget.style.backgroundSize = `${pct}% auto`;
           currentPreviewTarget = applyTarget;
@@ -844,11 +857,11 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
           const btnId = applyTarget.dataset?.btn;
           // set background image and size based on slider
           const persistentSlider = colorPanel.querySelector('.symbolSizeSlider'); const pct = persistentSlider ? parseInt(persistentSlider.value) || 100 : 100;
-          applyTarget.style.backgroundImage = `url('${src}')`;
+          applyBgImage(applyTarget, src);
           applyTarget.style.backgroundSize = `${pct}% auto`;
           if (btnId) {
             appState.buttons[btnId] = appState.buttons[btnId] || {};
-            appState.buttons[btnId].backgroundImage = applyTarget.style.backgroundImage;
+            appState.buttons[btnId].backgroundImage = src;
             appState.buttons[btnId].backgroundSize = applyTarget.style.backgroundSize;
           }
           // save previous text color (persist) and set text color to transparent when applying a symbol
@@ -1354,7 +1367,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
       if (display === undefined) display = appState.hiddenButtons?.includes(k) ? 'none' : 'flex';
       if (el.style.display !== display) el.style.display = display;
       if (data.zIndex !== undefined && el.style.zIndex !== data.zIndex) el.style.zIndex = data.zIndex;
-      if (data.backgroundImage !== undefined && el.style.backgroundImage !== data.backgroundImage) el.style.backgroundImage = data.backgroundImage;
+      if (data.backgroundImage !== undefined) applyBgImage(el, data.backgroundImage);
       if (data.backgroundSize !== undefined) {
         if (el === eightWayWrapper) { const arrows = eightWayWrapper.querySelectorAll('.arrow'); arrows.forEach(arrow => arrow.style.backgroundSize = data.backgroundSize); }
         else if (el.style.backgroundSize !== data.backgroundSize) el.style.backgroundSize = data.backgroundSize;
@@ -1442,7 +1455,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
       if (parsed.eightWayWrapper?.arrowImageOff || parsed.eightWayWrapper?.arrowImageOn) {
         for (let i = 0; i < 8; i++) {
           const arrow = document.getElementById('arrow' + i); if (!arrow) continue;
-          if (parsed.eightWayWrapper.arrowImageOff) arrow.style.backgroundImage = `url('${parsed.eightWayWrapper.arrowImageOff}')`;
+          if (parsed.eightWayWrapper.arrowImageOff) applyBgImage(arrow, parsed.eightWayWrapper.arrowImageOff);
           if (parsed.eightWayWrapper.arrowImageOn) arrow.dataset._previewOn = parsed.eightWayWrapper.arrowImageOn;
         }
       }
