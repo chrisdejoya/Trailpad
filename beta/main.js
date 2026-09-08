@@ -108,11 +108,11 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // --- Helpers (centralized to reduce repetition) ---
 
-  function showToast(msg, dur = 1000) {
+  function showToast(msg, dur = 1000, type = 'info') {
     toastEl.textContent = msg;
-    toastEl.style.transform = 'translate(-50%,0) scale(1)';
+    toastEl.className = 'show ' + type;
     clearTimeout(toastEl._t);
-    toastEl._t = setTimeout(() => toastEl.style.transform = 'translate(-50%,0) scale(0)', dur);
+    toastEl._t = setTimeout(() => { toastEl.className = ''; }, dur);
   }
 
   function saveStateData() {
@@ -376,15 +376,15 @@ window.addEventListener('DOMContentLoaded', () => {
 panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
 
     // mode toggle row (header) - horizontally scrollable for many tabs
-    const toggle = document.createElement('div'); toggle.className = 'modeToggle'; toggle.style.display = 'flex'; toggle.style.alignItems = 'center'; toggle.style.gap = '4px'; toggle.style.overflowX = 'auto'; toggle.style.padding = '4px 8px'; toggle.style.borderBottom = '1px solid #333'; toggle.style.flexShrink = '0';
+    const toggle = document.createElement('div'); toggle.className = 'modeToggle ui-tabs'; toggle.style.display = 'flex'; toggle.style.alignItems = 'center'; toggle.style.gap = '4px'; toggle.style.overflowX = 'auto'; toggle.style.padding = '4px 8px'; toggle.style.borderBottom = '1px solid var(--border-subtle)'; toggle.style.flexShrink = '0';
     const leftGroup = document.createElement('div'); leftGroup.style.display = 'flex'; leftGroup.style.gap = '4px'; leftGroup.style.whiteSpace = 'nowrap';
     // declare symbolBtn early to avoid TDZ when handlers reference it
     let symbolBtn = null;
     let fontBtn = null;
-      const fontDiv = document.createElement('div'); fontDiv.className = 'modeBtn fontBtn'; fontDiv.textContent = 'FONT'; fontDiv.style.padding = '6px 10px'; fontDiv.style.fontSize = '11px';
-      const bgDiv = document.createElement('div'); bgDiv.className = 'modeBtn bgBtn'; bgDiv.textContent = 'FILL'; bgDiv.style.padding = '6px 10px'; bgDiv.style.fontSize = '11px';
-      const txtDiv = document.createElement('div'); txtDiv.className = 'modeBtn txtBtn'; txtDiv.textContent = 'TEXT'; txtDiv.style.padding = '6px 10px'; txtDiv.style.fontSize = '11px';
-      const outlineDiv = document.createElement('div'); outlineDiv.className = 'modeBtn outlineBtn'; outlineDiv.textContent = 'STROKE'; outlineDiv.style.padding = '6px 10px'; outlineDiv.style.fontSize = '11px';
+      const fontDiv = document.createElement('button'); fontDiv.className = 'modeBtn fontBtn ui-tab'; fontDiv.textContent = 'FONT'; fontDiv.style.padding = '6px 10px'; fontDiv.style.fontSize = '11px';
+      const bgDiv = document.createElement('button'); bgDiv.className = 'modeBtn bgBtn ui-tab'; bgDiv.textContent = 'FILL'; bgDiv.style.padding = '6px 10px'; bgDiv.style.fontSize = '11px';
+      const txtDiv = document.createElement('button'); txtDiv.className = 'modeBtn txtBtn ui-tab'; txtDiv.textContent = 'TEXT'; txtDiv.style.padding = '6px 10px'; txtDiv.style.fontSize = '11px';
+      const outlineDiv = document.createElement('button'); outlineDiv.className = 'modeBtn outlineBtn ui-tab'; outlineDiv.textContent = 'STROKE'; outlineDiv.style.padding = '6px 10px'; outlineDiv.style.fontSize = '11px';
     leftGroup.appendChild(fontDiv); leftGroup.appendChild(bgDiv); leftGroup.appendChild(txtDiv); leftGroup.appendChild(outlineDiv); toggle.appendChild(leftGroup);
 
     // Content area (swatches, symbol grid, font grid)
@@ -400,41 +400,41 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     sliderArea.style.flexDirection = 'column';
     sliderArea.style.gap = '6px';
     sliderArea.style.paddingTop = '6px';
-    sliderArea.style.borderTop = '1px solid #333';
+    sliderArea.style.borderTop = '1px solid var(--border-subtle)';
     sliderArea.style.flexShrink = '0';
 
     // Outline sliders (In/Out) - with numeric inputs and "All" checkboxes
     const sliderWrapper = document.createElement('div'); sliderWrapper.style.display = 'none'; sliderWrapper.style.alignItems = 'center'; sliderWrapper.style.gap = '5px'; sliderWrapper.style.flexWrap = 'wrap';
-      const innerLabel = document.createElement('span'); innerLabel.textContent = 'In';
-      const innerSlider = document.createElement('input'); innerSlider.type = 'range'; innerSlider.min = 0; innerSlider.max = 10; innerSlider.step = 1; innerSlider.style.width = '60px';
-      const innerValue = document.createElement('input'); innerValue.type = 'number'; innerValue.min = 0; innerValue.max = 10; innerValue.step = 1; innerValue.value = 0; innerValue.style.width = '40px'; innerValue.style.fontSize = '14px'; innerValue.style.textAlign = 'center';
-      const innerAllLabel = document.createElement('label'); innerAllLabel.style.display = 'flex'; innerAllLabel.style.alignItems = 'center'; innerAllLabel.style.gap = '4px'; innerAllLabel.style.fontSize = '12px'; innerAllLabel.style.color = '#aaa'; innerAllLabel.style.cursor = 'pointer';
-      const innerAllCheckbox = document.createElement('input'); innerAllCheckbox.type = 'checkbox'; innerAllCheckbox.className = 'innerSizeAll'; innerAllLabel.appendChild(innerAllCheckbox); innerAllLabel.appendChild(document.createTextNode('All'));
-      const outerLabel = document.createElement('span'); outerLabel.textContent = 'Out';
-      const outerSlider = document.createElement('input'); outerSlider.type = 'range'; outerSlider.min = 0; outerSlider.max = 10; outerSlider.step = 1; outerSlider.style.width = '60px';
-      const outerValue = document.createElement('input'); outerValue.type = 'number'; outerValue.min = 0; outerValue.max = 10; outerValue.step = 1; outerValue.value = 0; outerValue.style.width = '40px'; outerValue.style.fontSize = '14px'; outerValue.style.textAlign = 'center';
-      const outerAllLabel = document.createElement('label'); outerAllLabel.style.display = 'flex'; outerAllLabel.style.alignItems = 'center'; outerAllLabel.style.gap = '4px'; outerAllLabel.style.fontSize = '12px'; outerAllLabel.style.color = '#aaa'; outerAllLabel.style.cursor = 'pointer';
-      const outerAllCheckbox = document.createElement('input'); outerAllCheckbox.type = 'checkbox'; outerAllCheckbox.className = 'outerSizeAll'; outerAllLabel.appendChild(outerAllCheckbox); outerAllLabel.appendChild(document.createTextNode('All'));
+      const innerLabel = document.createElement('span'); innerLabel.textContent = 'In'; innerLabel.style.fontSize = '12px'; innerLabel.style.color = 'var(--text-secondary)';
+      const innerSlider = document.createElement('input'); innerSlider.type = 'range'; innerSlider.min = 0; innerSlider.max = 10; innerSlider.step = 1; innerSlider.style.width = '60px'; innerSlider.className = 'ui-slider';
+      const innerValue = document.createElement('input'); innerValue.type = 'number'; innerValue.min = 0; innerValue.max = 10; innerValue.step = 1; innerValue.value = 0; innerValue.style.width = '40px'; innerValue.style.fontSize = '14px'; innerValue.style.textAlign = 'center'; innerValue.className = 'ui-input';
+      const innerAllLabel = document.createElement('label'); innerAllLabel.className = 'ui-checkbox-label'; innerAllLabel.style.display = 'flex'; innerAllLabel.style.alignItems = 'center'; innerAllLabel.style.gap = '4px'; innerAllLabel.style.fontSize = '12px'; innerAllLabel.style.color = 'var(--text-muted)'; innerAllLabel.style.cursor = 'pointer';
+      const innerAllCheckbox = document.createElement('input'); innerAllCheckbox.type = 'checkbox'; innerAllCheckbox.className = 'innerSizeAll ui-checkbox'; innerAllLabel.appendChild(innerAllCheckbox); innerAllLabel.appendChild(document.createTextNode('All'));
+      const outerLabel = document.createElement('span'); outerLabel.textContent = 'Out'; outerLabel.style.fontSize = '12px'; outerLabel.style.color = 'var(--text-secondary)';
+      const outerSlider = document.createElement('input'); outerSlider.type = 'range'; outerSlider.min = 0; outerSlider.max = 10; outerSlider.step = 1; outerSlider.style.width = '60px'; outerSlider.className = 'ui-slider';
+      const outerValue = document.createElement('input'); outerValue.type = 'number'; outerValue.min = 0; outerValue.max = 10; outerValue.step = 1; outerValue.value = 0; outerValue.style.width = '40px'; outerValue.style.fontSize = '14px'; outerValue.style.textAlign = 'center'; outerValue.className = 'ui-input';
+      const outerAllLabel = document.createElement('label'); outerAllLabel.className = 'ui-checkbox-label'; outerAllLabel.style.display = 'flex'; outerAllLabel.style.alignItems = 'center'; outerAllLabel.style.gap = '4px'; outerAllLabel.style.fontSize = '12px'; outerAllLabel.style.color = 'var(--text-muted)'; outerAllLabel.style.cursor = 'pointer';
+      const outerAllCheckbox = document.createElement('input'); outerAllCheckbox.type = 'checkbox'; outerAllCheckbox.className = 'outerSizeAll ui-checkbox'; outerAllLabel.appendChild(outerAllCheckbox); outerAllLabel.appendChild(document.createTextNode('All'));
     sliderWrapper.appendChild(innerLabel); sliderWrapper.appendChild(innerSlider); sliderWrapper.appendChild(innerValue); sliderWrapper.appendChild(innerAllLabel); sliderWrapper.appendChild(outerLabel); sliderWrapper.appendChild(outerSlider); sliderWrapper.appendChild(outerValue); sliderWrapper.appendChild(outerAllLabel);
 
     // Symbol size control - with numeric input and "All" checkbox
     const sizeCtrl = document.createElement('div'); sizeCtrl.className = 'symbolSizeControl'; sizeCtrl.style.display = 'none'; sizeCtrl.style.alignItems = 'center'; sizeCtrl.style.gap = '5px'; sizeCtrl.style.padding = '0px 0px';
-      const sizeLabel = document.createElement('span'); sizeLabel.textContent = 'Size'; sizeLabel.style.fontSize = '16px';
-    const sizeSlider = document.createElement('input'); sizeSlider.type = 'range'; sizeSlider.min = 0; sizeSlider.max = 200; sizeSlider.step = 10; sizeSlider.value = 100; sizeSlider.style.width = '100px'; sizeSlider.className = 'symbolSizeSlider';
-      const sizeValue = document.createElement('input'); sizeValue.type = 'number'; sizeValue.min = 0; sizeValue.max = 200; sizeValue.step = 10; sizeValue.value = 100; sizeValue.style.width = '50px'; sizeValue.style.fontSize = '16px'; sizeValue.style.textAlign = 'center'; sizeValue.className = 'symbolSizeValue';
-    const sizeAllLabel = document.createElement('label'); sizeAllLabel.style.display = 'flex'; sizeAllLabel.style.alignItems = 'center'; sizeAllLabel.style.gap = '4px'; sizeAllLabel.style.fontSize = '12px'; sizeAllLabel.style.color = '#aaa'; sizeAllLabel.style.cursor = 'pointer';
-    const sizeAllCheckbox = document.createElement('input'); sizeAllCheckbox.type = 'checkbox'; sizeAllCheckbox.className = 'symbolSizeAll'; sizeAllLabel.appendChild(sizeAllCheckbox); sizeAllLabel.appendChild(document.createTextNode('All'));
+      const sizeLabel = document.createElement('span'); sizeLabel.textContent = 'Size'; sizeLabel.style.fontSize = '16px'; sizeLabel.style.color = 'var(--text-secondary)';
+    const sizeSlider = document.createElement('input'); sizeSlider.type = 'range'; sizeSlider.min = 0; sizeSlider.max = 200; sizeSlider.step = 10; sizeSlider.value = 100; sizeSlider.style.width = '100px'; sizeSlider.className = 'symbolSizeSlider ui-slider';
+      const sizeValue = document.createElement('input'); sizeValue.type = 'number'; sizeValue.min = 0; sizeValue.max = 200; sizeValue.step = 10; sizeValue.value = 100; sizeValue.style.width = '50px'; sizeValue.style.fontSize = '16px'; sizeValue.style.textAlign = 'center'; sizeValue.className = 'symbolSizeValue ui-input';
+    const sizeAllLabel = document.createElement('label'); sizeAllLabel.className = 'ui-checkbox-label'; sizeAllLabel.style.display = 'flex'; sizeAllLabel.style.alignItems = 'center'; sizeAllLabel.style.gap = '4px'; sizeAllLabel.style.fontSize = '12px'; sizeAllLabel.style.color = 'var(--text-muted)'; sizeAllLabel.style.cursor = 'pointer';
+    const sizeAllCheckbox = document.createElement('input'); sizeAllCheckbox.type = 'checkbox'; sizeAllCheckbox.className = 'symbolSizeAll ui-checkbox'; sizeAllLabel.appendChild(sizeAllCheckbox); sizeAllLabel.appendChild(document.createTextNode('All'));
     sizeCtrl.appendChild(sizeLabel); sizeCtrl.appendChild(sizeSlider); sizeCtrl.appendChild(sizeValue); sizeCtrl.appendChild(sizeAllLabel);
-    const clearBtn = document.createElement('button'); clearBtn.type = 'button'; clearBtn.className = 'clearSymbolBtn'; clearBtn.textContent = 'Clear'; clearBtn.style.marginLeft = '0px'; clearBtn.style.padding = '5px 5px'; clearBtn.style.fontSize = '16px';
+    const clearBtn = document.createElement('button'); clearBtn.type = 'button'; clearBtn.className = 'clearSymbolBtn ui-button'; clearBtn.textContent = 'Clear'; clearBtn.style.marginLeft = '0px'; clearBtn.style.padding = '5px 5px'; clearBtn.style.fontSize = '16px';
     sizeCtrl.appendChild(clearBtn);
 
     // Text size control (0-100px) - visible only in TEXT mode - with "All" checkbox
     const textSizeCtrl = document.createElement('div'); textSizeCtrl.className = 'textSizeControl'; textSizeCtrl.style.display = 'none'; textSizeCtrl.style.alignItems = 'center'; textSizeCtrl.style.gap = '8px'; textSizeCtrl.style.padding = '0px 0px';
-      const textSizeLabel = document.createElement('span'); textSizeLabel.textContent = 'Size'; textSizeLabel.style.fontSize = '16px';
-    const textSizeSlider = document.createElement('input'); textSizeSlider.type = 'range'; textSizeSlider.min = 0; textSizeSlider.max = 100; textSizeSlider.step = 1; textSizeSlider.value = 30; textSizeSlider.style.width = '120px'; textSizeSlider.className = 'textSizeSlider';
-    const textSizeValue = document.createElement('input'); textSizeValue.type = 'number'; textSizeValue.min = 0; textSizeValue.max = 100; textSizeValue.step = 1; textSizeValue.value = textSizeSlider.value; textSizeValue.className = 'textSizeValue'; textSizeValue.style.width = '56px'; textSizeValue.style.fontSize = '14px';
-    const textSizeAllLabel = document.createElement('label'); textSizeAllLabel.style.display = 'flex'; textSizeAllLabel.style.alignItems = 'center'; textSizeAllLabel.style.gap = '4px'; textSizeAllLabel.style.fontSize = '12px'; textSizeAllLabel.style.color = '#aaa'; textSizeAllLabel.style.cursor = 'pointer';
-    const textSizeAllCheckbox = document.createElement('input'); textSizeAllCheckbox.type = 'checkbox'; textSizeAllCheckbox.className = 'textSizeAll'; textSizeAllLabel.appendChild(textSizeAllCheckbox); textSizeAllLabel.appendChild(document.createTextNode('All'));
+      const textSizeLabel = document.createElement('span'); textSizeLabel.textContent = 'Size'; textSizeLabel.style.fontSize = '16px'; textSizeLabel.style.color = 'var(--text-secondary)';
+    const textSizeSlider = document.createElement('input'); textSizeSlider.type = 'range'; textSizeSlider.min = 0; textSizeSlider.max = 100; textSizeSlider.step = 1; textSizeSlider.value = 30; textSizeSlider.style.width = '120px'; textSizeSlider.className = 'textSizeSlider ui-slider';
+    const textSizeValue = document.createElement('input'); textSizeValue.type = 'number'; textSizeValue.min = 0; textSizeValue.max = 100; textSizeValue.step = 1; textSizeValue.value = textSizeSlider.value; textSizeValue.className = 'textSizeValue ui-input'; textSizeValue.style.width = '56px'; textSizeValue.style.fontSize = '14px';
+    const textSizeAllLabel = document.createElement('label'); textSizeAllLabel.className = 'ui-checkbox-label'; textSizeAllLabel.style.display = 'flex'; textSizeAllLabel.style.alignItems = 'center'; textSizeAllLabel.style.gap = '4px'; textSizeAllLabel.style.fontSize = '12px'; textSizeAllLabel.style.color = 'var(--text-muted)'; textSizeAllLabel.style.cursor = 'pointer';
+    const textSizeAllCheckbox = document.createElement('input'); textSizeAllCheckbox.type = 'checkbox'; textSizeAllCheckbox.className = 'textSizeAll ui-checkbox'; textSizeAllLabel.appendChild(textSizeAllCheckbox); textSizeAllLabel.appendChild(document.createTextNode('All'));
     textSizeCtrl.appendChild(textSizeLabel); textSizeCtrl.appendChild(textSizeSlider); textSizeCtrl.appendChild(textSizeValue); textSizeCtrl.appendChild(textSizeAllLabel);
 
     // Helper to apply symbol size to all elements with background images
@@ -722,12 +722,6 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     swatchContainer.style.minWidth = '0';
     palette.forEach(c => {
       const s = document.createElement('div'); s.className = 'swatch'; s.dataset.color = c; s.title = c; s.style.background = c;
-      s.style.borderRadius = '50%';
-      s.style.cursor = 'pointer';
-      s.style.transition = 'transform 0.1s, box-shadow 0.1s';
-      s.style.border = '2px solid transparent';
-      s.addEventListener('mouseenter', () => { s.style.transform = 'scale(1.2)'; s.style.boxShadow = '0 0 8px rgba(0,0,0,0.5)'; });
-      s.addEventListener('mouseleave', () => { s.style.transform = 'scale(1)'; s.style.boxShadow = 'none'; });
       s.addEventListener('click', () => {
         const applyTarget = selected || panelAnchorTarget; if (!applyTarget) return; const btnId = applyTarget.dataset?.btn;
         if (mode === 'bg') { applyTarget.style.backgroundColor = c; if (btnId) { appState.buttons[btnId] = appState.buttons[btnId] || {}; appState.buttons[btnId].backgroundColor = c; } }
@@ -745,7 +739,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
 
   // --- Symbol selector ---
   // assign to previously-declared symbolBtn (avoid redeclaring block-scoped variable)
-  symbolBtn = document.createElement('div'); symbolBtn.className = 'modeBtn symbolBtn'; symbolBtn.textContent = 'SYMBOL';
+  symbolBtn = document.createElement('button'); symbolBtn.className = 'modeBtn symbolBtn ui-tab'; symbolBtn.textContent = 'SYMBOL';
   leftGroup.appendChild(symbolBtn);
   // assign fontBtn
   fontBtn = fontDiv;

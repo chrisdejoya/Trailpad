@@ -8,15 +8,52 @@
 
 :root {
   --trail-color: #CEEC73;
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #222;
+  --bg-tertiary: #2a2a2a;
+  --bg-elevated: #333;
+  --bg-panel: rgba(30, 30, 30, 0.92);
+  --bg-panel-hover: rgba(40, 40, 40, 0.95);
+  --border-subtle: #3a3a3a;
+  --border-default: #4a4a4a;
+  --border-focus: #fff;
+  --border-accent: #0af;
+  --text-primary: #fff;
+  --text-secondary: #ddd;
+  --text-muted: #999;
+  --text-disabled: #666;
+  --shadow-sm: 0 2px 6px rgba(0,0,0,0.4);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.5);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.6);
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --transition-fast: 0.1s ease;
+  --transition-normal: 0.15s ease;
+  --transition-slow: 0.2s ease;
+}
+
+/* Panel base with backdrop blur */
+.ui-panel,
+#colorPanel,
+#helpPanel,
+#toast,
+.presetsMenu {
+  background: var(--bg-panel);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-default);
 }
 
 html, body {
   height: 100%;
   margin: 0;
   font-family: "Swiss 721", Arial, Helvetica, sans-serif;
-  background: transparent; /* Transparent for OBS */
-  color: #eee;
+  background: transparent;
+  color: var(--text-primary);
   text-transform: uppercase;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 #app {
@@ -42,6 +79,132 @@ input.btn-edit {
   outline: none;
 }
 
+/* UI Base Styles - Non-editable UI elements only */
+.ui-panel,
+.ui-menu,
+.ui-toast,
+.ui-modal,
+.ui-dropdown,
+.ui-button:not(.btn),
+.ui-input:not(.btn-edit),
+.ui-label {
+  font-family: "Swiss 721", Arial, Helvetica, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+/* Remove native appearance from all UI controls */
+.ui-button:not(.btn),
+.ui-input:not(.btn-edit),
+.ui-select,
+.ui-textarea {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: inherit;
+  text-transform: uppercase;
+  outline: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+}
+
+.ui-button:not(.btn):hover,
+.ui-input:not(.btn-edit):hover,
+.ui-select:hover {
+  border-color: var(--border-focus);
+  background: var(--bg-elevated);
+}
+
+.ui-button:not(.btn):active,
+.ui-input:not(.btn-edit):active,
+.ui-select:active {
+  background: var(--bg-secondary);
+}
+
+.ui-button:not(.btn):focus,
+.ui-input:not(.btn-edit):focus,
+.ui-select:focus {
+  border-color: var(--border-accent);
+  box-shadow: 0 0 0 2px rgba(0, 170, 255, 0.2);
+}
+
+.ui-input:not(.btn-edit)::placeholder {
+  color: var(--text-disabled);
+}
+
+.ui-input:not(.btn-edit)::-webkit-outer-spin-button,
+.ui-input:not(.btn-edit)::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.ui-input:not(.btn-edit)[type=number] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.ui-select {
+  padding-right: 28px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23ddd' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 12px;
+}
+
+.ui-button:not(.btn) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-weight: 700;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-default);
+}
+
+.ui-button:not(.btn).primary {
+  background: var(--border-accent);
+  border-color: var(--border-accent);
+  color: #000;
+}
+
+.ui-button:not(.btn).primary:hover {
+  background: #00d4ff;
+  border-color: #00d4ff;
+}
+
+.ui-button:not(.btn).ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--text-secondary);
+}
+
+.ui-button:not(.btn).ghost:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.ui-button:not(.btn).danger {
+  background: #3a1a1a;
+  border-color: #552222;
+  color: #ff6b6b;
+}
+
+.ui-button:not(.btn).danger:hover {
+  background: #4a1a1a;
+  border-color: #773333;
+}
+
+.ui-button:not(.btn):disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 /* Symbol picker grid */
 .symbolGrid {
   display: grid;
@@ -55,15 +218,22 @@ input.btn-edit {
 .symbolCell {
   width: var(--symbol-size,48px);
   height: var(--symbol-size,48px);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   background-position: center;
   background-repeat: no-repeat;
   background-size: contain;
   cursor: pointer;
   border: 2px solid transparent;
+  transition: transform var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
-.symbolCell:hover { transform: scale(1.06); border-color: rgba(255,255,255,0.25); }
-.symbolCell.selected { border-color: #fff; box-shadow: 0 0 6px rgba(0,0,0,0.6); }
+.symbolCell:hover { 
+  transform: scale(1.06); 
+  border-color: rgba(255,255,255,0.25); 
+}
+.symbolCell.selected { 
+  border-color: var(--border-focus); 
+  box-shadow: 0 0 6px rgba(0,0,0,0.6); 
+}
 
 /* Compact layout for the symbol size control */
 .symbolSizeControl {
@@ -74,4 +244,272 @@ input.btn-edit {
 }
 .symbolSizeControl .symbolSizeValue { font-size: 11px; min-width: 34px; }
 .symbolSizeControl button.clearSymbolBtn { padding: 3px 6px; font-size: 11px; }
+
+/* ============ SLIDERS ============ */
+.ui-slider,
+input[type="range"]:not(.btn-edit) {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  background: var(--bg-secondary);
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.ui-slider:hover,
+input[type="range"]:not(.btn-edit):hover {
+  background: var(--bg-tertiary);
+}
+
+.ui-slider::-webkit-slider-thumb,
+input[type="range"]:not(.btn-edit)::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--border-accent);
+  border: 2px solid var(--bg-primary);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+}
+
+.ui-slider::-webkit-slider-thumb:hover,
+input[type="range"]:not(.btn-edit)::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: var(--shadow-md);
+  background: #00d4ff;
+}
+
+.ui-slider::-webkit-slider-thumb:active,
+input[type="range"]:not(.btn-edit)::-webkit-slider-thumb:active {
+  transform: scale(0.95);
+}
+
+.ui-slider::-moz-range-thumb,
+input[type="range"]:not(.btn-edit)::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--border-accent);
+  border: 2px solid var(--bg-primary);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.ui-slider::-moz-range-thumb:hover,
+input[type="range"]:not(.btn-edit)::-moz-range-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: var(--shadow-md);
+  background: #00d4ff;
+}
+
+.ui-slider::-moz-range-track,
+input[type="range"]:not(.btn-edit)::-moz-range-track {
+  height: 6px;
+  background: var(--bg-secondary);
+  border-radius: 3px;
+  border: none;
+}
+
+.ui-slider:focus::-webkit-slider-thumb,
+input[type="range"]:not(.btn-edit):focus::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px rgba(0, 170, 255, 0.3), var(--shadow-sm);
+}
+
+.ui-slider:focus::-moz-range-thumb,
+input[type="range"]:not(.btn-edit):focus::-moz-range-thumb {
+  box-shadow: 0 0 0 3px rgba(0, 170, 255, 0.3), var(--shadow-sm);
+}
+
+.ui-slider:disabled,
+input[type="range"]:not(.btn-edit):disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.ui-slider:disabled::-webkit-slider-thumb,
+input[type="range"]:not(.btn-edit):disabled::-webkit-slider-thumb {
+  background: var(--text-disabled);
+}
+
+/* ============ CHECKBOXES ============ */
+.ui-checkbox,
+input[type="checkbox"]:not(.btn-edit) {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  background: var(--bg-secondary);
+  cursor: pointer;
+  position: relative;
+  transition: border-color var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.ui-checkbox:hover,
+input[type="checkbox"]:not(.btn-edit):hover {
+  border-color: var(--border-focus);
+  background: var(--bg-tertiary);
+}
+
+.ui-checkbox:checked,
+input[type="checkbox"]:not(.btn-edit):checked {
+  background: var(--border-accent);
+  border-color: var(--border-accent);
+}
+
+.ui-checkbox:checked::after,
+input[type="checkbox"]:not(.btn-edit):checked::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 5px;
+  height: 10px;
+  border: solid #000;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.ui-checkbox:focus,
+input[type="checkbox"]:not(.btn-edit):focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 170, 255, 0.3);
+}
+
+.ui-checkbox:disabled,
+input[type="checkbox"]:not(.btn-edit):disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Checkbox label wrapper */
+.ui-checkbox-label,
+.checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--text-secondary);
+  user-select: none;
+}
+
+.ui-checkbox-label input[type="checkbox"],
+.checkbox-label input[type="checkbox"] {
+  margin: 0;
+}
+
+/* ============ TAB HEADERS ============ */
+.ui-tabs,
+.tab-headers {
+  display: flex;
+  gap: 2px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  padding: 4px;
+  border: 1px solid var(--border-subtle);
+}
+
+.ui-tab,
+.tab-header {
+  padding: 8px 16px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-family: inherit;
+  transition: color var(--transition-fast), background var(--transition-fast);
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.ui-tab:hover,
+.tab-header:hover {
+  color: var(--text-secondary);
+  background: var(--bg-tertiary);
+}
+
+.ui-tab.active,
+.tab-header.active {
+  color: #000;
+  background: var(--border-accent);
+}
+
+.ui-tab:focus,
+.tab-header:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 170, 255, 0.3);
+}
+
+.ui-tab:disabled,
+.tab-header:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Tab panels */
+.ui-tab-panel,
+.tab-panel {
+  display: none;
+}
+
+.ui-tab-panel.active,
+.tab-panel.active {
+  display: block;
+  animation: fadeIn var(--transition-normal);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============ SCROLLBARS (Global) ============ */
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+  border-radius: 4px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--border-default);
+  border-radius: 4px;
+  border: 2px solid var(--bg-secondary);
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--border-focus);
+}
+
+*::-webkit-scrollbar-corner {
+  background: var(--bg-primary);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-default) var(--bg-secondary);
+}
 
