@@ -46,7 +46,7 @@
       "backgroundImage": "none",
       "color": "rgb(238, 238, 238)",
       "fontSize": "40px",
-      "label": "˄"
+      "label": "Ãƒâ€¹Ã¢â‚¬Å¾"
     },
     "Down": {
       "top": "210px",
@@ -62,7 +62,7 @@
       "backgroundImage": "none",
       "color": "rgb(238, 238, 238)",
       "fontSize": "40px",
-      "label": "˅"
+      "label": "Ãƒâ€¹Ã¢â‚¬Â¦"
     },
     "Left": {
       "top": "210px",
@@ -78,7 +78,7 @@
       "backgroundImage": "none",
       "color": "rgb(238, 238, 238)",
       "fontSize": "40px",
-      "label": "˂"
+      "label": "Ãƒâ€¹Ã¢â‚¬Å¡"
     },
     "Right": {
       "top": "210px",
@@ -94,7 +94,7 @@
       "backgroundImage": "none",
       "color": "rgb(238, 238, 238)",
       "fontSize": "40px",
-      "label": "˃"
+      "label": "Ãƒâ€¹Ã†â€™"
     },
     "A": {
       "top": "110px",
@@ -238,7 +238,12 @@
       "backgroundImage": "none",
       "color": "rgb(238, 238, 238)",
       "fontSize": "40px",
-      "label": "LS"
+      "label": "LS",
+      "stickRadius": 8,
+      "stickMovement": true,
+      "baseVisibility": false,
+      "trailWidth": 12,
+      "trailLength": 8
     },
     "RS": {
       "top": "310px",
@@ -254,7 +259,12 @@
       "backgroundImage": "none",
       "color": "rgb(238, 238, 238)",
       "fontSize": "40px",
-      "label": "RS"
+      "label": "RS",
+      "stickRadius": 8,
+      "stickMovement": true,
+      "baseVisibility": false,
+      "trailWidth": 12,
+      "trailLength": 8
     },
     "View": {
       "top": "330px",

@@ -328,9 +328,9 @@
       "stickMovement": true,
       "showTrail": true,
       "stickRadius": 70,
-      "trailSize": 5,
+      "trailLength": 5,
       "trailWidth": 10,
-      "showBase": true,
+      "baseVisibility": true,
       "baseSize": 200
     },
     "RS": {
@@ -354,9 +354,9 @@
       "stickMovement": true,
       "showTrail": true,
       "stickRadius": 70,
-      "trailSize": 5,
+      "trailLength": 5,
       "trailWidth": 10,
-      "showBase": true,
+      "baseVisibility": true,
       "baseSize": 200
     },
     "View": {
@@ -399,11 +399,7 @@
     }
   },
   "trailColor": "#eedd44",
-  "analog": {
-    "LS": true,
-    "RS": true,
-    "analogVisualRange": 10,
-    "pressureEnabled": false,
+  "analog": {    "pressureEnabled": false,
     "minTriggerBrightness": 1,
     "maxTriggerBrightness": 3,
     "triggerDeadzone": 0

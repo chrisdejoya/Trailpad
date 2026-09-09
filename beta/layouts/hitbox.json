@@ -290,10 +290,20 @@
       "label": "RT"
     },
     "LS": {
-      "display": "none"
+      "display": "none",
+      "stickRadius": 8,
+      "stickMovement": true,
+      "baseVisibility": false,
+      "trailWidth": 12,
+      "trailLength": 8
     },
     "RS": {
-      "display": "none"
+      "display": "none",
+      "stickRadius": 8,
+      "stickMovement": true,
+      "baseVisibility": false,
+      "trailWidth": 12,
+      "trailLength": 8
     },
     "View": {
       "display": "none"

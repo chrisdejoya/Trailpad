@@ -14,6 +14,169 @@
     text-transform: uppercase;
     letter-spacing: 0.02em;
     color: var(--text-primary);
+    font-size: var(--ui-font-size);
+}
+
+.colorPanelModeToggle,
+.colorPanelModeGroup,
+.colorPanelControlRow,
+.colorPanelControl,
+.colorPanelSliderRow,
+.colorPanelCheckbox {
+    display: flex;
+    align-items: center;
+    gap: var(--ui-control-gap);
+}
+
+.colorPanelModeToggle {
+    overflow-x: auto;
+    padding: 4px 8px;
+    border-bottom: 1px solid var(--border-subtle);
+    flex-shrink: 0;
+}
+
+.colorPanelModeGroup {
+    white-space: nowrap;
+}
+
+.colorPanelModeButton {
+    padding: 6px 10px;
+    font-size: var(--ui-font-size-small);
+}
+
+.colorPanelControlRow,
+.colorPanelSliderRow {
+    display: grid;
+    grid-template-columns: var(--ui-control-label-width) 1fr var(--ui-control-number-width);
+    font-size: var(--ui-font-size);
+}
+
+.colorPanelControlRow > input[type="number"],
+.colorPanelSliderRow > input[type="number"] {
+    width: var(--ui-control-number-width);
+}
+
+.colorPanelSectionTitle {
+    font-size: var(--ui-font-size-small);
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border-subtle);
+    padding-bottom: 4px;
+}
+
+.colorPanelCheckbox {
+    cursor: pointer;
+    font-size: var(--ui-font-size);
+}
+
+.colorPanelControls {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px 8px;
+}
+
+.colorPanelValue {
+    width: var(--ui-control-number-width);
+    font-size: var(--ui-font-size-value);
+    text-align: center;
+}
+
+.colorPanelLabel {
+    font-size: var(--ui-font-size-small);
+    color: var(--text-secondary);
+}
+
+.colorPanelSliderArea {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-top: 6px;
+    border-top: 1px solid var(--border-subtle);
+    flex-shrink: 0;
+}
+
+.colorPanelOutlineControls,
+.colorPanelInlineControl,
+.colorPanelSizeControl {
+    display: flex;
+    align-items: center;
+    gap: var(--ui-control-gap);
+    flex-wrap: wrap;
+}
+
+.colorPanelInlineControl {
+    gap: 4px;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: var(--ui-font-size-small);
+}
+
+.colorPanelOutlineLabel {
+    font-size: var(--ui-font-size-small);
+    color: var(--text-secondary);
+}
+
+.colorPanelSmallValue {
+    width: 40px;
+    font-size: var(--ui-font-size-value);
+    text-align: center;
+}
+
+.colorPanelSymbolValue {
+    width: 50px;
+    font-size: var(--ui-font-size);
+    text-align: center;
+}
+
+.colorPanelTextValue {
+    width: 56px;
+    font-size: var(--ui-font-size-value);
+}
+
+.colorPanelSizeControl {
+    display: none;
+}
+
+.colorPanelSizeLabel {
+    font-size: 16px;
+    color: var(--text-secondary);
+}
+
+.colorPanelOutlineSlider {
+    width: 60px;
+}
+
+.colorPanelTextSlider {
+    width: 120px;
+}
+
+.colorPanelClearButton {
+    margin-left: 0;
+    padding: 5px;
+    font-size: 16px;
+}
+
+.colorPanelSwatches {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(20px, 1fr));
+    gap: 6px;
+    padding: 8px;
+    justify-content: center;
+    min-width: 0;
+}
+
+.colorPanelFontGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding: 8px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.colorPanelFontItem {
+    padding: 12px 10px;
+    font-size: var(--ui-font-size);
 }
 
 .swatchContainer {

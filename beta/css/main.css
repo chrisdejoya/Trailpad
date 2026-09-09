@@ -34,6 +34,13 @@
   --transition-fast: 0.1s ease;
   --transition-normal: 0.15s ease;
   --transition-slow: 0.2s ease;
+  --ui-font-size: 13px;
+  --ui-font-size-small: 11px;
+  --ui-font-size-value: 14px;
+  --ui-control-height: 30px;
+  --ui-control-number-width: 48px;
+  --ui-control-label-width: 54px;
+  --ui-control-gap: 8px;
 }
 
 /* Panel base with backdrop blur */

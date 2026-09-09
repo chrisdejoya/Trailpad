@@ -307,7 +307,12 @@
       "backgroundSize": "contain",
       "color": "rgb(255, 255, 255)",
       "fontSize": "30px",
-      "label": "L3"
+      "label": "L3",
+      "stickRadius": 8,
+      "stickMovement": true,
+      "baseVisibility": false,
+      "trailWidth": 12,
+      "trailLength": 8
     },
     "RS": {
       "display": "flex",
@@ -325,7 +330,12 @@
       "backgroundSize": "contain",
       "color": "rgb(255, 255, 255)",
       "fontSize": "30px",
-      "label": "R3"
+      "label": "R3",
+      "stickRadius": 8,
+      "stickMovement": true,
+      "baseVisibility": false,
+      "trailWidth": 12,
+      "trailLength": 8
     },
     "View": {
       "display": "flex",
@@ -366,9 +376,6 @@
   },
   "trailColor": "#eedd44",
   "analog": {
-    "LS": true,
-    "RS": true,
-    "analogVisualRange": 20,
     "pressureEnabled": true,
     "minTriggerBrightness": 1,
     "maxTriggerBrightness": 3,

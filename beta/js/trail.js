@@ -41,8 +41,8 @@ export function createTrailSystem(canvas, ctx, config, getTrailColor) {
   
   function addPoint(x, y) {
     trail.push({ x, y });
-    const trailSize = config.trailSize ?? config.trail ?? 8;
-    while (trail.length > trailSize) trail.shift();
+    const trailLength = config.trailLength ?? config.trailSize ?? config.trail ?? 8;
+    while (trail.length > trailLength) trail.shift();
   }
   
   function getTrail() {

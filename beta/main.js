@@ -12,6 +12,7 @@ window.addEventListener('DOMContentLoaded', () => {
   ].map((k, i) => [k, i]));
 
   const cfg = { deadzone: 0.1, trail: 8, invertY: false, ignoredForJoystick: ['View', 'Menu', 'Up', 'Down', 'Left', 'Right'] };
+  const ANALOG_DEFAULTS = { stickMovement: true, stickRadius: 8, trailWidth: 12, trailLength: 8, baseVisibility: false, baseSize: 100 };
 
   const palette = [
     // Reds
@@ -77,7 +78,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // distance readouts removed (no on-screen numeric distance)
 
-  // (analog control panel removed) - preferences remain in appState.analog and will be exported/imported
+  // Per-stick analog settings live in buttons.LS/RS; analog stores trigger-only preferences.
 
   // App state
   let appState = {
@@ -109,7 +110,7 @@ window.addEventListener('DOMContentLoaded', () => {
   // Add analog configuration to appState (persisted)
   // pressureEnabled: whether LT/RT respond to analog pressure
   // minTriggerBrightness/maxTriggerBrightness: mapping from 0..1 trigger value to brightness
-    appState.analog = { LS: true, RS: true, analogVisualRange: 8, pressureEnabled: true, minTriggerBrightness: 1.0, maxTriggerBrightness: 3.0, triggerDeadzone: 0.1 };
+    appState.analog = { pressureEnabled: true, minTriggerBrightness: 1.0, maxTriggerBrightness: 3.0, triggerDeadzone: 0.1 };
   let selected = null;
   let lastPressedTimes = {};
   let activeGamepadIndex = null;
@@ -223,13 +224,13 @@ window.addEventListener('DOMContentLoaded', () => {
       else snap.label = (el.textContent || '').trim();
       if (key === 'LS' || key === 'RS') {
         const stickState = appState.buttons?.[key] || {};
-        snap.stickMovement = stickState.stickMovement ?? appState.analog?.[key] !== false;
+        snap.stickMovement = stickState.stickMovement ?? ANALOG_DEFAULTS.stickMovement;
         snap.showTrail = stickState.showTrail !== false;
-        snap.stickRadius = Math.max(0, Math.min(100, parseInt(stickState.stickRadius ?? appState.analog?.analogVisualRange ?? 8, 10) || 0));
-        snap.trailSize = Math.max(1, Math.min(60, parseInt(stickState.trailSize ?? cfg.trail, 10) || cfg.trail));
-        snap.trailWidth = Math.max(1, Math.min(40, parseInt(stickState.trailWidth ?? 12, 10) || 12));
-        snap.showBase = stickState.showBase === true;
-        snap.baseSize = Math.max(20, Math.min(300, parseInt(stickState.baseSize ?? 100, 10) || 100));
+        snap.stickRadius = Math.max(0, Math.min(100, parseInt(stickState.stickRadius ?? ANALOG_DEFAULTS.stickRadius, 10) || 0));
+        snap.trailLength = Math.max(1, Math.min(60, parseInt(stickState.trailLength ?? stickState.trailSize ?? ANALOG_DEFAULTS.trailLength, 10) || ANALOG_DEFAULTS.trailLength));
+        snap.trailWidth = Math.max(1, Math.min(40, parseInt(stickState.trailWidth ?? ANALOG_DEFAULTS.trailWidth, 10) || ANALOG_DEFAULTS.trailWidth));
+        snap.baseVisibility = stickState.baseVisibility ?? stickState.showBase ?? ANALOG_DEFAULTS.baseVisibility;
+        snap.baseSize = Math.max(20, Math.min(300, parseInt(stickState.baseSize ?? ANALOG_DEFAULTS.baseSize, 10) || ANALOG_DEFAULTS.baseSize));
       }
     }
     if (snap.backgroundSize && snap.backgroundSize !== 'auto') {
@@ -263,10 +264,11 @@ window.addEventListener('DOMContentLoaded', () => {
     if (appState.eightWayWrapper?.arrowImageOn) snap.eightWayWrapper.arrowImageOn = normalizeBgImage(appState.eightWayWrapper.arrowImageOn);
     if (appState.eightWayWrapper?.arrowImageOff) snap.eightWayWrapper.arrowImageOff = normalizeBgImage(appState.eightWayWrapper.arrowImageOff);
     Object.keys(btnEls).forEach(k => snap.buttons[k] = captureElementProperties(btnEls[k]));
-  // include analog prefs (LS/RS enabled, analogVisualRange) so layouts can control analog behavior
+  // Include trigger-only analog preferences. Per-stick settings are stored in buttons.LS/RS.
   if (appState.analog) {
     // copy only canonical fields and prune legacy keys if present
     const a = Object.assign({}, appState.analog);
+    delete a.LS; delete a.RS; delete a.analogVisualRange;
     delete a.visualRange; delete a.minBrightness; delete a.maxBrightness; delete a.deadzone; delete a.showDistance;
     snap.analog = a;
   }
@@ -284,7 +286,18 @@ window.addEventListener('DOMContentLoaded', () => {
       appState.buttons = {};
       Object.entries(parsed.buttons).forEach(([k, data]) => {
         appState.buttons[k] = {};
-        if (btnEls[k]) applyAndStore(btnEls[k], appState.buttons[k], data);
+        if (btnEls[k]) {
+          const normalizedData = { ...data };
+          if (k === 'LS' || k === 'RS') {
+            if (normalizedData.trailLength === undefined && normalizedData.trailSize !== undefined) normalizedData.trailLength = normalizedData.trailSize;
+            if (normalizedData.baseVisibility === undefined && normalizedData.showBase !== undefined) normalizedData.baseVisibility = normalizedData.showBase;
+            if (normalizedData.stickMovement === undefined && parsed.analog?.[k] !== undefined) normalizedData.stickMovement = parsed.analog[k];
+            if (normalizedData.stickRadius === undefined && parsed.analog?.analogVisualRange !== undefined) normalizedData.stickRadius = parsed.analog.analogVisualRange;
+            delete normalizedData.trailSize;
+            delete normalizedData.showBase;
+          }
+          applyAndStore(btnEls[k], appState.buttons[k], normalizedData);
+        }
       });
     }
     if (parsed.eightWayWrapper?.arrowSize !== undefined) {
@@ -323,8 +336,6 @@ window.addEventListener('DOMContentLoaded', () => {
       // remove legacy names so appState.analog stays canonical
       delete safeAnalog.visualRange; delete safeAnalog.minBrightness; delete safeAnalog.maxBrightness; delete safeAnalog.deadzone;
       appState.analog = Object.assign({}, appState.analog || {}, safeAnalog);
-      // ensure analogVisualRange fallback
-      if (appState.analog.analogVisualRange === undefined) appState.analog.analogVisualRange = 8;
       // ensure triggerDeadzone fallback
       if (appState.analog.triggerDeadzone === undefined) appState.analog.triggerDeadzone = 0.1;
     }
@@ -475,18 +486,18 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
   const isStickTarget = stickId === 'LS' || stickId === 'RS';
 
     // mode toggle row (header) - horizontally scrollable for many tabs
-    const toggle = document.createElement('div'); toggle.className = 'modeToggle ui-tabs'; toggle.style.display = 'flex'; toggle.style.alignItems = 'center'; toggle.style.gap = '4px'; toggle.style.overflowX = 'auto'; toggle.style.padding = '4px 8px'; toggle.style.borderBottom = '1px solid var(--border-subtle)'; toggle.style.flexShrink = '0';
-    const leftGroup = document.createElement('div'); leftGroup.style.display = 'flex'; leftGroup.style.gap = '4px'; leftGroup.style.whiteSpace = 'nowrap';
+    const toggle = document.createElement('div'); toggle.className = 'modeToggle colorPanelModeToggle ui-tabs';
+    const leftGroup = document.createElement('div'); leftGroup.className = 'colorPanelModeGroup';
     // declare symbolBtn early to avoid TDZ when handlers reference it
     let symbolBtn = null;
     let fontBtn = null;
-      const fontDiv = document.createElement('button'); fontDiv.className = 'modeBtn fontBtn ui-tab'; fontDiv.textContent = 'FONT'; fontDiv.style.padding = '6px 10px'; fontDiv.style.fontSize = '11px';
-      const bgDiv = document.createElement('button'); bgDiv.className = 'modeBtn bgBtn ui-tab'; bgDiv.textContent = 'FILL'; bgDiv.style.padding = '6px 10px'; bgDiv.style.fontSize = '11px';
-      const txtDiv = document.createElement('button'); txtDiv.className = 'modeBtn txtBtn ui-tab'; txtDiv.textContent = 'TEXT'; txtDiv.style.padding = '6px 10px'; txtDiv.style.fontSize = '11px';
-      const outlineDiv = document.createElement('button'); outlineDiv.className = 'modeBtn outlineBtn ui-tab'; outlineDiv.textContent = 'STROKE'; outlineDiv.style.padding = '6px 10px'; outlineDiv.style.fontSize = '11px';
+      const fontDiv = document.createElement('button'); fontDiv.className = 'modeBtn colorPanelModeButton fontBtn ui-tab'; fontDiv.textContent = 'FONT';
+      const bgDiv = document.createElement('button'); bgDiv.className = 'modeBtn colorPanelModeButton bgBtn ui-tab'; bgDiv.textContent = 'FILL';
+      const txtDiv = document.createElement('button'); txtDiv.className = 'modeBtn colorPanelModeButton txtBtn ui-tab'; txtDiv.textContent = 'TEXT';
+      const outlineDiv = document.createElement('button'); outlineDiv.className = 'modeBtn colorPanelModeButton outlineBtn ui-tab'; outlineDiv.textContent = 'STROKE';
     let stickDiv = null;
     if (isStickTarget) {
-      stickDiv = document.createElement('button'); stickDiv.className = 'modeBtn stickBtn ui-tab'; stickDiv.textContent = 'STICK'; stickDiv.style.padding = '6px 10px'; stickDiv.style.fontSize = '11px';
+      stickDiv = document.createElement('button'); stickDiv.className = 'modeBtn colorPanelModeButton stickBtn ui-tab'; stickDiv.textContent = 'STICK';
     }
     if (stickDiv) leftGroup.appendChild(stickDiv);
     leftGroup.appendChild(fontDiv); leftGroup.appendChild(bgDiv); leftGroup.appendChild(txtDiv); leftGroup.appendChild(outlineDiv); toggle.appendChild(leftGroup);
@@ -503,21 +514,20 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     stickControls.className = 'stickControls';
     stickControls.style.display = 'none';
     stickControls.style.flexDirection = 'column';
-    stickControls.style.gap = '12px';
-    stickControls.style.padding = '12px 8px';
+    stickControls.classList.add('colorPanelControls');
     const stickState = isStickTarget ? (appState.buttons[stickId] = appState.buttons[stickId] || {}) : {};
     const stickMovement = getStickMovementEnabled(stickId);
     const showTrail = stickState.showTrail !== false;
-    const stickRadius = Math.max(0, Math.min(100, parseInt(stickState.stickRadius ?? appState.analog?.analogVisualRange ?? 8, 10) || 0));
-    const trailSize = Math.max(1, Math.min(60, parseInt(stickState.trailSize ?? cfg.trail, 10) || cfg.trail));
-    const trailWidth = Math.max(1, Math.min(40, parseInt(stickState.trailWidth ?? 12, 10) || 12));
-    const showBase = stickState.showBase === true;
-    const baseSize = Math.max(20, Math.min(300, parseInt(stickState.baseSize ?? 100, 10) || 100));
+    const stickRadius = Math.max(0, Math.min(100, parseInt(stickState.stickRadius ?? ANALOG_DEFAULTS.stickRadius, 10) || 0));
+    const trailLength = Math.max(1, Math.min(60, parseInt(stickState.trailLength ?? stickState.trailSize ?? ANALOG_DEFAULTS.trailLength, 10) || ANALOG_DEFAULTS.trailLength));
+    const trailWidth = Math.max(1, Math.min(40, parseInt(stickState.trailWidth ?? ANALOG_DEFAULTS.trailWidth, 10) || ANALOG_DEFAULTS.trailWidth));
+    const baseVisibility = stickState.baseVisibility ?? stickState.showBase ?? ANALOG_DEFAULTS.baseVisibility;
+    const baseSize = Math.max(20, Math.min(300, parseInt(stickState.baseSize ?? ANALOG_DEFAULTS.baseSize, 10) || ANALOG_DEFAULTS.baseSize));
     const makeGroupTitle = text => {
-      const title = document.createElement('div'); title.textContent = text; title.style.fontSize = '11px'; title.style.color = 'var(--text-muted)'; title.style.borderBottom = '1px solid var(--border-subtle)'; title.style.paddingBottom = '4px'; return title;
+      const title = document.createElement('div'); title.className = 'colorPanelSectionTitle'; title.textContent = text; return title;
     };
     function makeStickCheckbox(labelText, checked, onChange) {
-      const label = document.createElement('label'); label.className = 'ui-checkbox-label'; label.style.display = 'flex'; label.style.alignItems = 'center'; label.style.gap = '8px'; label.style.fontSize = '13px'; label.style.cursor = 'pointer';
+      const label = document.createElement('label'); label.className = 'ui-checkbox-label colorPanelCheckbox';
       const checkbox = document.createElement('input'); checkbox.type = 'checkbox'; checkbox.className = 'ui-checkbox'; checkbox.checked = checked;
       checkbox.addEventListener('change', () => { onChange(checkbox.checked); saveStateData(); });
       label.appendChild(checkbox); label.appendChild(document.createTextNode(labelText)); stickControls.appendChild(label);
@@ -525,15 +535,16 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     }
     stickControls.appendChild(makeGroupTitle('Movement'));
     let trailCheckbox = null;
-    makeStickCheckbox('Stick Movement', stickMovement, value => {
+    const movementCheckbox = makeStickCheckbox('Stick Movement', stickMovement, value => {
       stickState.stickMovement = value;
       if (trailCheckbox) trailCheckbox.disabled = !value;
       if (!value) stickTrailSystems[stickId]?.clear();
     });
-    const rangeRow = document.createElement('div'); rangeRow.style.display = 'grid'; rangeRow.style.gridTemplateColumns = '54px 1fr 48px'; rangeRow.style.alignItems = 'center'; rangeRow.style.gap = '8px'; rangeRow.style.fontSize = '13px';
+    movementCheckbox.dataset.stickKey = 'stickMovement';
+    const rangeRow = document.createElement('div'); rangeRow.className = 'colorPanelControlRow';
     const rangeLabel = document.createElement('span'); rangeLabel.textContent = 'Range';
-    const rangeSlider = document.createElement('input'); rangeSlider.type = 'range'; rangeSlider.min = '0'; rangeSlider.max = '100'; rangeSlider.step = '1'; rangeSlider.value = String(stickRadius); rangeSlider.className = 'ui-slider'; rangeSlider.style.flex = '1';
-    const rangeValue = document.createElement('input'); rangeValue.type = 'number'; rangeValue.min = '0'; rangeValue.max = '100'; rangeValue.step = '1'; rangeValue.value = String(stickRadius); rangeValue.className = 'ui-input'; rangeValue.style.width = '48px';
+    const rangeSlider = document.createElement('input'); rangeSlider.type = 'range'; rangeSlider.min = '0'; rangeSlider.max = '100'; rangeSlider.step = '1'; rangeSlider.value = String(stickRadius); rangeSlider.className = 'ui-slider'; rangeSlider.dataset.stickKey = 'stickRadius'; rangeSlider.style.flex = '1';
+    const rangeValue = document.createElement('input'); rangeValue.type = 'number'; rangeValue.min = '0'; rangeValue.max = '100'; rangeValue.step = '1'; rangeValue.value = String(stickRadius); rangeValue.className = 'ui-input colorPanelValue'; rangeValue.dataset.stickKey = 'stickRadius';
     const updateRange = value => {
       if (value === '') return;
       const next = Math.max(0, Math.min(100, parseInt(value, 10) || 0));
@@ -545,12 +556,13 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     rangeRow.appendChild(rangeLabel); rangeRow.appendChild(rangeSlider); rangeRow.appendChild(rangeValue); stickControls.appendChild(rangeRow);
     stickControls.appendChild(makeGroupTitle('Trail'));
     trailCheckbox = makeStickCheckbox('Show Trail', showTrail, value => { stickState.showTrail = value; if (!value) stickTrailSystems[stickId]?.clear(); });
+    trailCheckbox.dataset.stickKey = 'showTrail';
     trailCheckbox.disabled = !stickMovement;
     const makeTrailSlider = (labelText, initialValue, min, max, key) => {
-      const row = document.createElement('div'); row.style.display = 'grid'; row.style.gridTemplateColumns = '54px 1fr 48px'; row.style.alignItems = 'center'; row.style.gap = '8px'; row.style.fontSize = '13px';
+      const row = document.createElement('div'); row.className = 'colorPanelSliderRow';
       const label = document.createElement('span'); label.textContent = labelText;
-      const slider = document.createElement('input'); slider.type = 'range'; slider.min = String(min); slider.max = String(max); slider.step = '1'; slider.value = String(initialValue); slider.className = 'ui-slider';
-      const value = document.createElement('input'); value.type = 'number'; value.min = String(min); value.max = String(max); value.step = '1'; value.value = String(initialValue); value.className = 'ui-input'; value.style.width = '48px';
+      const slider = document.createElement('input'); slider.type = 'range'; slider.min = String(min); slider.max = String(max); slider.step = '1'; slider.value = String(initialValue); slider.className = 'ui-slider'; slider.dataset.stickKey = key;
+      const value = document.createElement('input'); value.type = 'number'; value.min = String(min); value.max = String(max); value.step = '1'; value.value = String(initialValue); value.className = 'ui-input colorPanelValue'; value.dataset.stickKey = key;
       const update = raw => {
         if (raw === '') return;
         const parsed = parseInt(raw, 10);
@@ -567,48 +579,44 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
       row.appendChild(label); row.appendChild(slider); row.appendChild(value); stickControls.appendChild(row);
     };
     makeTrailSlider('Width', trailWidth, 1, 40, 'trailWidth');
-    makeTrailSlider('Size', trailSize, 1, 60, 'trailSize');
+    makeTrailSlider('Length', trailLength, 1, 60, 'trailLength');
     stickControls.appendChild(makeGroupTitle('Appearance'));
-    makeStickCheckbox('Show Base', showBase, value => { stickState.showBase = value; updateAnalogStickBases(); });
+    const baseCheckbox = makeStickCheckbox('Base Visibility', baseVisibility, value => { stickState.baseVisibility = value; updateAnalogStickBases(); });
+    baseCheckbox.dataset.stickKey = 'baseVisibility';
     makeTrailSlider('Base Size', baseSize, 20, 300, 'baseSize');
     contentArea.appendChild(stickControls);
 
     // Slider area (bottom)
     const sliderArea = document.createElement('div');
-    sliderArea.style.display = 'flex';
-    sliderArea.style.flexDirection = 'column';
-    sliderArea.style.gap = '6px';
-    sliderArea.style.paddingTop = '6px';
-    sliderArea.style.borderTop = '1px solid var(--border-subtle)';
-    sliderArea.style.flexShrink = '0';
+    sliderArea.className = 'colorPanelSliderArea';
 
     // Outline sliders (In/Out) - with numeric inputs and a single shared "All" toggle
-    const sliderWrapper = document.createElement('div'); sliderWrapper.style.display = 'none'; sliderWrapper.style.alignItems = 'center'; sliderWrapper.style.gap = '5px'; sliderWrapper.style.flexWrap = 'wrap';
-      const innerLabel = document.createElement('span'); innerLabel.textContent = 'In'; innerLabel.style.fontSize = '12px'; innerLabel.style.color = 'var(--text-secondary)';
-      const innerSlider = document.createElement('input'); innerSlider.type = 'range'; innerSlider.min = 0; innerSlider.max = 10; innerSlider.step = 1; innerSlider.style.width = '60px'; innerSlider.className = 'ui-slider';
-      const innerValue = document.createElement('input'); innerValue.type = 'number'; innerValue.min = 0; innerValue.max = 10; innerValue.step = 1; innerValue.value = 0; innerValue.style.width = '40px'; innerValue.style.fontSize = '14px'; innerValue.style.textAlign = 'center'; innerValue.className = 'ui-input';
-      const outerLabel = document.createElement('span'); outerLabel.textContent = 'Out'; outerLabel.style.fontSize = '12px'; outerLabel.style.color = 'var(--text-secondary)';
-      const outerSlider = document.createElement('input'); outerSlider.type = 'range'; outerSlider.min = 0; outerSlider.max = 10; outerSlider.step = 1; outerSlider.style.width = '60px'; outerSlider.className = 'ui-slider';
-      const outerValue = document.createElement('input'); outerValue.type = 'number'; outerValue.min = 0; outerValue.max = 10; outerValue.step = 1; outerValue.value = 0; outerValue.style.width = '40px'; outerValue.style.fontSize = '14px'; outerValue.style.textAlign = 'center'; outerValue.className = 'ui-input';
-      const outlineAllLabel = document.createElement('label'); outlineAllLabel.className = 'ui-checkbox-label'; outlineAllLabel.style.display = 'flex'; outlineAllLabel.style.alignItems = 'center'; outlineAllLabel.style.gap = '4px'; outlineAllLabel.style.fontSize = '12px'; outlineAllLabel.style.color = 'var(--text-muted)'; outlineAllLabel.style.cursor = 'pointer';
+    const sliderWrapper = document.createElement('div'); sliderWrapper.className = 'colorPanelOutlineControls'; sliderWrapper.style.display = 'none';
+      const innerLabel = document.createElement('span'); innerLabel.className = 'colorPanelOutlineLabel'; innerLabel.textContent = 'In';
+      const innerSlider = document.createElement('input'); innerSlider.type = 'range'; innerSlider.min = 0; innerSlider.max = 10; innerSlider.step = 1; innerSlider.className = 'ui-slider colorPanelOutlineSlider';
+      const innerValue = document.createElement('input'); innerValue.type = 'number'; innerValue.min = 0; innerValue.max = 10; innerValue.step = 1; innerValue.value = 0; innerValue.className = 'ui-input colorPanelSmallValue';
+      const outerLabel = document.createElement('span'); outerLabel.className = 'colorPanelOutlineLabel'; outerLabel.textContent = 'Out';
+      const outerSlider = document.createElement('input'); outerSlider.type = 'range'; outerSlider.min = 0; outerSlider.max = 10; outerSlider.step = 1; outerSlider.className = 'ui-slider colorPanelOutlineSlider';
+      const outerValue = document.createElement('input'); outerValue.type = 'number'; outerValue.min = 0; outerValue.max = 10; outerValue.step = 1; outerValue.value = 0; outerValue.className = 'ui-input colorPanelSmallValue';
+      const outlineAllLabel = document.createElement('label'); outlineAllLabel.className = 'ui-checkbox-label colorPanelInlineControl';
       const outlineAllCheckbox = document.createElement('input'); outlineAllCheckbox.type = 'checkbox'; outlineAllCheckbox.className = 'outlineSizeAll ui-checkbox'; outlineAllLabel.appendChild(outlineAllCheckbox); outlineAllLabel.appendChild(document.createTextNode('All'));
     sliderWrapper.appendChild(innerLabel); sliderWrapper.appendChild(innerSlider); sliderWrapper.appendChild(innerValue); sliderWrapper.appendChild(outerLabel); sliderWrapper.appendChild(outerSlider); sliderWrapper.appendChild(outerValue); sliderWrapper.appendChild(outlineAllLabel);
 
     // Symbol size control - with numeric input
-    const sizeCtrl = document.createElement('div'); sizeCtrl.className = 'symbolSizeControl'; sizeCtrl.style.display = 'none'; sizeCtrl.style.alignItems = 'center'; sizeCtrl.style.gap = '5px'; sizeCtrl.style.padding = '0px 0px';
-      const sizeLabel = document.createElement('span'); sizeLabel.textContent = 'Size'; sizeLabel.style.fontSize = '16px'; sizeLabel.style.color = 'var(--text-secondary)';
-    const sizeSlider = document.createElement('input'); sizeSlider.type = 'range'; sizeSlider.min = 0; sizeSlider.max = 200; sizeSlider.step = 10; sizeSlider.value = 100; sizeSlider.style.width = '100px'; sizeSlider.className = 'symbolSizeSlider ui-slider';
-      const sizeValue = document.createElement('input'); sizeValue.type = 'number'; sizeValue.min = 0; sizeValue.max = 200; sizeValue.step = 10; sizeValue.value = 100; sizeValue.style.width = '50px'; sizeValue.style.fontSize = '16px'; sizeValue.style.textAlign = 'center'; sizeValue.className = 'symbolSizeValue ui-input';
+    const sizeCtrl = document.createElement('div'); sizeCtrl.className = 'symbolSizeControl colorPanelSizeControl';
+      const sizeLabel = document.createElement('span'); sizeLabel.className = 'colorPanelSizeLabel'; sizeLabel.textContent = 'Size';
+    const sizeSlider = document.createElement('input'); sizeSlider.type = 'range'; sizeSlider.min = 0; sizeSlider.max = 200; sizeSlider.step = 10; sizeSlider.value = 100; sizeSlider.className = 'symbolSizeSlider ui-slider';
+      const sizeValue = document.createElement('input'); sizeValue.type = 'number'; sizeValue.min = 0; sizeValue.max = 200; sizeValue.step = 10; sizeValue.value = 100; sizeValue.className = 'symbolSizeValue ui-input colorPanelSymbolValue';
     sizeCtrl.appendChild(sizeLabel); sizeCtrl.appendChild(sizeSlider); sizeCtrl.appendChild(sizeValue);
-    const clearBtn = document.createElement('button'); clearBtn.type = 'button'; clearBtn.className = 'clearSymbolBtn ui-button'; clearBtn.textContent = 'Clear'; clearBtn.style.marginLeft = '0px'; clearBtn.style.padding = '5px 5px'; clearBtn.style.fontSize = '16px';
+    const clearBtn = document.createElement('button'); clearBtn.type = 'button'; clearBtn.className = 'clearSymbolBtn colorPanelClearButton ui-button'; clearBtn.textContent = 'Clear';
     sizeCtrl.appendChild(clearBtn);
 
     // Text size control (0-100px) - visible only in TEXT mode - with "All" checkbox
-    const textSizeCtrl = document.createElement('div'); textSizeCtrl.className = 'textSizeControl'; textSizeCtrl.style.display = 'none'; textSizeCtrl.style.alignItems = 'center'; textSizeCtrl.style.gap = '8px'; textSizeCtrl.style.padding = '0px 0px';
-      const textSizeLabel = document.createElement('span'); textSizeLabel.textContent = 'Size'; textSizeLabel.style.fontSize = '16px'; textSizeLabel.style.color = 'var(--text-secondary)';
-    const textSizeSlider = document.createElement('input'); textSizeSlider.type = 'range'; textSizeSlider.min = 0; textSizeSlider.max = 100; textSizeSlider.step = 1; textSizeSlider.value = 30; textSizeSlider.style.width = '120px'; textSizeSlider.className = 'textSizeSlider ui-slider';
-    const textSizeValue = document.createElement('input'); textSizeValue.type = 'number'; textSizeValue.min = 0; textSizeValue.max = 100; textSizeValue.step = 1; textSizeValue.value = textSizeSlider.value; textSizeValue.className = 'textSizeValue ui-input'; textSizeValue.style.width = '56px'; textSizeValue.style.fontSize = '14px';
-    const textSizeAllLabel = document.createElement('label'); textSizeAllLabel.className = 'ui-checkbox-label'; textSizeAllLabel.style.display = 'flex'; textSizeAllLabel.style.alignItems = 'center'; textSizeAllLabel.style.gap = '4px'; textSizeAllLabel.style.fontSize = '12px'; textSizeAllLabel.style.color = 'var(--text-muted)'; textSizeAllLabel.style.cursor = 'pointer';
+    const textSizeCtrl = document.createElement('div'); textSizeCtrl.className = 'textSizeControl colorPanelSizeControl';
+      const textSizeLabel = document.createElement('span'); textSizeLabel.className = 'colorPanelSizeLabel'; textSizeLabel.textContent = 'Size';
+    const textSizeSlider = document.createElement('input'); textSizeSlider.type = 'range'; textSizeSlider.min = 0; textSizeSlider.max = 100; textSizeSlider.step = 1; textSizeSlider.value = 30; textSizeSlider.className = 'textSizeSlider colorPanelTextSlider ui-slider';
+    const textSizeValue = document.createElement('input'); textSizeValue.type = 'number'; textSizeValue.min = 0; textSizeValue.max = 100; textSizeValue.step = 1; textSizeValue.value = textSizeSlider.value; textSizeValue.className = 'textSizeValue ui-input colorPanelTextValue';
+    const textSizeAllLabel = document.createElement('label'); textSizeAllLabel.className = 'ui-checkbox-label colorPanelInlineControl';
     const textSizeAllCheckbox = document.createElement('input'); textSizeAllCheckbox.type = 'checkbox'; textSizeAllCheckbox.className = 'textSizeAll ui-checkbox'; textSizeAllLabel.appendChild(textSizeAllCheckbox); textSizeAllLabel.appendChild(document.createTextNode('All'));
     textSizeCtrl.appendChild(textSizeLabel); textSizeCtrl.appendChild(textSizeSlider); textSizeCtrl.appendChild(textSizeValue); textSizeCtrl.appendChild(textSizeAllLabel);
 
@@ -857,12 +865,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     });
 
     swatchContainer = document.createElement('div'); swatchContainer.className = 'swatchContainer';
-    swatchContainer.style.display = 'grid';
-    swatchContainer.style.gridTemplateColumns = 'repeat(auto-fill, minmax(20px, 1fr))';
-    swatchContainer.style.gap = '6px';
-    swatchContainer.style.padding = '8px';
-    swatchContainer.style.justifyContent = 'center';
-    swatchContainer.style.minWidth = '0';
+    swatchContainer.classList.add('colorPanelSwatches');
     palette.forEach(c => {
       const s = document.createElement('div'); s.className = 'swatch'; s.dataset.color = c; s.title = c; s.style.background = c;
       s.addEventListener('click', () => {
@@ -996,24 +999,16 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
       // clear any existing font area
       const existing = contentArea.querySelector('.fontGrid'); if (existing) existing.remove();
       const fonts = await loadFontsList();
-      const grid = document.createElement('div'); grid.className = 'fontGrid';
-      grid.style.display = 'grid';
-      grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
-      grid.style.gap = '8px';
-      grid.style.padding = '8px';
-      grid.style.maxHeight = '300px';
-      grid.style.overflowY = 'auto';
+      const grid = document.createElement('div'); grid.className = 'fontGrid colorPanelFontGrid';
       fonts.forEach(font => {
         const item = document.createElement('button');
         item.type = 'button';
         item.textContent = font.name;
         item.style.fontFamily = font.cssFamily;
-        item.style.padding = '12px 10px';
         item.style.border = 'none';
         item.style.background = 'transparent';
         item.style.color = '#eee';
         item.style.textAlign = 'center';
-        item.style.fontSize = '13px';
         item.style.cursor = 'pointer';
         item.style.borderRadius = '4px';
         item.style.transition = 'background 0.1s, transform 0.1s';
@@ -1143,9 +1138,32 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
   }
 
   function updatePanelForSelection() {
-    if (!colorPanel || colorMode !== 'outline') return; const sliders = colorPanel.querySelectorAll('input[type="range"]'); if (sliders.length < 2) return;
+    if (!colorPanel) return;
+    const applyTarget = selected || panelAnchorTarget;
+    const btnId = applyTarget?.dataset?.btn;
+    if (btnId === 'LS' || btnId === 'RS') {
+      const state = appState.buttons[btnId] || {};
+      const values = {
+        stickMovement: getStickMovementEnabled(btnId),
+        showTrail: state.showTrail !== false,
+        stickRadius: Math.max(0, Math.min(100, parseInt(state.stickRadius ?? ANALOG_DEFAULTS.stickRadius, 10) || 0)),
+        trailWidth: Math.max(1, Math.min(40, parseInt(state.trailWidth ?? 12, 10) || 12)),
+        trailLength: Math.max(1, Math.min(60, parseInt(state.trailLength ?? state.trailSize ?? ANALOG_DEFAULTS.trailLength, 10) || ANALOG_DEFAULTS.trailLength)),
+        baseVisibility: state.baseVisibility ?? state.showBase ?? ANALOG_DEFAULTS.baseVisibility,
+        baseSize: Math.max(20, Math.min(300, parseInt(state.baseSize ?? ANALOG_DEFAULTS.baseSize, 10) || ANALOG_DEFAULTS.baseSize))
+      };
+      colorPanel.querySelectorAll('[data-stick-key]').forEach(control => {
+        const value = values[control.dataset.stickKey];
+        if (control.type === 'checkbox') control.checked = Boolean(value);
+        else if (value !== undefined) control.value = String(value);
+      });
+      const movement = colorPanel.querySelector('[data-stick-key="stickMovement"]');
+      const trail = colorPanel.querySelector('[data-stick-key="showTrail"]');
+      if (trail) trail.disabled = !movement?.checked;
+    }
+    if (colorMode !== 'outline') return; const sliders = colorPanel.querySelectorAll('input[type="range"]'); if (sliders.length < 2) return;
     const innerSlider = sliders[0], innerValue = innerSlider.nextElementSibling, outerSlider = sliders[1], outerValue = outerSlider.nextElementSibling;
-    const applyTarget = selected || panelAnchorTarget; if (!applyTarget) return; const btnId = applyTarget.dataset?.btn; const cs = window.getComputedStyle(applyTarget);
+    if (!applyTarget) return; const cs = window.getComputedStyle(applyTarget);
     let outlineWidth = 0, outlineColor = 'black';
     if (btnId && appState.buttons[btnId]?.outlineWidth != null) { outlineWidth = appState.buttons[btnId].outlineWidth; outlineColor = appState.buttons[btnId].outlineColor ?? 'black'; }
     else { outlineWidth = parseInt(cs.outlineWidth) || 0; outlineColor = cs.outlineColor && cs.outlineColor !== 'invert' ? cs.outlineColor : 'black'; }
@@ -1315,7 +1333,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
 
     // Visual movement of LS/RS buttons: only when enabled
     const ls = getAnalogStick(pad, 'left', cfg.deadzone, cfg.invertY);
-    const lsRadius = Math.max(0, Math.min(100, parseInt(appState.buttons.LS?.stickRadius ?? appState.analog?.analogVisualRange ?? 8, 10) || 0));
+    const lsRadius = Math.max(0, Math.min(100, parseInt(appState.buttons.LS?.stickRadius ?? ANALOG_DEFAULTS.stickRadius, 10) || 0));
     if (!getStickMovementEnabled('LS')) {
       if (btnEls['LS']) btnEls['LS'].style.transform = 'translate(0px, 0px)';
     } else {
@@ -1324,7 +1342,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     }
 
     const rs = getAnalogStick(pad, 'right', cfg.deadzone, cfg.invertY);
-    const rsRadius = Math.max(0, Math.min(100, parseInt(appState.buttons.RS?.stickRadius ?? appState.analog?.analogVisualRange ?? 8, 10) || 0));
+    const rsRadius = Math.max(0, Math.min(100, parseInt(appState.buttons.RS?.stickRadius ?? ANALOG_DEFAULTS.stickRadius, 10) || 0));
     if (!getStickMovementEnabled('RS')) {
       if (btnEls['RS']) btnEls['RS'].style.transform = 'translate(0px, 0px)';
     } else {
@@ -1461,7 +1479,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
       if (!trailCanvas || !button) return;
       const styles = getComputedStyle(button);
       const state = appState.buttons[id] || {};
-      const radius = Math.max(0, Math.min(100, parseInt(state.stickRadius ?? appState.analog?.analogVisualRange ?? 8, 10) || 0));
+      const radius = Math.max(0, Math.min(100, parseInt(state.stickRadius ?? ANALOG_DEFAULTS.stickRadius, 10) || 0));
       const size = Math.max(button.offsetWidth, button.offsetHeight, radius * 2 + 24, 1);
       const centerX = (button.offsetLeft || parseFloat(styles.left) || 0) + button.offsetWidth / 2;
       const centerY = (button.offsetTop || parseFloat(styles.top) || 0) + button.offsetHeight / 2;
@@ -1489,7 +1507,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
       analogBase.style.height = `${size}px`;
       analogBase.style.left = `${centerX - size / 2}px`;
       analogBase.style.top = `${centerY - size / 2}px`;
-      analogBase.style.display = state.showBase === true ? 'block' : 'none';
+      analogBase.style.display = (state.baseVisibility ?? state.showBase) === true ? 'block' : 'none';
       applyBgImage(analogBase, baseImage);
     });
   }
@@ -1507,8 +1525,8 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     const stickState = appState.buttons[id] || {};
     stickTrailSystems[id] = createTrailSystem(trailCanvas, trailCanvas.getContext('2d'), {
       trail: cfg.trail,
-      trailSize: Math.max(1, Math.min(60, parseInt(stickState.trailSize ?? cfg.trail, 10) || cfg.trail)),
-      trailWidth: Math.max(1, Math.min(40, parseInt(stickState.trailWidth ?? 12, 10) || 12))
+      trailLength: Math.max(1, Math.min(60, parseInt(stickState.trailLength ?? stickState.trailSize ?? ANALOG_DEFAULTS.trailLength, 10) || ANALOG_DEFAULTS.trailLength)),
+      trailWidth: Math.max(1, Math.min(40, parseInt(stickState.trailWidth ?? ANALOG_DEFAULTS.trailWidth, 10) || ANALOG_DEFAULTS.trailWidth))
     }, () =>
       getComputedStyle(document.documentElement).getPropertyValue('--trail-color')?.trim() || appState.trailColor || '#CEEC73'
     );
@@ -1818,8 +1836,8 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
       if (!system) return;
       const state = appState.buttons[id] || {};
       if (!getStickMovementEnabled(id) || state.showTrail === false) { system.clear(); return; }
-      system.config.trailSize = Math.max(1, Math.min(60, parseInt(state.trailSize ?? cfg.trail, 10) || cfg.trail));
-      system.config.trailWidth = Math.max(1, Math.min(40, parseInt(state.trailWidth ?? 12, 10) || 12));
+      system.config.trailLength = Math.max(1, Math.min(60, parseInt(state.trailLength ?? state.trailSize ?? ANALOG_DEFAULTS.trailLength, 10) || ANALOG_DEFAULTS.trailLength));
+      system.config.trailWidth = Math.max(1, Math.min(40, parseInt(state.trailWidth ?? ANALOG_DEFAULTS.trailWidth, 10) || ANALOG_DEFAULTS.trailWidth));
       system.addPoint(value.x, value.y);
       system.draw(system.getTrail());
     });
@@ -1841,12 +1859,19 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
       if (parsed.hiddenButtons !== undefined) appState.hiddenButtons = parsed.hiddenButtons;
       if (parsed.trailColor !== undefined) appState.trailColor = parsed.trailColor;
       if (parsed.lastProfile !== undefined) appState.lastProfile = parsed.lastProfile;
-  // load analog prefs if present (ignore legacy showDistance if present)
-  if (parsed.analog !== undefined) {
-    const safeAnalog = Object.assign({}, parsed.analog);
-    if (safeAnalog.showDistance !== undefined) delete safeAnalog.showDistance;
-    appState.analog = Object.assign({}, appState.analog || {}, safeAnalog);
-  }
+      if (parsed.analog !== undefined) {
+        const safeAnalog = Object.assign({}, parsed.analog);
+        ['LS', 'RS'].forEach(key => {
+          appState.buttons[key] = appState.buttons[key] || {};
+          if (appState.buttons[key].stickMovement === undefined && safeAnalog[key] !== undefined) appState.buttons[key].stickMovement = safeAnalog[key];
+          if (appState.buttons[key].stickRadius === undefined && safeAnalog.analogVisualRange !== undefined) appState.buttons[key].stickRadius = safeAnalog.analogVisualRange;
+        });
+        delete safeAnalog.showDistance;
+        delete safeAnalog.LS;
+        delete safeAnalog.RS;
+        delete safeAnalog.analogVisualRange;
+        appState.analog = Object.assign({}, appState.analog || {}, safeAnalog);
+      }
       // Apply joystick head style after loading
       applyJoystickHeadFromState();
       console.debug('[Trailpad] state loaded');
