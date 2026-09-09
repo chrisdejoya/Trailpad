@@ -71,8 +71,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   let arrowSize = 90;
 
-  // stick container refs (parents of .btn for LS/RS)
-  const stickContainers = { LS: document.getElementById('LS'), RS: document.getElementById('RS') };
+  // stick trail and base refs
   const stickTrailCanvases = { LS: document.getElementById('LSTrailCanvas'), RS: document.getElementById('RSTrailCanvas') };
   const analogStickBases = { LS: document.getElementById('LSBase'), RS: document.getElementById('RSBase') };
 
@@ -524,22 +523,28 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
       return checkbox;
     }
     stickControls.appendChild(makeGroupTitle('Movement'));
-    makeStickCheckbox('Stick Movement', stickMovement, value => { stickState.stickMovement = value; });
-    const radiusRow = document.createElement('div'); radiusRow.style.display = 'grid'; radiusRow.style.gridTemplateColumns = '54px 1fr 48px'; radiusRow.style.alignItems = 'center'; radiusRow.style.gap = '8px'; radiusRow.style.fontSize = '13px';
-    const radiusLabel = document.createElement('span'); radiusLabel.textContent = 'Radius';
-    const radiusSlider = document.createElement('input'); radiusSlider.type = 'range'; radiusSlider.min = '0'; radiusSlider.max = '100'; radiusSlider.step = '1'; radiusSlider.value = String(stickRadius); radiusSlider.className = 'ui-slider'; radiusSlider.style.flex = '1';
-    const radiusValue = document.createElement('input'); radiusValue.type = 'number'; radiusValue.min = '0'; radiusValue.max = '100'; radiusValue.step = '1'; radiusValue.value = String(stickRadius); radiusValue.className = 'ui-input'; radiusValue.style.width = '48px';
-    const updateRadius = value => {
+    let trailCheckbox = null;
+    makeStickCheckbox('Stick Movement', stickMovement, value => {
+      stickState.stickMovement = value;
+      if (trailCheckbox) trailCheckbox.disabled = !value;
+      if (!value) stickTrailSystems[stickId]?.clear();
+    });
+    const rangeRow = document.createElement('div'); rangeRow.style.display = 'grid'; rangeRow.style.gridTemplateColumns = '54px 1fr 48px'; rangeRow.style.alignItems = 'center'; rangeRow.style.gap = '8px'; rangeRow.style.fontSize = '13px';
+    const rangeLabel = document.createElement('span'); rangeLabel.textContent = 'Range';
+    const rangeSlider = document.createElement('input'); rangeSlider.type = 'range'; rangeSlider.min = '0'; rangeSlider.max = '100'; rangeSlider.step = '1'; rangeSlider.value = String(stickRadius); rangeSlider.className = 'ui-slider'; rangeSlider.style.flex = '1';
+    const rangeValue = document.createElement('input'); rangeValue.type = 'number'; rangeValue.min = '0'; rangeValue.max = '100'; rangeValue.step = '1'; rangeValue.value = String(stickRadius); rangeValue.className = 'ui-input'; rangeValue.style.width = '48px';
+    const updateRange = value => {
       if (value === '') return;
       const next = Math.max(0, Math.min(100, parseInt(value, 10) || 0));
-      radiusSlider.value = String(next); radiusValue.value = String(next); stickState.stickRadius = next; saveStateData();
+      rangeSlider.value = String(next); rangeValue.value = String(next); stickState.stickRadius = next; saveStateData();
     };
-    radiusSlider.addEventListener('input', () => updateRadius(radiusSlider.value));
-    radiusValue.addEventListener('input', () => updateRadius(radiusValue.value));
-    radiusValue.addEventListener('blur', () => { if (radiusValue.value === '') updateRadius(radiusSlider.value); });
-    radiusRow.appendChild(radiusLabel); radiusRow.appendChild(radiusSlider); radiusRow.appendChild(radiusValue); stickControls.appendChild(radiusRow);
+    rangeSlider.addEventListener('input', () => updateRange(rangeSlider.value));
+    rangeValue.addEventListener('input', () => updateRange(rangeValue.value));
+    rangeValue.addEventListener('blur', () => { if (rangeValue.value === '') updateRange(rangeSlider.value); });
+    rangeRow.appendChild(rangeLabel); rangeRow.appendChild(rangeSlider); rangeRow.appendChild(rangeValue); stickControls.appendChild(rangeRow);
     stickControls.appendChild(makeGroupTitle('Trail'));
-    makeStickCheckbox('Show Trail', showTrail, value => { stickState.showTrail = value; if (!value) stickTrailSystems[stickId]?.clear(); });
+    trailCheckbox = makeStickCheckbox('Show Trail', showTrail, value => { stickState.showTrail = value; if (!value) stickTrailSystems[stickId]?.clear(); });
+    trailCheckbox.disabled = !stickMovement;
     const makeTrailSlider = (labelText, initialValue, min, max, key) => {
       const row = document.createElement('div'); row.style.display = 'grid'; row.style.gridTemplateColumns = '54px 1fr 48px'; row.style.alignItems = 'center'; row.style.gap = '8px'; row.style.fontSize = '13px';
       const label = document.createElement('span'); label.textContent = labelText;
@@ -1477,16 +1482,8 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
       if (!analogBase || !button) return;
       const state = appState.buttons[id] || {};
       const size = Math.max(20, Math.min(300, parseInt(state.baseSize ?? 100, 10) || 100));
-      const container = stickContainers[id];
-      const buttonStyles = getComputedStyle(button);
-      const containerStyles = container ? getComputedStyle(container) : null;
-      const containerRect = container?.getBoundingClientRect();
-      const containerLeft = containerRect?.left ?? (parseFloat(containerStyles?.left) || 0);
-      const containerTop = containerRect?.top ?? (parseFloat(containerStyles?.top) || 0);
-      const layoutLeft = parseFloat(buttonStyles.left) || 0;
-      const layoutTop = parseFloat(buttonStyles.top) || 0;
-      const centerX = containerLeft + layoutLeft + button.offsetWidth / 2;
-      const centerY = containerTop + layoutTop + button.offsetHeight / 2;
+      const centerX = button.offsetLeft + button.offsetWidth / 2;
+      const centerY = button.offsetTop + button.offsetHeight / 2;
       analogBase.style.width = `${size}px`;
       analogBase.style.height = `${size}px`;
       analogBase.style.left = `${centerX - size / 2}px`;
@@ -1819,7 +1816,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
       const system = stickTrailSystems[id];
       if (!system) return;
       const state = appState.buttons[id] || {};
-      if (state.showTrail === false) { system.clear(); return; }
+      if (!getStickMovementEnabled(id) || state.showTrail === false) { system.clear(); return; }
       system.config.trailSize = Math.max(1, Math.min(60, parseInt(state.trailSize ?? cfg.trail, 10) || cfg.trail));
       system.config.trailWidth = Math.max(1, Math.min(40, parseInt(state.trailWidth ?? 12, 10) || 12));
       system.addPoint(value.x, value.y);
