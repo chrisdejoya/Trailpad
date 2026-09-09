@@ -121,8 +121,20 @@
     <button id="export" class="primary">EXPORT</button>
   </div>
 
+  <div id="local-export" class="actions" style="margin-top: 10px;">
+    <label style="flex: 1; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+      <input type="checkbox" id="export-local">Use absolute image path
+    </label>
+  </div>
+  <div id="local-path-input" style="margin-top: 8px; display: none;">
+    <input type="text" id="local-folder-path" placeholder="Enter folder path (e.g. c:/trailpad/presets)" style="flex: 1; padding: 8px; border: 1px solid var(--border); border-radius: 4px; background: var(--panel); color: #e8eee9; font-size: 13px;">
+  </div>
+  <div id="folder-path" style="margin-top: 8px; font-size: 12px; color: var(--muted); word-break: break-all;"></div>
+
   <script>
     const $ = id => document.getElementById(id);
+
+    let localFolderPath = '';
 
     const addButtons = (target, items) => {
       items.forEach(item => {
@@ -170,9 +182,26 @@
       event.target.value = '';
     };
 
-    $('export').onclick = () => parent.postMessage({
-      pluginMessage: { type: 'EXPORT' }
-    }, '*');
+    $('export').onclick = () => {
+      const exportLocal = $('export-local').checked;
+      const localPath = exportLocal ? $('local-folder-path').value.trim() : '';
+      parent.postMessage({
+        pluginMessage: { type: 'EXPORT', exportLocal, localPath }
+      }, '*');
+    };
+
+    $('export-local').onchange = () => {
+      const checked = $('export-local').checked;
+      $('local-path-input').style.display = checked ? 'flex' : 'none';
+      if (!checked) {
+        localFolderPath = '';
+        $('folder-path').textContent = '';
+      }
+    };
+
+    $('local-folder-path').oninput = () => {
+      localFolderPath = $('local-folder-path').value.trim();
+    };
 
     async function saveFile(path, bytes, type) {
       const blob = new Blob([new Uint8Array(bytes)], { type });
@@ -259,11 +288,40 @@
     }
 
     async function saveExport(message) {
+      const layout = JSON.parse(message.json);
+      const assetFolder = message.assetFolder || 'trailpad-layout';
+      const useLocalPaths = message.useLocalPaths || false;
+      const localPathPrefix = message.localPathPrefix || '';
+      const manualLocalPath = message.manualLocalPath || '';
+      
+      // Combine manual path with frame name for full local paths in JSON
+      const fullLocalPrefix = manualLocalPath && localPathPrefix 
+        ? `${manualLocalPath.replace(/\/+$/, '')}/${localPathPrefix}`
+        : localPathPrefix;
+      
+      if (useLocalPaths && fullLocalPrefix) {
+        for (const key of ['base', 'joystick', 'joystickHead', 'eightWayWrapper', 'arrowOn', 'arrowOff']) {
+          if (layout[key] && layout[key].backgroundImage && layout[key].backgroundImage !== 'none') {
+            layout[key].backgroundImage = `${fullLocalPrefix}/${layout[key].backgroundImage}`;
+          }
+        }
+        for (const key of Object.keys(layout.buttons || {})) {
+          if (layout.buttons[key] && layout.buttons[key].backgroundImage && layout.buttons[key].backgroundImage !== 'none') {
+            layout.buttons[key].backgroundImage = `${fullLocalPrefix}/${layout.buttons[key].backgroundImage}`;
+          }
+        }
+        message.json = JSON.stringify(layout, null, 2);
+      }
+
       const jsonBytes = Array.from(new TextEncoder().encode(message.json));
       const entries = [{ name: message.fileName, bytes: jsonBytes }];
       
       for (const asset of message.assets || []) {
         entries.push({ name: asset.path, bytes: asset.bytes });
+      }
+
+      if (manualLocalPath) {
+        $('status').textContent = `Exported. Extract ZIP to: ${manualLocalPath}`;
       }
 
       await saveFile(`${message.assetFolder || 'trailpad-layout'}.zip`, zipStore(entries), 'application/zip');
@@ -284,9 +342,12 @@
 
       if (message.type === 'EXPORT_JSON') {
         saveExport(message).then(() => {
-          $('status').textContent = message.missing.length 
-            ? `Exported. Hidden: ${message.missing.join(', ')}.` 
-            : 'Exported frame package.';
+          const manualLocalPath = message.manualLocalPath || '';
+          if (!manualLocalPath) {
+            $('status').textContent = message.missing.length 
+              ? `Exported. Hidden: ${message.missing.join(', ')}.` 
+              : 'Exported frame package.';
+          }
         }).catch(error => {
           $('status').textContent = `Export failed: ${error.message}`;
         });

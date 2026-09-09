@@ -2,7 +2,9 @@ const ROLE_NAMES = [
   { key: 'base', label: 'Base' },
   { key: 'joystick', label: 'Joystick' },
   { key: 'joystickHead', label: 'Joystick Head' },
-  { key: 'eightWayWrapper', label: '8-way Wrapper' }
+  { key: 'eightWayWrapper', label: '8-way Wrapper' },
+  { key: 'arrowOn', label: 'Arrow On' },
+  { key: 'arrowOff', label: 'Arrow Off' }
 ];
 
 const BUTTON_NAMES = [
@@ -10,7 +12,7 @@ const BUTTON_NAMES = [
   'Up', 'Down', 'Left', 'Right'
 ];
 
-figma.showUI(__html__, { width: 320, height: 550, themeColors: true });
+figma.showUI(__html__, { width: 320, height: 670, themeColors: true });
 figma.ui.postMessage({ type: 'CONFIG', roles: ROLE_NAMES, buttons: BUTTON_NAMES });
 
 function selectedNode() {
@@ -147,6 +149,8 @@ function exportLayout(root) {
     joystick: byName.has('joystick') ? properties(byName.get('joystick')) : hidden(),
     joystickHead: byName.has('joystickHead') ? properties(byName.get('joystickHead')) : hidden(),
     eightWayWrapper: byName.has('eightWayWrapper') ? properties(byName.get('eightWayWrapper')) : hidden(),
+    arrowOn: byName.has('arrowOn') ? properties(byName.get('arrowOn')) : hidden(),
+    arrowOff: byName.has('arrowOff') ? properties(byName.get('arrowOff')) : hidden(),
     buttons: {},
     trailColor: '#CEEC73',
     analog: {
@@ -355,7 +359,9 @@ async function importLayout(layout, fileName, assets) {
     ['base', layout.base],
     ['joystick', layout.joystick],
     ['joystickHead', layout.joystickHead],
-    ['eightWayWrapper', layout.eightWayWrapper]
+    ['eightWayWrapper', layout.eightWayWrapper],
+    ['arrowOn', layout.arrowOn],
+    ['arrowOff', layout.arrowOff]
   ];
   const buttonLayers = Object.entries(layout.buttons || {});
   const orderedLayers = layers.concat(buttonLayers).filter(([, data]) => data);
@@ -398,8 +404,21 @@ figma.ui.onmessage = message => {
     if (!root || !('children' in root)) return notify('Select a frame or component containing your layout.');
     const result = exportLayout(root);
     const frameName = safeAssetName(root.name).replace(/\.svg$/i, '');
+    const exportLocal = message.exportLocal === true;
+    const manualLocalPath = message.localPath || '';
     exportAssets(root, result.layout, frameName).then(assets => {
-      figma.ui.postMessage({ type: 'EXPORT_JSON', json: JSON.stringify(result.layout, null, 2), missing: result.missing, assets, assetFolder: frameName, fileName: `${frameName}.json` });
+      figma.ui.postMessage({ 
+        type: 'EXPORT_JSON', 
+        json: JSON.stringify(result.layout, null, 2), 
+        missing: result.missing, 
+        assets, 
+        assetFolder: frameName, 
+        fileName: `${frameName}.json`,
+        exportLocal,
+        useLocalPaths: exportLocal,
+        localPathPrefix: exportLocal ? frameName : '',
+        manualLocalPath
+      });
     }).catch(error => notify(`Asset export failed: ${error.message}`));
   }
 };

@@ -6,7 +6,7 @@ This Figma plugin imports and exports the layout JSON consumed by `beta/main.js`
 
 1. In Figma, open **Plugins > Development > Import plugin from manifest...** and choose `figma-plugin/manifest.json`.
 2. Select a frame containing the layout.
-3. Select each structural layer and click its role button: `base`, `joystick`, `joystickHead`, or `eightWayWrapper`.
+3. Select each structural layer and click its role button: `base`, `joystick`, `joystickHead`, `eightWayWrapper`, `arrowOn`, or `arrowOff`.
 4. Select each button layer and click its matching button name. Button names are `A`, `B`, `X`, `Y`, `LB`, `RB`, `LT`, `RT`, `View`, `Menu`, `LS`, `RS`, `Up`, `Down`, `Left`, and `Right`.
 5. Export the selected frame. The frame name becomes the JSON filename and asset folder name. The frame's top-left is the layout origin, so positions are exported as pixel strings relative to that frame.
 
