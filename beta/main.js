@@ -1638,7 +1638,14 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
   });
 
   // load help
-  fetch('help.html').then(r => r.text()).then(html => { document.getElementById('helpPanel').innerHTML = html; }).catch(err => console.warn('Could not load help.html', err));
+  fetch('help.html').then(r => r.text()).then(html => {
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    doc.querySelectorAll('script').forEach(el => el.remove());
+    doc.querySelectorAll('*').forEach(el => {
+      [...el.attributes].forEach(attr => { if (/^on/i.test(attr.name) || attr.name === 'srcdoc') el.removeAttribute(attr.name); });
+    });
+    document.getElementById('helpPanel').innerHTML = doc.body.innerHTML;
+  }).catch(err => console.warn('Could not load help.html', err));
   showToast('Help file not found!', 800);
   const helpPanel = document.getElementById('helpPanel');
 
