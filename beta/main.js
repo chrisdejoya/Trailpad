@@ -277,6 +277,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   function importLayout(parsed) {
     if (!parsed) return;
+    preloadFontsForLayout(parsed);
     applyAndStore(base, appState.base = appState.base || {}, parsed.base);
     applyAndStore(stickWrapper, appState.joystick = appState.joystick || {}, parsed.joystick);
     if (parsed.joystickHead) applyAndStore(joystick, appState.joystickHead = appState.joystickHead || {}, parsed.joystickHead);
@@ -470,6 +471,34 @@ window.addEventListener('DOMContentLoaded', () => {
       fontsList = [];
       return fontsList;
     }
+  }
+
+  // Collect every fontFamily referenced in a layout and ensure the backing
+  // web font is loaded (Google Fonts <link>). Local fonts like Swiss 721
+  // have no url and are declared via @font-face, so they are skipped.
+  async function preloadFontsForLayout(parsed) {
+    await loadFontsList();
+    const families = new Set();
+    const collect = data => {
+      if (!data || typeof data !== 'object') return;
+      if (typeof data.fontFamily === 'string' && data.fontFamily.trim()) families.add(data.fontFamily.trim());
+      Object.values(data).forEach(collect);
+    };
+    collect(parsed);
+    if (families.size === 0) return;
+    const fonts = fontsList || [];
+    const seenUrls = new Set();
+    families.forEach(family => {
+      const match = fonts.find(f => f.cssFamily === family);
+      if (!match || !match.url) return;
+      if (seenUrls.has(match.url)) return;
+      seenUrls.add(match.url);
+      if (document.querySelector(`link[href="${match.url}"]`)) return;
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = match.url;
+      document.head.appendChild(link);
+    });
   }
 
   async function openColorPanel(anchorTarget, x, y) {
@@ -1036,10 +1065,12 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
             }
           });
           // Preload the font
-          const link = document.createElement('link');
-          link.rel = 'stylesheet';
-          link.href = font.url;
-          document.head.appendChild(link);
+          if (font.url) {
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = font.url;
+            document.head.appendChild(link);
+          }
           // Mark selected visually
           grid.querySelectorAll('button').forEach(b => b.style.background = 'transparent');
           item.style.background = 'rgba(255,255,255,0.15)';

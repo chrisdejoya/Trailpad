@@ -15,6 +15,7 @@
     "backgroundSize": "cover",
     "color": "rgb(238, 238, 238)",
     "fontSize": "16px",
+    "fontFamily": "\"Barlow Condensed\", sans-serif",
     "label": ""
   },
   "joystick": {
@@ -33,6 +34,7 @@
     "backgroundSize": "cover",
     "color": "rgb(238, 238, 238)",
     "fontSize": "16px",
+    "fontFamily": "\"Barlow Condensed\", sans-serif",
     "label": ""
   },
   "joystickHead": {
@@ -47,10 +49,11 @@
     "outlineOffset": "0px",
     "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
     "backgroundColor": "rgb(64, 64, 64)",
-    "backgroundImage": "none",
+    "backgroundImage": "",
     "backgroundSize": "auto",
     "color": "rgb(0, 0, 0)",
     "fontSize": "30px",
+    "fontFamily": "\"Barlow Condensed\", sans-serif",
     "label": ""
   },
   "eightWayWrapper": {
@@ -65,10 +68,11 @@
     "outlineOffset": "0px",
     "boxShadow": "none",
     "backgroundColor": "rgba(0, 0, 0, 0)",
-    "backgroundImage": "none",
+    "backgroundImage": "",
     "backgroundSize": "auto",
     "color": "rgb(238, 238, 238)",
     "fontSize": "16px",
+    "fontFamily": "\"Barlow Condensed\", sans-serif",
     "label": "",
     "arrowSize": 110,
     "arrowImageOn": "images/tokon/tok-arrow-on.svg",
@@ -91,6 +95,7 @@
       "backgroundSize": "70px auto",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "49px",
+      "fontFamily": "\"Barlow Condensed\", sans-serif",
       "label": ""
     },
     "Down": {
@@ -109,6 +114,7 @@
       "backgroundSize": "70px auto",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "29px",
+      "fontFamily": "\"Barlow Condensed\", sans-serif",
       "label": ""
     },
     "Left": {
@@ -127,6 +133,7 @@
       "backgroundSize": "70px auto",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "29px",
+      "fontFamily": "\"Barlow Condensed\", sans-serif",
       "label": ""
     },
     "Right": {
@@ -145,6 +152,7 @@
       "backgroundSize": "70px auto",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "29px",
+      "fontFamily": "\"Barlow Condensed\", sans-serif",
       "label": ""
     },
     "A": {
@@ -159,10 +167,11 @@
       "outlineOffset": "0px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 0px",
       "backgroundColor": "rgb(60, 64, 48)",
-      "backgroundImage": "none",
+      "backgroundImage": "",
       "backgroundSize": "contain",
       "color": "rgb(115, 208, 255)",
       "fontSize": "46px",
+      "fontFamily": "\"Barlow Condensed\", sans-serif",
       "label": "A"
     },
     "B": {
@@ -177,10 +186,11 @@
       "outlineOffset": "0px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 0px",
       "backgroundColor": "rgb(60, 64, 48)",
-      "backgroundImage": "none",
+      "backgroundImage": "",
       "backgroundSize": "contain",
       "color": "rgb(255, 166, 77)",
       "fontSize": "46px",
+      "fontFamily": "\"Barlow Condensed\", sans-serif",
       "label": "U"
     },
     "X": {
@@ -195,10 +205,11 @@
       "outlineOffset": "0px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 0px",
       "backgroundColor": "rgb(60, 64, 48)",
-      "backgroundImage": "none",
+      "backgroundImage": "",
       "backgroundSize": "contain",
       "color": "rgb(255, 140, 255)",
       "fontSize": "46px",
+      "fontFamily": "\"Barlow Condensed\", sans-serif",
       "label": "L"
     },
     "Y": {
@@ -213,10 +224,11 @@
       "outlineOffset": "0px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 0px",
       "backgroundColor": "rgb(60, 64, 48)",
-      "backgroundImage": "none",
+      "backgroundImage": "",
       "backgroundSize": "contain",
       "color": "rgb(69, 229, 163)",
       "fontSize": "46px",
+      "fontFamily": "\"Barlow Condensed\", sans-serif",
       "label": "M"
     },
     "LB": {
@@ -231,10 +243,11 @@
       "outlineOffset": "0px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 0px",
       "backgroundColor": "rgb(60, 64, 48)",
-      "backgroundImage": "none",
+      "backgroundImage": "",
       "backgroundSize": "contain",
       "color": "rgb(157, 97, 242)",
       "fontSize": "46px",
+      "fontFamily": "\"Barlow Condensed\", sans-serif",
       "label": "QD"
     },
     "RB": {
@@ -249,10 +262,11 @@
       "outlineOffset": "0px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 0px",
       "backgroundColor": "rgb(60, 64, 48)",
-      "backgroundImage": "none",
+      "backgroundImage": "",
       "backgroundSize": "contain",
       "color": "rgb(242, 61, 61)",
       "fontSize": "46px",
+      "fontFamily": "\"Barlow Condensed\", sans-serif",
       "label": "H"
     },
     "LT": {
@@ -267,10 +281,11 @@
       "outlineOffset": "0px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 0px",
       "backgroundColor": "rgb(60, 64, 48)",
-      "backgroundImage": "none",
+      "backgroundImage": "",
       "backgroundSize": "contain",
       "color": "rgb(115, 208, 255)",
       "fontSize": "46px",
+      "fontFamily": "\"Barlow Condensed\", sans-serif",
       "label": "QA"
     },
     "RT": {
@@ -285,10 +300,11 @@
       "outlineOffset": "0px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 0px",
       "backgroundColor": "rgb(60, 64, 48)",
-      "backgroundImage": "none",
+      "backgroundImage": "",
       "backgroundSize": "contain",
       "color": "rgb(255, 246, 153)",
       "fontSize": "46px",
+      "fontFamily": "\"Barlow Condensed\", sans-serif",
       "label": "QS"
     },
     "LS": {
@@ -303,16 +319,19 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "none",
+      "backgroundImage": "",
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "36px",
+      "fontFamily": "\"Barlow Condensed\", sans-serif",
       "label": "LS",
+      "stickMovement": false,
+      "showTrail": false,
       "stickRadius": 8,
-      "stickMovement": true,
-      "baseVisibility": false,
+      "trailLength": 8,
       "trailWidth": 12,
-      "trailLength": 8
+      "baseVisibility": false,
+      "baseSize": 100
     },
     "RS": {
       "display": "none",
@@ -326,16 +345,19 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "none",
+      "backgroundImage": "",
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "36px",
+      "fontFamily": "\"Barlow Condensed\", sans-serif",
       "label": "RS",
+      "stickMovement": false,
+      "showTrail": false,
       "stickRadius": 8,
-      "stickMovement": true,
-      "baseVisibility": false,
+      "trailLength": 8,
       "trailWidth": 12,
-      "trailLength": 8
+      "baseVisibility": false,
+      "baseSize": 100
     },
     "View": {
       "display": "none",
@@ -349,10 +371,11 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "none",
+      "backgroundImage": "",
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "20px",
+      "fontFamily": "\"Barlow Condensed\", sans-serif",
       "label": "View"
     },
     "Menu": {
@@ -367,10 +390,11 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "none",
+      "backgroundImage": "",
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "20px",
+      "fontFamily": "\"Barlow Condensed\", sans-serif",
       "label": "Menu"
     }
   },

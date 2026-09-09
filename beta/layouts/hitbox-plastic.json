@@ -11,10 +11,11 @@
     "outlineOffset": "-6px",
     "boxShadow": "none",
     "backgroundColor": "rgba(0, 0, 0, 0.6)",
-    "backgroundImage": "none",
+    "backgroundImage": "",
     "backgroundSize": "auto",
     "color": "rgb(0, 0, 0)",
     "fontSize": "16px",
+    "fontFamily": "Kanit, sans-serif",
     "label": ""
   },
   "joystick": {
@@ -33,6 +34,7 @@
     "backgroundSize": "cover",
     "color": "rgb(0, 0, 0)",
     "fontSize": "16px",
+    "fontFamily": "Kanit, sans-serif",
     "label": ""
   },
   "joystickHead": {
@@ -47,10 +49,11 @@
     "outlineOffset": "0px",
     "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 5px",
     "backgroundColor": "rgb(64, 64, 64)",
-    "backgroundImage": "none",
+    "backgroundImage": "",
     "backgroundSize": "auto",
     "color": "rgb(0, 0, 0)",
     "fontSize": "30px",
+    "fontFamily": "Kanit, sans-serif",
     "label": ""
   },
   "eightWayWrapper": {
@@ -65,10 +68,11 @@
     "outlineOffset": "0px",
     "boxShadow": "none",
     "backgroundColor": "rgba(0, 0, 0, 0)",
-    "backgroundImage": "none",
+    "backgroundImage": "",
     "backgroundSize": "auto",
     "color": "rgb(238, 238, 238)",
     "fontSize": "16px",
+    "fontFamily": "Kanit, sans-serif",
     "label": "",
     "arrowSize": 45,
     "arrowImageOn": "images/arrow-on.svg",
@@ -91,6 +95,7 @@
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "38px",
+      "fontFamily": "Kanit, sans-serif",
       "label": ""
     },
     "Down": {
@@ -109,6 +114,7 @@
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "38px",
+      "fontFamily": "Kanit, sans-serif",
       "label": ""
     },
     "Left": {
@@ -127,6 +133,7 @@
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "38px",
+      "fontFamily": "Kanit, sans-serif",
       "label": ""
     },
     "Right": {
@@ -145,6 +152,7 @@
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "38px",
+      "fontFamily": "Kanit, sans-serif",
       "label": ""
     },
     "A": {
@@ -163,6 +171,7 @@
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "38px",
+      "fontFamily": "Kanit, sans-serif",
       "label": "A"
     },
     "B": {
@@ -181,6 +190,7 @@
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "38px",
+      "fontFamily": "Kanit, sans-serif",
       "label": "B"
     },
     "X": {
@@ -199,6 +209,7 @@
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "38px",
+      "fontFamily": "Kanit, sans-serif",
       "label": "X"
     },
     "Y": {
@@ -217,6 +228,7 @@
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "38px",
+      "fontFamily": "Kanit, sans-serif",
       "label": "Y"
     },
     "LB": {
@@ -235,6 +247,7 @@
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "34px",
+      "fontFamily": "Kanit, sans-serif",
       "label": "LB"
     },
     "RB": {
@@ -253,6 +266,7 @@
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "34px",
+      "fontFamily": "Kanit, sans-serif",
       "label": "RB"
     },
     "LT": {
@@ -271,6 +285,7 @@
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "34px",
+      "fontFamily": "Kanit, sans-serif",
       "label": "LT"
     },
     "RT": {
@@ -289,6 +304,7 @@
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "34px",
+      "fontFamily": "Kanit, sans-serif",
       "label": "RT"
     },
     "LS": {
@@ -307,12 +323,15 @@
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "36px",
+      "fontFamily": "Kanit, sans-serif",
       "label": "LS",
-      "stickRadius": 8,
       "stickMovement": false,
-      "baseVisibility": false,
+      "showTrail": true,
+      "stickRadius": 8,
+      "trailLength": 8,
       "trailWidth": 12,
-      "trailLength": 8
+      "baseVisibility": false,
+      "baseSize": 100
     },
     "RS": {
       "display": "none",
@@ -330,12 +349,15 @@
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "36px",
+      "fontFamily": "Kanit, sans-serif",
       "label": "RS",
-      "stickRadius": 8,
       "stickMovement": false,
-      "baseVisibility": false,
+      "showTrail": true,
+      "stickRadius": 8,
+      "trailLength": 8,
       "trailWidth": 12,
-      "trailLength": 8
+      "baseVisibility": false,
+      "baseSize": 100
     },
     "View": {
       "display": "none",
@@ -353,6 +375,7 @@
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "20px",
+      "fontFamily": "Kanit, sans-serif",
       "label": "View"
     },
     "Menu": {
@@ -371,6 +394,7 @@
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "20px",
+      "fontFamily": "Kanit, sans-serif",
       "label": "Menu"
     }
   },

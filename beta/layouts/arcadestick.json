@@ -15,6 +15,7 @@
     "backgroundSize": "contain",
     "color": "rgba(0, 0, 0, 0)",
     "fontSize": "0px",
+    "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
     "label": ""
   },
   "joystick": {
@@ -33,6 +34,7 @@
     "backgroundSize": "contain",
     "color": "rgb(238, 238, 238)",
     "fontSize": "16px",
+    "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
     "label": ""
   },
   "joystickHead": {
@@ -51,6 +53,7 @@
     "backgroundSize": "contain",
     "color": "rgb(0, 0, 0)",
     "fontSize": "30px",
+    "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
     "label": ""
   },
   "eightWayWrapper": {
@@ -69,6 +72,7 @@
     "backgroundSize": "auto",
     "color": "rgb(238, 238, 238)",
     "fontSize": "16px",
+    "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
     "label": "",
     "arrowSize": 30,
     "arrowImageOn": "images/arrow-on.svg",
@@ -91,6 +95,7 @@
       "backgroundSize": "contain",
       "color": "rgb(0, 0, 0)",
       "fontSize": "18px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": ""
     },
     "Down": {
@@ -109,6 +114,7 @@
       "backgroundSize": "contain",
       "color": "rgb(0, 0, 0)",
       "fontSize": "18px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": ""
     },
     "Left": {
@@ -127,6 +133,7 @@
       "backgroundSize": "contain",
       "color": "rgb(0, 0, 0)",
       "fontSize": "18px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": ""
     },
     "Right": {
@@ -145,6 +152,7 @@
       "backgroundSize": "contain",
       "color": "rgb(0, 0, 0)",
       "fontSize": "18px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": ""
     },
     "A": {
@@ -163,6 +171,7 @@
       "backgroundSize": "contain",
       "color": "rgb(0, 0, 0)",
       "fontSize": "32px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": "a"
     },
     "B": {
@@ -181,6 +190,7 @@
       "backgroundSize": "contain",
       "color": "rgb(0, 0, 0)",
       "fontSize": "32px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": "b"
     },
     "X": {
@@ -199,6 +209,7 @@
       "backgroundSize": "contain",
       "color": "rgb(0, 0, 0)",
       "fontSize": "34px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": "x"
     },
     "Y": {
@@ -217,6 +228,7 @@
       "backgroundSize": "contain",
       "color": "rgb(0, 0, 0)",
       "fontSize": "32px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": "y"
     },
     "LB": {
@@ -235,6 +247,7 @@
       "backgroundSize": "contain",
       "color": "rgb(0, 0, 0)",
       "fontSize": "28px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": "lb"
     },
     "RB": {
@@ -253,6 +266,7 @@
       "backgroundSize": "contain",
       "color": "rgb(0, 0, 0)",
       "fontSize": "28px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": "rb"
     },
     "LT": {
@@ -271,6 +285,7 @@
       "backgroundSize": "contain",
       "color": "rgb(0, 0, 0)",
       "fontSize": "28px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": "lt"
     },
     "RT": {
@@ -289,6 +304,7 @@
       "backgroundSize": "contain",
       "color": "rgb(0, 0, 0)",
       "fontSize": "28px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": "rt"
     },
     "LS": {
@@ -307,12 +323,15 @@
       "backgroundSize": "contain",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "0px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": "",
-      "stickRadius": 8,
       "stickMovement": false,
-      "baseVisibility": false,
+      "showTrail": true,
+      "stickRadius": 8,
+      "trailLength": 8,
       "trailWidth": 12,
-      "trailLength": 8
+      "baseVisibility": false,
+      "baseSize": 100
     },
     "RS": {
       "display": "flex",
@@ -330,12 +349,15 @@
       "backgroundSize": "contain",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "0px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": "",
-      "stickRadius": 8,
       "stickMovement": false,
-      "baseVisibility": false,
+      "showTrail": true,
+      "stickRadius": 8,
+      "trailLength": 8,
       "trailWidth": 12,
-      "trailLength": 8
+      "baseVisibility": false,
+      "baseSize": 100
     },
     "View": {
       "display": "flex",
@@ -353,6 +375,7 @@
       "backgroundSize": "contain",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "0px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": ""
     },
     "Menu": {
@@ -371,6 +394,7 @@
       "backgroundSize": "contain",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "0px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": ""
     }
   },

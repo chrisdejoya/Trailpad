@@ -15,6 +15,7 @@
     "backgroundSize": "contain",
     "color": "rgb(238, 238, 238)",
     "fontSize": "16px",
+    "fontFamily": "\"Russo One\", sans-serif",
     "label": ""
   },
   "joystick": {
@@ -33,6 +34,7 @@
     "backgroundSize": "cover",
     "color": "rgb(238, 238, 238)",
     "fontSize": "16px",
+    "fontFamily": "\"Russo One\", sans-serif",
     "label": ""
   },
   "joystickHead": {
@@ -47,10 +49,11 @@
     "outlineOffset": "0px",
     "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
     "backgroundColor": "rgb(64, 64, 64)",
-    "backgroundImage": "none",
+    "backgroundImage": "",
     "backgroundSize": "auto",
     "color": "rgb(0, 0, 0)",
     "fontSize": "30px",
+    "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
     "label": ""
   },
   "eightWayWrapper": {
@@ -69,6 +72,7 @@
     "backgroundSize": "auto",
     "color": "rgb(238, 238, 238)",
     "fontSize": "16px",
+    "fontFamily": "\"Russo One\", sans-serif",
     "label": "",
     "arrowSize": 90,
     "arrowImageOn": "images/arrow-on.svg",
@@ -91,6 +95,7 @@
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "44px",
+      "fontFamily": "\"Russo One\", sans-serif",
       "label": ""
     },
     "Down": {
@@ -109,6 +114,7 @@
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "44px",
+      "fontFamily": "\"Russo One\", sans-serif",
       "label": ""
     },
     "Left": {
@@ -127,6 +133,7 @@
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "44px",
+      "fontFamily": "\"Russo One\", sans-serif",
       "label": ""
     },
     "Right": {
@@ -145,6 +152,7 @@
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "44px",
+      "fontFamily": "\"Russo One\", sans-serif",
       "label": ""
     },
     "A": {
@@ -163,6 +171,7 @@
       "backgroundSize": "66px auto",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "10px",
+      "fontFamily": "\"Russo One\", sans-serif",
       "label": "A"
     },
     "B": {
@@ -181,6 +190,7 @@
       "backgroundSize": "80px auto",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "6px",
+      "fontFamily": "\"Russo One\", sans-serif",
       "label": "B"
     },
     "X": {
@@ -199,6 +209,7 @@
       "backgroundSize": "70px auto",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "6px",
+      "fontFamily": "\"Russo One\", sans-serif",
       "label": "X"
     },
     "Y": {
@@ -217,6 +228,7 @@
       "backgroundSize": "64px auto",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "6px",
+      "fontFamily": "\"Russo One\", sans-serif",
       "label": "Y"
     },
     "LB": {
@@ -235,6 +247,7 @@
       "backgroundSize": "contain",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "0px",
+      "fontFamily": "\"Russo One\", sans-serif",
       "label": ""
     },
     "RB": {
@@ -253,6 +266,7 @@
       "backgroundSize": "contain",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "0px",
+      "fontFamily": "\"Russo One\", sans-serif",
       "label": ""
     },
     "LT": {
@@ -271,6 +285,7 @@
       "backgroundSize": "contain",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "0px",
+      "fontFamily": "\"Russo One\", sans-serif",
       "label": ""
     },
     "RT": {
@@ -289,6 +304,7 @@
       "backgroundSize": "contain",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "0px",
+      "fontFamily": "\"Russo One\", sans-serif",
       "label": ""
     },
     "LS": {
@@ -307,12 +323,15 @@
       "backgroundSize": "contain",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "0px",
+      "fontFamily": "\"Russo One\", sans-serif",
       "label": "",
-      "stickRadius": 8,
       "stickMovement": true,
-      "baseVisibility": false,
+      "showTrail": false,
+      "stickRadius": 20,
+      "trailLength": 8,
       "trailWidth": 12,
-      "trailLength": 8
+      "baseVisibility": false,
+      "baseSize": 100
     },
     "RS": {
       "display": "flex",
@@ -330,12 +349,15 @@
       "backgroundSize": "contain",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "0px",
+      "fontFamily": "\"Russo One\", sans-serif",
       "label": "",
-      "stickRadius": 8,
       "stickMovement": true,
-      "baseVisibility": false,
+      "showTrail": false,
+      "stickRadius": 20,
+      "trailLength": 8,
       "trailWidth": 12,
-      "trailLength": 8
+      "baseVisibility": false,
+      "baseSize": 100
     },
     "View": {
       "display": "flex",
@@ -353,6 +375,7 @@
       "backgroundSize": "contain",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "0px",
+      "fontFamily": "\"Russo One\", sans-serif",
       "label": ""
     },
     "Menu": {
@@ -371,6 +394,7 @@
       "backgroundSize": "contain",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "0px",
+      "fontFamily": "\"Russo One\", sans-serif",
       "label": ""
     }
   },

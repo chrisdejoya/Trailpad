@@ -11,10 +11,11 @@
     "outlineOffset": "-6px",
     "boxShadow": "none",
     "backgroundColor": "rgba(0, 0, 0, 0.6)",
-    "backgroundImage": "none",
+    "backgroundImage": "",
     "backgroundSize": "auto",
     "color": "rgb(238, 238, 238)",
     "fontSize": "16px",
+    "fontFamily": "\"Barlow Condensed\", sans-serif",
     "label": ""
   },
   "joystick": {
@@ -29,10 +30,11 @@
     "outlineOffset": "0px",
     "boxShadow": "none",
     "backgroundColor": "rgba(0, 0, 0, 0)",
-    "backgroundImage": "none",
+    "backgroundImage": "",
     "backgroundSize": "cover",
     "color": "rgb(238, 238, 238)",
     "fontSize": "16px",
+    "fontFamily": "\"Barlow Condensed\", sans-serif",
     "label": ""
   },
   "joystickHead": {
@@ -51,6 +53,7 @@
     "backgroundSize": "contain",
     "color": "rgb(0, 0, 0)",
     "fontSize": "30px",
+    "fontFamily": "\"Barlow Condensed\", sans-serif",
     "label": ""
   },
   "eightWayWrapper": {
@@ -69,6 +72,7 @@
     "backgroundSize": "auto",
     "color": "rgb(238, 238, 238)",
     "fontSize": "16px",
+    "fontFamily": "\"Barlow Condensed\", sans-serif",
     "label": "",
     "arrowSize": 100,
     "arrowImageOn": "images/sf/sf-arrow-on.svg",
@@ -91,6 +95,7 @@
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "44px",
+      "fontFamily": "\"Barlow Condensed\", sans-serif",
       "label": ""
     },
     "Down": {
@@ -109,6 +114,7 @@
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "44px",
+      "fontFamily": "\"Barlow Condensed\", sans-serif",
       "label": ""
     },
     "Left": {
@@ -127,6 +133,7 @@
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "44px",
+      "fontFamily": "\"Barlow Condensed\", sans-serif",
       "label": ""
     },
     "Right": {
@@ -145,6 +152,7 @@
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "44px",
+      "fontFamily": "\"Barlow Condensed\", sans-serif",
       "label": ""
     },
     "A": {
@@ -163,6 +171,7 @@
       "backgroundSize": "100px auto",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "0px",
+      "fontFamily": "\"Barlow Condensed\", sans-serif",
       "label": "lk"
     },
     "B": {
@@ -181,6 +190,7 @@
       "backgroundSize": "100px auto",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "0px",
+      "fontFamily": "\"Barlow Condensed\", sans-serif",
       "label": "mk"
     },
     "X": {
@@ -199,6 +209,7 @@
       "backgroundSize": "100px auto",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "0px",
+      "fontFamily": "\"Barlow Condensed\", sans-serif",
       "label": "lp"
     },
     "Y": {
@@ -217,6 +228,7 @@
       "backgroundSize": "100px auto",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "0px",
+      "fontFamily": "\"Barlow Condensed\", sans-serif",
       "label": "mp"
     },
     "LB": {
@@ -231,10 +243,11 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgba(0, 0, 0, 0.5) 0px 0px 5px 2px",
       "backgroundColor": "rgb(51, 13, 102)",
-      "backgroundImage": "none",
+      "backgroundImage": "",
       "backgroundSize": "contain",
       "color": "rgb(255, 255, 255)",
-      "fontSize": "28px",
+      "fontSize": "60px",
+      "fontFamily": "\"Barlow Condensed\", sans-serif",
       "label": "DI"
     },
     "RB": {
@@ -253,6 +266,7 @@
       "backgroundSize": "100px auto",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "0px",
+      "fontFamily": "\"Barlow Condensed\", sans-serif",
       "label": "hp"
     },
     "LT": {
@@ -267,10 +281,11 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgba(0, 0, 0, 0.5) 0px 0px 5px 2px",
       "backgroundColor": "rgba(13, 102, 13, 0.9)",
-      "backgroundImage": "none",
+      "backgroundImage": "",
       "backgroundSize": "contain",
       "color": "rgb(255, 255, 255)",
-      "fontSize": "28px",
+      "fontSize": "60px",
+      "fontFamily": "\"Barlow Condensed\", sans-serif",
       "label": "P"
     },
     "RT": {
@@ -289,6 +304,7 @@
       "backgroundSize": "100px auto",
       "color": "rgba(0, 0, 0, 0)",
       "fontSize": "0px",
+      "fontFamily": "\"Barlow Condensed\", sans-serif",
       "label": "hk"
     },
     "LS": {
@@ -303,16 +319,19 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "none",
+      "backgroundImage": "",
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "36px",
+      "fontFamily": "\"Barlow Condensed\", sans-serif",
       "label": "LS",
-      "stickRadius": 8,
       "stickMovement": false,
-      "baseVisibility": false,
+      "showTrail": true,
+      "stickRadius": 8,
+      "trailLength": 8,
       "trailWidth": 12,
-      "trailLength": 8
+      "baseVisibility": false,
+      "baseSize": 100
     },
     "RS": {
       "display": "none",
@@ -326,16 +345,19 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "none",
+      "backgroundImage": "",
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "36px",
+      "fontFamily": "\"Barlow Condensed\", sans-serif",
       "label": "RS",
-      "stickRadius": 8,
       "stickMovement": false,
-      "baseVisibility": false,
+      "showTrail": true,
+      "stickRadius": 8,
+      "trailLength": 8,
       "trailWidth": 12,
-      "trailLength": 8
+      "baseVisibility": false,
+      "baseSize": 100
     },
     "View": {
       "display": "none",
@@ -349,10 +371,11 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "none",
+      "backgroundImage": "",
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "20px",
+      "fontFamily": "\"Barlow Condensed\", sans-serif",
       "label": "View"
     },
     "Menu": {
@@ -367,10 +390,11 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "none",
+      "backgroundImage": "",
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "20px",
+      "fontFamily": "\"Barlow Condensed\", sans-serif",
       "label": "Menu"
     }
   },

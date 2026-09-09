@@ -18,5 +18,6 @@
   { "name": "Barlow Condensed", "url": "https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;900&display=swap", "cssFamily": "'Barlow Condensed', sans-serif" },
   { "name": "Kanit", "url": "https://fonts.googleapis.com/css2?family=Kanit:wght@600;700;800&display=swap", "cssFamily": "'Kanit', sans-serif" },
   { "name": "Michroma", "url": "https://fonts.googleapis.com/css2?family=Michroma&display=swap", "cssFamily": "'Michroma', sans-serif" },
-  { "name": "Viga", "url": "https://fonts.googleapis.com/css2?family=Viga&display=swap", "cssFamily": "'Viga', sans-serif" }
+  { "name": "Viga", "url": "https://fonts.googleapis.com/css2?family=Viga&display=swap", "cssFamily": "'Viga', sans-serif" },
+  { "name": "Swiss 721", "url": "", "cssFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif" }
 ]

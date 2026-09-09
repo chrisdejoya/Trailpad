@@ -11,10 +11,11 @@
     "outlineOffset": "-6px",
     "boxShadow": "none",
     "backgroundColor": "rgba(0, 0, 0, 0.25)",
-    "backgroundImage": "none",
+    "backgroundImage": "",
     "backgroundSize": "auto",
     "color": "rgb(0, 0, 0)",
     "fontSize": "16px",
+    "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
     "label": ""
   },
   "joystick": {
@@ -33,13 +34,14 @@
     "backgroundSize": "cover",
     "color": "rgb(0, 0, 0)",
     "fontSize": "16px",
+    "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
     "label": ""
   },
   "joystickHead": {
     "display": "flex",
     "zIndex": "4",
-    "top": "0px",
-    "left": "0px",
+    "top": "0.0003814px",
+    "left": "-0.0003814px",
     "width": "60px",
     "height": "60px",
     "borderRadius": "50%",
@@ -47,10 +49,11 @@
     "outlineOffset": "0px",
     "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 5px",
     "backgroundColor": "rgb(64, 64, 64)",
-    "backgroundImage": "none",
+    "backgroundImage": "",
     "backgroundSize": "auto",
     "color": "rgb(0, 0, 0)",
     "fontSize": "30px",
+    "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
     "label": ""
   },
   "eightWayWrapper": {
@@ -65,10 +68,11 @@
     "outlineOffset": "0px",
     "boxShadow": "none",
     "backgroundColor": "rgba(0, 0, 0, 0)",
-    "backgroundImage": "none",
+    "backgroundImage": "",
     "backgroundSize": "auto",
     "color": "rgb(238, 238, 238)",
     "fontSize": "16px",
+    "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
     "label": "",
     "arrowSize": 95,
     "arrowImageOn": "images/arrow-on.svg",
@@ -91,6 +95,7 @@
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "44px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": ""
     },
     "Down": {
@@ -109,6 +114,7 @@
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "44px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": ""
     },
     "Left": {
@@ -127,6 +133,7 @@
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "44px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": ""
     },
     "Right": {
@@ -145,6 +152,7 @@
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "44px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": ""
     },
     "A": {
@@ -159,10 +167,11 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 6px",
       "backgroundColor": "rgba(0, 0, 0, 0.933)",
-      "backgroundImage": "none",
+      "backgroundImage": "",
       "backgroundSize": "111px auto",
       "color": "rgb(205, 245, 99)",
       "fontSize": "56px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": "t"
     },
     "B": {
@@ -177,10 +186,11 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 6px",
       "backgroundColor": "rgb(144, 37, 247)",
-      "backgroundImage": "none",
+      "backgroundImage": "",
       "backgroundSize": "115px auto",
       "color": "rgb(0, 0, 0)",
       "fontSize": "56px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": "h"
     },
     "X": {
@@ -195,10 +205,11 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 6px",
       "backgroundColor": "rgb(212, 168, 255)",
-      "backgroundImage": "none",
+      "backgroundImage": "",
       "backgroundSize": "107px auto",
       "color": "rgb(0, 0, 0)",
       "fontSize": "56px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": "l"
     },
     "Y": {
@@ -213,10 +224,11 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 6px",
       "backgroundColor": "rgb(187, 114, 255)",
-      "backgroundImage": "none",
+      "backgroundImage": "",
       "backgroundSize": "107px auto",
       "color": "rgb(0, 0, 0)",
       "fontSize": "56px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": "m"
     },
     "LB": {
@@ -231,10 +243,11 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 6px",
       "backgroundColor": "rgba(0, 0, 0, 0.933)",
-      "backgroundImage": "none",
+      "backgroundImage": "",
       "backgroundSize": "contain",
       "color": "rgb(41, 121, 254)",
       "fontSize": "56px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": "p"
     },
     "RB": {
@@ -249,10 +262,11 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 6px",
       "backgroundColor": "rgba(0, 0, 0, 0.933)",
-      "backgroundImage": "none",
+      "backgroundImage": "",
       "backgroundSize": "contain",
       "color": "rgb(254, 128, 2)",
       "fontSize": "56px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": "d"
     },
     "LT": {
@@ -267,10 +281,11 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 6px",
       "backgroundColor": "rgb(60, 196, 255)",
-      "backgroundImage": "none",
+      "backgroundImage": "",
       "backgroundSize": "contain",
       "color": "rgb(0, 0, 0)",
       "fontSize": "50px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": "s1"
     },
     "RT": {
@@ -285,10 +300,11 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 6px",
       "backgroundColor": "rgb(255, 70, 67)",
-      "backgroundImage": "none",
+      "backgroundImage": "",
       "backgroundSize": "contain",
       "color": "rgb(0, 0, 0)",
       "fontSize": "50px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": "s2"
     },
     "LS": {
@@ -303,16 +319,19 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "none",
+      "backgroundImage": "",
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "36px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": "LS",
+      "stickMovement": false,
+      "showTrail": false,
       "stickRadius": 8,
-      "stickMovement": true,
-      "baseVisibility": false,
+      "trailLength": 8,
       "trailWidth": 12,
-      "trailLength": 8
+      "baseVisibility": false,
+      "baseSize": 100
     },
     "RS": {
       "display": "none",
@@ -326,16 +345,19 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "none",
+      "backgroundImage": "",
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "36px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": "RS",
+      "stickMovement": false,
+      "showTrail": false,
       "stickRadius": 8,
-      "stickMovement": true,
-      "baseVisibility": false,
+      "trailLength": 8,
       "trailWidth": 12,
-      "trailLength": 8
+      "baseVisibility": false,
+      "baseSize": 100
     },
     "View": {
       "display": "none",
@@ -349,10 +371,11 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "none",
+      "backgroundImage": "",
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "20px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": "View"
     },
     "Menu": {
@@ -367,12 +390,19 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "none",
+      "backgroundImage": "",
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "20px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": "Menu"
     }
   },
-  "trailColor": "#eedd44"
+  "trailColor": "#eedd44",
+  "analog": {
+    "pressureEnabled": false,
+    "minTriggerBrightness": 1,
+    "maxTriggerBrightness": 3,
+    "triggerDeadzone": 0
+  }
 }

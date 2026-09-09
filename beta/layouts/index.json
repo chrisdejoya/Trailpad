@@ -80,6 +80,10 @@
     "name": "Mixbox"
   },
   {
+    "file": "platform.json",
+    "name": "Platform"
+  },
+  {
     "file": "streetfighter.json",
     "name": "SF6 (Classic)"
   },
