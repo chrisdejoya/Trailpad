@@ -1,6 +1,9 @@
 #colorPanel {
     position: fixed;
-    width: 360px;
+    width: fit-content;
+    min-width: 320px;
+    max-width: 90vw;
+    box-sizing: border-box;
     display: none;
     z-index: 200;
     border-radius: var(--radius-md);

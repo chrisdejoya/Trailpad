@@ -228,7 +228,7 @@ window.addEventListener('DOMContentLoaded', () => {
         snap.stickRadius = Math.max(0, Math.min(100, parseInt(stickState.stickRadius ?? appState.analog?.analogVisualRange ?? 8, 10) || 0));
         snap.trailSize = Math.max(1, Math.min(60, parseInt(stickState.trailSize ?? cfg.trail, 10) || cfg.trail));
         snap.trailWidth = Math.max(1, Math.min(40, parseInt(stickState.trailWidth ?? 12, 10) || 12));
-        snap.showBase = stickState.showBase !== false;
+        snap.showBase = stickState.showBase === true;
         snap.baseSize = Math.max(20, Math.min(300, parseInt(stickState.baseSize ?? 100, 10) || 100));
       }
     }
@@ -329,6 +329,7 @@ window.addEventListener('DOMContentLoaded', () => {
       if (appState.analog.triggerDeadzone === undefined) appState.analog.triggerDeadzone = 0.1;
     }
     if (parsed.joystickHead) applyJoystickHeadFromState();
+    updateAnalogStickBases();
     saveStateData();
   }
 
@@ -510,7 +511,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     const stickRadius = Math.max(0, Math.min(100, parseInt(stickState.stickRadius ?? appState.analog?.analogVisualRange ?? 8, 10) || 0));
     const trailSize = Math.max(1, Math.min(60, parseInt(stickState.trailSize ?? cfg.trail, 10) || cfg.trail));
     const trailWidth = Math.max(1, Math.min(40, parseInt(stickState.trailWidth ?? 12, 10) || 12));
-    const showBase = stickState.showBase !== false;
+    const showBase = stickState.showBase === true;
     const baseSize = Math.max(20, Math.min(300, parseInt(stickState.baseSize ?? 100, 10) || 100));
     const makeGroupTitle = text => {
       const title = document.createElement('div'); title.textContent = text; title.style.fontSize = '11px'; title.style.color = 'var(--text-muted)'; title.style.borderBottom = '1px solid var(--border-subtle)'; title.style.paddingBottom = '4px'; return title;
@@ -1488,7 +1489,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
       analogBase.style.height = `${size}px`;
       analogBase.style.left = `${centerX - size / 2}px`;
       analogBase.style.top = `${centerY - size / 2}px`;
-      analogBase.style.display = state.showBase === false ? 'none' : 'block';
+      analogBase.style.display = state.showBase === true ? 'block' : 'none';
       applyBgImage(analogBase, baseImage);
     });
   }
