@@ -1,0 +1,13 @@
+{
+  "url": "file:///D:/Documents/Trailpad/index.html",
+  
+  "bottom_margin": -200,
+  "side_offset": 200,
+  "opacity": 1.0,
+  "click_through_start": false,
+  "auto_reload_seconds": 0,
+
+  "scale_x": 0.4,
+  "scale_y": 0.3,
+  "zoom": 0.75
+}
