@@ -1,4 +1,5 @@
 import { createTrailSystem } from './js/trail.js';
+import { TrailChainClient } from './js/trailchain-client.js';
 
 window.addEventListener('DOMContentLoaded', () => {
   const STORAGE_KEY = 'trailpad_1';
@@ -114,6 +115,8 @@ window.addEventListener('DOMContentLoaded', () => {
   let selected = null;
   let lastPressedTimes = {};
   let activeGamepadIndex = null;
+  let trailChain = null;
+  let padSource = 'gamepad';
   let panelAnchorTarget = null;
   let currentPreviewTarget = null;
   let trailSystem = null;
@@ -1851,8 +1854,17 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
 
   // detect active gamepad & main animation loop
   function animate() {
-    activeGamepadIndex = detectActiveGamepad();
-    const pad = (navigator.getGamepads && activeGamepadIndex !== null) ? navigator.getGamepads()[activeGamepadIndex] : null;
+    // Prefer TrailChain WebSocket data; fall back to native Gamepad API
+    let pad = null;
+    if (trailChain && trailChain.getConnected()) {
+      padSource = 'trailchain';
+      pad = trailChain.getGamepad();
+    }
+    if (!pad) {
+      padSource = 'gamepad';
+      activeGamepadIndex = detectActiveGamepad();
+      pad = (navigator.getGamepads && activeGamepadIndex !== null) ? navigator.getGamepads()[activeGamepadIndex] : null;
+    }
     updateButtonsFromPad(pad);
     const dpadDir = handleDpadMovement(pad); updateArrowHighlights(dpadDir);
     const { x, y } = getStickXY(pad); const cx = canvas.width/2, cy = canvas.height/2; const radius = canvas.width/2 - 25; const jx = cx + x * radius, jy = cy + y * radius; joystick.style.left = jx + 'px'; joystick.style.top = jy + 'px';
@@ -1911,9 +1923,26 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
 
   loadStateData(); updateStateData(); resizeJoystickWrapper(); joystick.style.left = (canvas.width/2) + 'px'; joystick.style.top = (canvas.height/2) + 'px';
   if (window.ResizeObserver) { const ro = new ResizeObserver(() => { resizeJoystickWrapper(); joystick.style.left = (canvas.width/2) + 'px'; joystick.style.top = (canvas.height/2) + 'px'; }); ro.observe(stickWrapper); }
+
+  // Initialize TrailChain WebSocket client (optional — connects to the
+  // TrailChain companion app broadcasting controller state on port 3819).
+  // The host can be overridden via ?host=192.168.1.42 in the URL.
+  const urlParams = new URLSearchParams(window.location.search);
+  const chainHost = urlParams.get('host') || (window.location.hostname || '127.0.0.1');
+  trailChain = new TrailChainClient(chainHost, 3819, {
+    onConnect: () => { showToast('Chainlink Connected', 2000); },
+    onDisconnect: () => { showToast('Chainlink Disconnected', 2000); },
+    onError: (err) => { console.warn('[Trailpad] Chainlink WebSocket Error:', err?.message || err); },
+    onControllers: () => {},
+  });
+  trailChain.connect();
+
+  // Clean up WebSocket on page unload
+  window.addEventListener('beforeunload', () => { if (trailChain) trailChain.disconnect(); });
+
   animate(); showToast('Click Interact to start customizing', 5000);
 
   // expose helpers
-  window.trailpad = { saveStateData, loadStateData, copyLayoutToClipboard, pasteLayoutFromClipboard };
+  window.trailpad = { saveStateData, loadStateData, copyLayoutToClipboard, pasteLayoutFromClipboard, trailChain, get padSource() { return padSource; } };
 
 });
