@@ -169,6 +169,7 @@ export class TrailChainClient {
 
     this._retryTimer = null;
     this._connecting = false;
+    this._wasConnected = false;
     this._reconnectAttempts = 0;
   }
 
@@ -194,8 +195,9 @@ export class TrailChainClient {
       return;
     }
 
-    this.socket.addEventListener('open', () => {
+     this.socket.addEventListener('open', () => {
       this.connected = true;
+      this._wasConnected = true;
       this._connecting = false;
       this._reconnectAttempts = 0;
       this.onConnect();
@@ -209,7 +211,12 @@ export class TrailChainClient {
       this.connected = false;
       this._connecting = false;
       this.currentGamepad = null;
-      this.onDisconnect();
+      // Only report a disconnection if we were previously connected.
+      // During retry storms (server never came up), skip the callback.
+      if (this._wasConnected) {
+        this._wasConnected = false;
+        this.onDisconnect();
+      }
       this._scheduleRetry();
     });
 
@@ -275,6 +282,7 @@ export class TrailChainClient {
       this._retryTimer = null;
     }
     this._connecting = false;
+    this._wasConnected = false;
     this._reconnectAttempts = 0;
     if (this.socket) {
       this.socket.close();
