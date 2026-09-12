@@ -1930,9 +1930,9 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
   const urlParams = new URLSearchParams(window.location.search);
   const chainHost = urlParams.get('host') || (window.location.hostname || '127.0.0.1');
   trailChain = new TrailChainClient(chainHost, 3819, {
-    onConnect: () => { showToast('TrailChain connected', 2000); },
-    onDisconnect: () => { showToast('TrailChain disconnected', 2000); },
-    onError: (err) => { console.warn('[Trailpad] TrailChain WebSocket error:', err?.message || err); },
+    onConnect: () => { showToast('Chainlink connected', 2000); },
+    onDisconnect: () => { showToast('Chainlink disconnected', 2000); },
+    onError: (err) => { console.warn('[Trailpad] Chainlink WebSocket error:', err?.message || err); },
     onControllers: () => {},
   });
   trailChain.connect();
