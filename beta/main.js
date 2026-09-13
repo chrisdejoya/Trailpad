@@ -1205,8 +1205,14 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
       const trail = colorPanel.querySelector('[data-stick-key="showTrail"]');
       if (trail) trail.disabled = !movement?.checked;
     }
-    if (colorMode !== 'outline') return; const sliders = colorPanel.querySelectorAll('input[type="range"]'); if (sliders.length < 2) return;
-    const innerSlider = sliders[0], innerValue = innerSlider.nextElementSibling, outerSlider = sliders[1], outerValue = outerSlider.nextElementSibling;
+    if (colorMode !== 'outline') return;
+    // Select the outline sliders by their dedicated class rather than by DOM
+    // index — the panel contains many range inputs (stick, symbol, text, outline)
+    // and relying on index order picked the wrong sliders, so the stroke values
+    // never reflected the selected object's actual settings.
+    const outlineSliders = colorPanel.querySelectorAll('input[type="range"].colorPanelOutlineSlider');
+    if (outlineSliders.length < 2) return;
+    const innerSlider = outlineSliders[0], innerValue = innerSlider.nextElementSibling, outerSlider = outlineSliders[1], outerValue = outerSlider.nextElementSibling;
     if (!applyTarget) return; const cs = window.getComputedStyle(applyTarget);
     let outlineWidth = 0, outlineColor = 'black';
     if (btnId && appState.buttons[btnId]?.outlineWidth != null) { outlineWidth = appState.buttons[btnId].outlineWidth; outlineColor = appState.buttons[btnId].outlineColor ?? 'black'; }
