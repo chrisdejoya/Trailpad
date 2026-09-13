@@ -38,7 +38,7 @@
   --ui-font-size-small: 11px;
   --ui-font-size-value: 14px;
   --ui-control-height: 30px;
-  --ui-control-number-width: 48px;
+  --ui-control-number-width: 56px;
   --ui-control-label-width: 54px;
   --ui-control-gap: 8px;
 }
@@ -119,6 +119,7 @@ input.btn-edit {
   font-size: inherit;
   text-transform: uppercase;
   outline: none;
+  box-sizing: border-box;
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
 }
 
@@ -263,6 +264,7 @@ input[type="range"]:not(.btn-edit) {
   appearance: none;
   width: 100%;
   height: 8px;
+  box-sizing: border-box;
   background: var(--bg-tertiary);
   border: 1px solid var(--border-default);
   border-radius: 4px;

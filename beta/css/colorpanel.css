@@ -49,6 +49,18 @@
     display: grid;
     grid-template-columns: var(--ui-control-label-width) 1fr var(--ui-control-number-width);
     font-size: var(--ui-font-size);
+    box-sizing: border-box;
+}
+
+.colorPanelControlRow > input,
+.colorPanelSliderRow > input {
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.colorPanelControlRow > input[type="range"],
+.colorPanelSliderRow > input[type="range"] {
+    width: 100%;
 }
 
 .colorPanelControlRow > input[type="number"],
@@ -95,20 +107,42 @@
     flex-shrink: 0;
 }
 
-.colorPanelOutlineControls,
-.colorPanelInlineControl,
+.colorPanelOutlineControls {
+    display: flex;
+    align-items: center;
+    gap: var(--ui-control-gap);
+}
+.colorPanelOutlineControls input {
+    min-width: 0;
+    box-sizing: border-box;
+}
+.colorPanelOutlineControls .colorPanelOutlineSlider {
+    flex: 1;
+    min-width: 50px;
+    max-width: 40%;
+    width: 0;
+    box-sizing: border-box;
+}
+.colorPanelOutlineControls .colorPanelSmallValue {
+    flex-shrink: 0;
+}
+.colorPanelInlineControl {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: var(--ui-font-size-small);
+}
 .colorPanelSizeControl {
     display: flex;
     align-items: center;
     gap: var(--ui-control-gap);
-    flex-wrap: wrap;
 }
-
-.colorPanelInlineControl {
-    gap: 4px;
-    color: var(--text-muted);
-    cursor: pointer;
-    font-size: var(--ui-font-size-small);
+.colorPanelSizeControl input {
+    min-width: 0;
+    box-sizing: border-box;
 }
 
 .colorPanelOutlineLabel {
@@ -117,13 +151,13 @@
 }
 
 .colorPanelSmallValue {
-    width: 40px;
+    width: 56px;
     font-size: var(--ui-font-size-value);
     text-align: center;
 }
 
 .colorPanelSymbolValue {
-    width: 50px;
+    width: 56px;
     font-size: var(--ui-font-size);
     text-align: center;
 }
@@ -133,6 +167,52 @@
     font-size: var(--ui-font-size-value);
 }
 
+/* Shared properties for all color panel number inputs */
+.colorPanelValue,
+.colorPanelSmallValue,
+.colorPanelSymbolValue,
+.colorPanelTextValue {
+    box-sizing: border-box;
+    padding: 2px 6px;
+    font-variant-numeric: tabular-nums;
+    -moz-appearance: textfield;
+    appearance: none;
+}
+.colorPanelValue::-webkit-inner-spin-button,
+.colorPanelSmallValue::-webkit-inner-spin-button,
+.colorPanelSymbolValue::-webkit-inner-spin-button,
+.colorPanelTextValue::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 0;
+    height: 0;
+    padding: 0;
+    margin: 0;
+}
+.colorPanelValue::-webkit-outer-spin-button,
+.colorPanelSmallValue::-webkit-outer-spin-button,
+.colorPanelSymbolValue::-webkit-outer-spin-button,
+.colorPanelTextValue::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+/* Shared properties for all color panel sliders */
+.colorPanelOutlineSlider,
+.colorPanelTextSlider,
+.symbolSizeSlider,
+.textSizeSlider {
+    height: 8px;
+}
+.colorPanelOutlineSlider,
+.colorPanelTextSlider,
+.symbolSizeSlider,
+.textSizeSlider,
+.colorPanelSliderRow > input[type="range"],
+.colorPanelControlRow > input[type="range"] {
+    box-sizing: border-box;
+}
+
 .colorPanelSizeControl {
     display: none;
 }
@@ -140,10 +220,6 @@
 .colorPanelSizeLabel {
     font-size: 16px;
     color: var(--text-secondary);
-}
-
-.colorPanelOutlineSlider {
-    width: 60px;
 }
 
 .colorPanelTextSlider {
