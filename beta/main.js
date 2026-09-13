@@ -128,6 +128,10 @@ window.addEventListener('DOMContentLoaded', () => {
       if (presetsMenuEl) {
         closePresetsMenu(true);
       }
+      // Also hide the selection cursor
+      if (cursorEl) {
+        cursorEl.classList.remove('active');
+      }
     }, UI_HIDE_DELAY);
   }
   function stopUiHideTimer() {
