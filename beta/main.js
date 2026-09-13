@@ -59,7 +59,7 @@ window.addEventListener('DOMContentLoaded', () => {
   btnEls[el.dataset.btn] = el;
   // smooth visual feedback for analog changes (triggers / press scale)
   // Include top/left so position changes animate instead of snapping (this preserves stylesheet transitions)
-  try { el.style.transition = 'filter 60ms linear, transform 60ms linear, top 60ms linear, left 60ms linear'; } catch (e) {}
+  try { el.style.transition = 'filter 30ms linear, transform 30ms linear, top 30ms linear, left 30ms linear'; } catch (e) {}
   });
   const base = document.getElementById('base');
   const stickWrapper = document.getElementById('stickWrapper');
@@ -85,6 +85,35 @@ window.addEventListener('DOMContentLoaded', () => {
   let appState = {
     buttons: {}, joystick: {}, joystickHead: {}, base: {}, eightWayWrapper: { arrowSize: 90 }, hiddenButtons: [], trailColor: getComputedStyle(document.documentElement).getPropertyValue('--trail-color') || '#CEEC73', profiles: {}
   };
+
+  // Cursor element for selection bounding box
+  const cursorEl = document.createElement('div');
+  cursorEl.className = 'cursor';
+  cursorEl.innerHTML = '<div class="corner"></div>';
+  document.body.appendChild(cursorEl);
+
+  function updateCursor(immediate = false) {
+    if (!selected) {
+      cursorEl.classList.remove('active');
+      return;
+    }
+    const apply = () => {
+      const rect = selected.getBoundingClientRect();
+      cursorEl.style.left = rect.left + 'px';
+      cursorEl.style.top = rect.top + 'px';
+      cursorEl.style.width = rect.width + 'px';
+      cursorEl.style.height = rect.height + 'px';
+      cursorEl.classList.add('active');
+    };
+    if (immediate) {
+      apply();
+    } else {
+      // Wait for CSS transition (60ms on top/left) to complete
+      requestAnimationFrame(() => {
+        setTimeout(apply, 70);
+      });
+    }
+  }
 
   // Auto-hide timer for UI menus (color panel, presets menu)
   let uiHideTimer = null;
@@ -362,10 +391,10 @@ window.addEventListener('DOMContentLoaded', () => {
     revertPreview();
     if (!el) {
       if (selected) { selected.classList.remove('selected'); selected.classList.remove('selectedOutline'); }
-      selected = null; return;
+      selected = null; updateCursor(true); return;
     }
     if (selected && selected !== el) { selected.classList.remove('selected'); selected.classList.remove('selectedOutline'); }
-    selected = el; selected.classList.add('selected'); selected.classList.add('selectedOutline'); updatePanelForSelection();
+    selected = el; selected.classList.add('selected'); selected.classList.add('selectedOutline'); updatePanelForSelection(); updateCursor(true);
     if (colorPanel.style.display === 'block' || colorPanel.style.display === 'flex') panelAnchorTarget = selected;
     // sync persistent size slider to selected element's backgroundSize (percent if set)
     try {
@@ -1309,7 +1338,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
         if (selected === stickWrapper || selected === eightWayWrapper) { let newSize; if (e.key === 'ArrowUp' || e.key === 'ArrowRight') newSize = Math.max(width, height); else newSize = Math.min(width, height); width = Math.max(10, newSize); height = Math.max(10, newSize); }
         selected.style.width = width + 'px'; selected.style.height = height + 'px'; selected.style.left = (centerX - width / 2) + 'px'; selected.style.top = (centerY - height / 2) + 'px';
         if (selected.classList && selected.classList.contains('btn')) { const name = selected.dataset.btn; appState.buttons[name] = appState.buttons[name] || {}; appState.buttons[name].width = selected.style.width; appState.buttons[name].height = selected.style.height; appState.buttons[name].top = selected.style.top; appState.buttons[name].left = selected.style.left; }
-        saveStateData(); showToast(`height: ${height}, width: ${width}`, 1000); updated = true;
+        saveStateData(); showToast(`height: ${height}, width: ${width}`, 1000); updated = true; updateCursor();
       } else {
         const step = e.ctrlKey ? 1 : 10;
         if (e.key === 'ArrowUp') { top -= step; updated = true; }
@@ -1317,13 +1346,13 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
         if (e.key === 'ArrowLeft') { left -= step; updated = true; }
         if (e.key === 'ArrowRight') { left += step; updated = true; }
         
-        if (updated) { selected.style.top = Math.max(0, top) + 'px'; selected.style.left = Math.max(0, left) + 'px'; saveStateData(); showToast(`x: ${left}, y: ${top}`, 1000); }
+        if (updated) { selected.style.top = Math.max(0, top) + 'px'; selected.style.left = Math.max(0, left) + 'px'; saveStateData(); showToast(`x: ${left}, y: ${top}`, 1000); updateCursor(); }
       }
       if (updated) {
         if (selected === stickWrapper) { resizeJoystickWrapper(); joystick.style.left = (width / 2) + 'px'; joystick.style.top = (height / 2) + 'px'; appState.joystick.top = selected.style.top; appState.joystick.left = selected.style.left; appState.joystick.width = selected.style.width; appState.joystick.height = selected.style.height; }
         else if (selected === eightWayWrapper) { appState.eightWayWrapper.top = selected.style.top; appState.eightWayWrapper.left = selected.style.left; appState.eightWayWrapper.width = selected.style.width; appState.eightWayWrapper.height = selected.style.height; }
         else if (selected.classList && selected.classList.contains('btn')) { const name = selected.dataset.btn; appState.buttons[name] = appState.buttons[name] || {}; appState.buttons[name].top = selected.style.top; appState.buttons[name].left = selected.style.left; if (name === 'LS' || name === 'RS') { resizeStickTrails(); updateAnalogStickBases(); } }
-        saveStateData();
+        saveStateData(); updateCursor();
       }
     }
   });
@@ -1337,7 +1366,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     if (selected.classList.contains('btn')) { const name = selected.dataset.btn; appState.buttons[name] = appState.buttons[name] || {}; appState.buttons[name].top = selected.style.top; appState.buttons[name].left = selected.style.left; if (name === 'LS' || name === 'RS') { resizeStickTrails(); updateAnalogStickBases(); } }
     else if (selected === stickWrapper) { appState.joystick.top = selected.style.top; appState.joystick.left = selected.style.left; }
     else if (selected === eightWayWrapper) { appState.eightWayWrapper.top = selected.style.top; appState.eightWayWrapper.left = selected.style.left; }
-    saveStateData(); showToast(`x:${left}, y:${top}`, 500); elementMoveTimers[key] = performance.now();
+    saveStateData(); showToast(`x:${left}, y:${top}`, 500); elementMoveTimers[key] = performance.now(); updateCursor();
   }
 
   function handleDpadMovement(pad) {
@@ -1507,12 +1536,12 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
   }
 
   if (window.ResizeObserver) { const ro = new ResizeObserver(clampResizeEightWayArrows); ro.observe(eightWayWrapper); }
-  window.addEventListener('resize', clampResizeEightWayArrows);
+  window.addEventListener('resize', () => { clampResizeEightWayArrows(); updateCursor(true); });
 
   function snapLayoutToGrid(grid = 10) {
     const snap = v => Math.round((parseInt(v) || 0) / grid) * grid + 'px';
     function snapElement(el, store) { if (!el) return; const cs = getComputedStyle(el); el.style.top = snap(cs.top); el.style.left = snap(cs.left); store.top = el.style.top; store.left = el.style.left; let br = parseInt(cs.borderRadius) || 0; if (br > 0) { const maxBr = Math.max(el.offsetWidth, el.offsetHeight) / 2; br = Math.min(br, maxBr); br = Math.round(br / grid) * grid; br = Math.min(br, maxBr); el.style.borderRadius = br + 'px'; store.borderRadius = el.style.borderRadius; } }
-    Object.entries(btnEls).forEach(([k, el]) => { appState.buttons[k] = appState.buttons[k] || {}; snapElement(el, appState.buttons[k]); }); snapElement(stickWrapper, appState.joystick = appState.joystick || {}); snapElement(eightWayWrapper, appState.eightWayWrapper = appState.eightWayWrapper || {}); snapElement(base, appState.base = appState.base || {}); resizeStickTrails(); updateAnalogStickBases(); saveStateData(); showToast('Snapped layout to grid!', 1000);
+    Object.entries(btnEls).forEach(([k, el]) => { appState.buttons[k] = appState.buttons[k] || {}; snapElement(el, appState.buttons[k]); }); snapElement(stickWrapper, appState.joystick = appState.joystick || {}); snapElement(eightWayWrapper, appState.eightWayWrapper = appState.eightWayWrapper || {}); snapElement(base, appState.base = appState.base || {}); resizeStickTrails(); updateAnalogStickBases(); saveStateData(); showToast('Snapped layout to grid!', 1000); updateCursor(true);
   }
 
   function detectActiveGamepad() { const gps = navigator.getGamepads ? navigator.getGamepads() : []; for (let i = 0; i < gps.length; i++) { const p = gps[i]; if (!p) continue; const anyBtn = p.buttons.some(b => b.pressed); const axisThreshold = (appState.analog && typeof appState.analog.triggerDeadzone === 'number') ? appState.analog.triggerDeadzone : cfg.deadzone; const anyAx = p.axes.some(a => Math.abs(a) > axisThreshold); if (anyBtn || anyAx) return i; } return null; }
@@ -1626,7 +1655,8 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
   appState.joystickHead = captureElementProperties(joystick);
   resizeJoystickWrapper(); joystick.style.left = canvas.width/2 + 'px'; joystick.style.top = canvas.height/2 + 'px'; applyJoystickHeadFromState();
   // analog prefs applied via importLayout/exportLayout only (no on-screen controls)
-  }
+  updateCursor(true);
+}
 
   // --- copy/export/import UI ---
   async function copyLayoutToClipboard() {
