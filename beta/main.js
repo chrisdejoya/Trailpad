@@ -559,6 +559,7 @@ window.addEventListener('DOMContentLoaded', () => {
 panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
   const stickId = anchorTarget?.dataset?.btn;
   const isStickTarget = stickId === 'LS' || stickId === 'RS';
+  let gridRenderSequence = 0;
 
     // mode toggle row (header) - horizontally scrollable for many tabs
     const toggle = document.createElement('div'); toggle.className = 'modeToggle colorPanelModeToggle ui-tabs';
@@ -798,15 +799,19 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     colorPanel.appendChild(contentArea);
     colorPanel.appendChild(sliderArea);
 
+  function clearGrids() {
+    contentArea.querySelectorAll('.symbolGrid, .fontGrid').forEach(grid => grid.remove());
+    gridRenderSequence += 1;
+  }
+
   function setStickPanelVisible(visible) {
+    clearGrids();
     if (stickControls) stickControls.style.display = visible ? 'flex' : 'none';
     if (swatchContainer) swatchContainer.style.display = visible ? 'none' : '';
     if (visible) {
       sliderWrapper.style.display = 'none';
       sizeCtrl.style.display = 'none';
       textSizeCtrl.style.display = 'none';
-      contentArea.querySelector('.symbolGrid')?.remove();
-      contentArea.querySelector('.fontGrid')?.remove();
     }
   }
   let mode = isStickTarget ? 'stick' : colorMode; if (mode === 'bg') bgDiv.classList.add('active'); if (mode === 'text') txtDiv.classList.add('active'); if (mode === 'stick') { stickDiv?.classList.add('active'); setStickPanelVisible(true); }
@@ -983,10 +988,10 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     }
 
     async function showSymbolGrid() {
-      // clear any existing symbol area
-      const existing = contentArea.querySelector('.symbolGrid'); if (existing) existing.remove();
-      // keep persistent symbolSizeControl in the rightGroup; do not remove it here
+      clearGrids();
+      const renderSequence = gridRenderSequence;
       const data = await loadSymbols();
+      if (renderSequence !== gridRenderSequence || mode !== 'symbol' || !contentArea.isConnected) return;
       const grid = document.createElement('div'); grid.className = 'symbolGrid';
       document.documentElement.style.setProperty('--symbol-size', (data.symbolSize || 48) + 'px');
       document.documentElement.style.setProperty('--symbol-gap', (data.symbolGap || 8) + 'px');
@@ -1071,9 +1076,10 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     }
 
     async function showFontGrid() {
-      // clear any existing font area
-      const existing = contentArea.querySelector('.fontGrid'); if (existing) existing.remove();
+      clearGrids();
+      const renderSequence = gridRenderSequence;
       const fonts = await loadFontsList();
+      if (renderSequence !== gridRenderSequence || mode !== 'font' || !contentArea.isConnected) return;
       const grid = document.createElement('div'); grid.className = 'fontGrid colorPanelFontGrid';
       fonts.forEach(font => {
         const item = document.createElement('button');
