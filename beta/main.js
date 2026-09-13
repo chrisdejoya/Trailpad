@@ -424,6 +424,12 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // --- initial DOM wiring: clicks, dblclicks, contextmenu ---
   document.addEventListener('mousedown', (e) => {
+    // If color panel is open and click is outside it, close it first
+    if (colorPanel && (colorPanel.style.display === 'block' || colorPanel.style.display === 'flex') && !colorPanel.contains(e.target)) {
+      colorPanel.style.display = 'none';
+      revertPreview();
+      stopUiHideTimer();
+    }
     if (colorPanel.contains(e.target)) return;
     const topEl = document.elementFromPoint(e.clientX, e.clientY);
     const isOnUI = !!topEl?.closest?.('.btn') || !!topEl?.closest?.('#stickWrapper') || !!topEl?.closest?.('#eightWayWrapper') || !!topEl?.closest?.('#base');
@@ -431,7 +437,6 @@ window.addEventListener('DOMContentLoaded', () => {
     const br = base.getBoundingClientRect();
     if (e.clientX >= br.left && e.clientX <= br.right && e.clientY >= br.top && e.clientY <= br.bottom) { selectElement(base); return; }
     deselect();
-    if (!colorPanel.contains(e.target)) { colorPanel.style.display = 'none'; revertPreview(); stopUiHideTimer(); }
   });
 
   [base, stickWrapper, eightWayWrapper, joystick].forEach(el => {
