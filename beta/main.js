@@ -1233,11 +1233,11 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     if (e.ctrlKey && e.key.toLowerCase() === 'v') { e.preventDefault(); pasteLayoutFromClipboard(); return; }
 
     // Change the selected element's stacking order.
-    if (e.ctrlKey && e.shiftKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+    if (e.key === 'PageUp' || e.key === 'PageDown') {
       e.preventDefault();
       if (!selected) { showToast('Select an element first', 1000); return; }
       const current = parseInt(window.getComputedStyle(selected).zIndex, 10);
-      const next = (Number.isFinite(current) ? current : 0) + (e.key === 'ArrowUp' ? 1 : -1);
+      const next = (Number.isFinite(current) ? current : 0) + (e.key === 'PageUp' ? 1 : -1);
       const state = stateForElement(selected);
       selected.style.zIndex = String(next);
       if (state) state.zIndex = String(next);
