@@ -1149,9 +1149,40 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     // Force layout to get actual size within constraints
     colorPanel.style.left = left + 'px'; colorPanel.style.top = top + 'px';
     const panelRect = colorPanel.getBoundingClientRect();
-    // Reposition if overflowing
+    // Reposition if overflowing viewport
     if (left + panelRect.width > viewportWidth) left = Math.max(8, viewportWidth - panelRect.width - 10);
     if (top + panelRect.height > viewportHeight) top = Math.max(8, viewportHeight - panelRect.height - 10);
+    // Avoid obstructing the anchor target element
+    if (panelAnchorTarget) {
+      const targetRect = panelAnchorTarget.getBoundingClientRect();
+      const panelW = panelRect.width;
+      const panelH = panelRect.height;
+      // Check if panel would overlap target
+      const overlaps = !(left + panelW < targetRect.left || left > targetRect.right || top + panelH < targetRect.top || top > targetRect.bottom);
+      if (overlaps) {
+        // Try to position panel to the right of target
+        const rightSpace = viewportWidth - targetRect.right;
+        const leftSpace = targetRect.left;
+        const bottomSpace = viewportHeight - targetRect.bottom;
+        const topSpace = targetRect.top;
+        
+        // Prefer right side if space permits, else left, else below, else above
+        if (rightSpace >= panelW + 10) {
+          left = targetRect.right + 8;
+        } else if (leftSpace >= panelW + 10) {
+          left = Math.max(8, targetRect.left - panelW - 8);
+        } else if (bottomSpace >= panelH + 10) {
+          top = targetRect.bottom + 8;
+        } else if (topSpace >= panelH + 10) {
+          top = Math.max(8, targetRect.top - panelH - 8);
+        }
+        // Re-clamp to viewport after offset
+        if (left + panelW > viewportWidth) left = Math.max(8, viewportWidth - panelW - 10);
+        if (top + panelH > viewportHeight) top = Math.max(8, viewportHeight - panelH - 10);
+        if (left < 8) left = 8;
+        if (top < 8) top = 8;
+      }
+    }
     colorPanel.style.left = left + 'px'; colorPanel.style.top = top + 'px';
     startUiHideTimer();
     // sync size slider and text-size slider to target
@@ -1878,6 +1909,11 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
       // position and clamp to viewport (mirror colorPanel logic)
       menu.style.left = x + 'px'; menu.style.top = y + 'px'; const rect = menu.getBoundingClientRect(); const vw = window.innerWidth; const vh = window.innerHeight;
       let left = x; let top = y; if (left + rect.width > vw) left = Math.max(8, vw - rect.width - 10); if (top + rect.height > vh) top = Math.max(8, vh - rect.height - 10);
+      // Small offset to avoid obstructing the click area
+      left += 8; top += 8;
+      // Re-clamp after offset
+      if (left + rect.width > vw) left = Math.max(8, vw - rect.width - 10);
+      if (top + rect.height > vh) top = Math.max(8, vh - rect.height - 10);
       menu.style.left = left + 'px'; menu.style.top = top + 'px';
   // make Presets toggle visually active by default
   presetsToggle.style.fontWeight = 'bold';

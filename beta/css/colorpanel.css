@@ -7,7 +7,7 @@
     display: none;
     z-index: 200;
     border-radius: var(--radius-md);
-    padding: 16px;
+    padding: 10px;
     pointer-events: auto;
     box-shadow: var(--shadow-lg);
     font-family: "Swiss 721", Arial, Helvetica, sans-serif;
@@ -158,9 +158,9 @@
 
 .colorPanelSwatches {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(20px, 1fr));
-    gap: 6px;
-    padding: 8px;
+    grid-template-columns: repeat(auto-fill, minmax(16px, 1fr));
+    gap: 4px;
+    padding: 6px;
     justify-content: center;
     min-width: 0;
 }
@@ -181,8 +181,8 @@
 
 .swatchContainer {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(28px, 1fr));
-    gap: 8px;
+    grid-template-columns: repeat(auto-fill, minmax(20px, 1fr));
+    gap: 6px;
 }
 
 .swatch {
@@ -214,7 +214,7 @@
     display: flex;
     justify-content: center;
     gap: 8px;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
 
 /* modeBtn styles moved to main.css as .ui-tab */
@@ -268,7 +268,7 @@
     z-index: 300;
     border-radius: var(--radius-md);
     color: var(--text-secondary);
-    padding: 6px;
+    padding: 4px;
     min-width: 200px;
     max-width: 400px;
     box-shadow: var(--shadow-lg);
@@ -279,9 +279,9 @@
 .presetsMenu .presetsHeader {
     font-weight: 700;
     font-size: 11px;
-    padding: 8px 10px;
+    padding: 6px 8px;
     border-bottom: 1px solid var(--border-subtle);
-    margin-bottom: 4px;
+    margin-bottom: 3px;
     color: var(--text-muted);
 }
 .presetsMenu .presetItem {

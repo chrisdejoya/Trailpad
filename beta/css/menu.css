@@ -6,7 +6,7 @@
   font-size: 13px;
   min-width: 200px;
   max-width: 360px;
-  padding: 6px;
+  padding: 4px;
   font-family: "Swiss 721", Arial, Helvetica, sans-serif;
   text-transform: uppercase;
   letter-spacing: 0.02em;
@@ -15,9 +15,9 @@
 .presetsHeader {
   display: flex;
   gap: 8px;
-  padding: 8px 10px;
+  padding: 6px 8px;
   border-bottom: 1px solid var(--border-subtle);
-  margin-bottom: 4px;
+  margin-bottom: 3px;
   font-weight: 700;
   font-size: 11px;
   color: var(--text-muted);
