@@ -513,6 +513,11 @@ window.addEventListener('DOMContentLoaded', () => {
       } else if (!document.body.contains(colorPanel)) {
         document.body.appendChild(colorPanel);
       }
+      // If the presets menu (empty-canvas right-click) is open, close it. The
+      // per-element contextmenu handler calls stopPropagation on mousedown, so
+      // the presets outside-click handler never fires for these elements and
+      // both menus would otherwise stay visible at once.
+      closePresetsMenu(true);
 panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
   const stickId = anchorTarget?.dataset?.btn;
   const isStickTarget = stickId === 'LS' || stickId === 'RS';
