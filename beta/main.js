@@ -181,7 +181,27 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 
   function saveStateData() {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appState)); console.debug('Saving state'); } catch (e) { console.warn(e); }
+    try {
+      syncGeometryState();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(appState)); console.debug('Saving state');
+    } catch (e) { console.warn(e); }
+  }
+
+  function syncGeometryState() {
+    const sync = (element, store) => {
+      if (!element || !store) return;
+      const styles = window.getComputedStyle(element);
+      ['top', 'left', 'width', 'height'].forEach(key => {
+        if (styles[key] && styles[key] !== 'auto') store[key] = styles[key];
+      });
+    };
+    Object.entries(btnEls).forEach(([key, element]) => {
+      appState.buttons[key] = appState.buttons[key] || {};
+      sync(element, appState.buttons[key]);
+    });
+    sync(base, appState.base);
+    sync(stickWrapper, appState.joystick);
+    sync(eightWayWrapper, appState.eightWayWrapper);
   }
 
   function applyPropertiesToElement(el, data) {
@@ -1871,7 +1891,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
   if (appState.base) { applyPropertiesToElement(base, appState.base); if (appState.base.display !== undefined) base.style.display = appState.base.display; }
   if (appState.eightWayWrapper) { applyPropertiesToElement(eightWayWrapper, appState.eightWayWrapper); if (appState.eightWayWrapper.display !== undefined) eightWayWrapper.style.display = appState.eightWayWrapper.display; if (appState.eightWayWrapper.arrowSize !== undefined) { arrowSize = appState.eightWayWrapper.arrowSize || 90; resizeEightWayArrows(); } }
   if (appState.trailColor) document.documentElement.style.setProperty('--trail-color', appState.trailColor);
-  resizeJoystickWrapper(); joystick.style.left = canvas.width/2 + 'px'; joystick.style.top = canvas.height/2 + 'px'; applyJoystickHeadFromState();
+  resizeJoystickWrapper(); applyJoystickHeadFromState();
   // analog prefs applied via importLayout/exportLayout only (no on-screen controls)
   updateCursor(true);
 }
@@ -2199,8 +2219,8 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     } catch (e) { console.warn(e); }
   }
 
-  loadStateData(); updateStateData(); resizeJoystickWrapper(); joystick.style.left = (canvas.width/2) + 'px'; joystick.style.top = (canvas.height/2) + 'px';
-  if (window.ResizeObserver) { const ro = new ResizeObserver(() => { resizeJoystickWrapper(); joystick.style.left = (canvas.width/2) + 'px'; joystick.style.top = (canvas.height/2) + 'px'; }); ro.observe(stickWrapper); }
+  loadStateData(); updateStateData(); resizeJoystickWrapper();
+  if (window.ResizeObserver) { const ro = new ResizeObserver(() => { resizeJoystickWrapper(); }); ro.observe(stickWrapper); }
 
   // Initialize TrailChain WebSocket client (optional — connects to the
   // TrailChain companion app broadcasting controller state on port 3819).
