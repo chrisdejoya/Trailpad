@@ -21,7 +21,6 @@
 .colorPanelModeGroup,
 .colorPanelControlRow,
 .colorPanelControl,
-.colorPanelSliderRow,
 .colorPanelCheckbox {
     display: flex;
     align-items: center;
@@ -42,39 +41,44 @@
     white-space: nowrap;
 }
 
-.colorPanelModeButton {
-    padding: 6px 10px;
-    font-size: var(--ui-font-size-small);
-}
-
 .colorPanelModeToggle .ui-tab {
     flex: 0 0 auto;
     min-height: 30px;
     line-height: 1;
 }
 
-.colorPanelControlRow,
-.colorPanelSliderRow {
+.colorPanelControlRow {
     display: grid;
-    grid-template-columns: var(--ui-control-label-width) 1fr var(--ui-control-number-width);
+    grid-template-columns: var(--ui-control-label-width) minmax(0, 1fr) var(--ui-control-number-width);
     font-size: var(--ui-font-size);
     box-sizing: border-box;
 }
 
-.colorPanelControlRow > input,
-.colorPanelSliderRow > input {
+.colorPanelControlRow {
+    min-height: var(--ui-control-height);
+    align-items: center;
+    gap: var(--ui-control-gap);
+}
+
+.colorPanelControlRow > input {
     min-width: 0;
     box-sizing: border-box;
 }
 
-.colorPanelControlRow > input[type="range"],
-.colorPanelSliderRow > input[type="range"] {
+.colorPanelControlRow > input[type="range"] {
     width: 100%;
 }
 
-.colorPanelControlRow > input[type="number"],
-.colorPanelSliderRow > input[type="number"] {
+.colorPanelControlRow > input[type="number"] {
     width: var(--ui-control-number-width);
+}
+
+.colorPanelControlLabel {
+    min-width: 0;
+    white-space: nowrap;
+    color: var(--text-secondary);
+    font-size: var(--ui-font-size-small);
+    line-height: 1.2;
 }
 
 .colorPanelSectionTitle {
@@ -124,6 +128,7 @@
     display: flex;
     align-items: center;
     gap: var(--ui-control-gap);
+    min-height: var(--ui-control-height);
 }
 .colorPanelOutlineControls input {
     min-width: 0;
@@ -152,15 +157,20 @@
     display: flex;
     align-items: center;
     gap: var(--ui-control-gap);
+    min-height: var(--ui-control-height);
+}
+
+.ui-control-group {
+    box-sizing: border-box;
 }
 .colorPanelSizeControl input {
     min-width: 0;
     box-sizing: border-box;
 }
 
-.colorPanelOutlineLabel {
-    font-size: var(--ui-font-size-small);
-    color: var(--text-secondary);
+.colorPanelSizeControl > .ui-slider {
+    flex: 1 1 auto;
+    width: auto;
 }
 
 .colorPanelSmallValue {
@@ -210,18 +220,11 @@
     appearance: none;
 }
 
-/* Shared properties for all color panel sliders */
-.colorPanelOutlineSlider,
-.colorPanelTextSlider,
-.symbolSizeSlider,
-.textSizeSlider {
-    height: 8px;
-}
+/* Keep specialized sliders on the shared UI control geometry. */
 .colorPanelOutlineSlider,
 .colorPanelTextSlider,
 .symbolSizeSlider,
 .textSizeSlider,
-.colorPanelSliderRow > input[type="range"],
 .colorPanelControlRow > input[type="range"] {
     box-sizing: border-box;
 }
@@ -230,19 +233,11 @@
     display: none;
 }
 
-.colorPanelSizeLabel {
-    font-size: 16px;
-    color: var(--text-secondary);
-}
-
-.colorPanelTextSlider {
-    width: 120px;
-}
-
 .colorPanelClearButton {
     margin-left: 0;
-    padding: 5px;
-    font-size: 16px;
+    min-height: var(--ui-control-height);
+    padding: 4px 10px;
+    font-size: var(--ui-font-size-small);
 }
 
 .colorPanelSwatches {
@@ -298,8 +293,6 @@
     box-shadow: var(--shadow-md);
     z-index: 2;
 }
-
-/* modeBtn styles are shared by .ui-tab in main.css. */
 
 /* text size control inside color panel */
 .textSizeControl {

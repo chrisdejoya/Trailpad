@@ -557,13 +557,13 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     // declare symbolBtn early to avoid TDZ when handlers reference it
     let symbolBtn = null;
     let fontBtn = null;
-      const fontDiv = document.createElement('button'); fontDiv.className = 'modeBtn colorPanelModeButton fontBtn ui-tab'; fontDiv.textContent = 'FONT';
-      const bgDiv = document.createElement('button'); bgDiv.className = 'modeBtn colorPanelModeButton bgBtn ui-tab'; bgDiv.textContent = 'FILL';
-      const txtDiv = document.createElement('button'); txtDiv.className = 'modeBtn colorPanelModeButton txtBtn ui-tab'; txtDiv.textContent = 'TEXT';
-      const outlineDiv = document.createElement('button'); outlineDiv.className = 'modeBtn colorPanelModeButton outlineBtn ui-tab'; outlineDiv.textContent = 'STROKE';
+      const fontDiv = document.createElement('button'); fontDiv.className = 'fontBtn ui-tab'; fontDiv.textContent = 'FONT';
+      const bgDiv = document.createElement('button'); bgDiv.className = 'bgBtn ui-tab'; bgDiv.textContent = 'FILL';
+      const txtDiv = document.createElement('button'); txtDiv.className = 'txtBtn ui-tab'; txtDiv.textContent = 'TEXT';
+      const outlineDiv = document.createElement('button'); outlineDiv.className = 'outlineBtn ui-tab'; outlineDiv.textContent = 'STROKE';
     let stickDiv = null;
     if (isStickTarget) {
-      stickDiv = document.createElement('button'); stickDiv.className = 'modeBtn colorPanelModeButton stickBtn ui-tab'; stickDiv.textContent = 'STICK';
+      stickDiv = document.createElement('button'); stickDiv.className = 'stickBtn ui-tab'; stickDiv.textContent = 'STICK';
     }
     if (stickDiv) leftGroup.appendChild(stickDiv);
     leftGroup.appendChild(fontDiv); leftGroup.appendChild(bgDiv); leftGroup.appendChild(txtDiv); leftGroup.appendChild(outlineDiv); toggle.appendChild(leftGroup);
@@ -608,8 +608,8 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     });
     movementCheckbox.dataset.stickKey = 'stickMovement';
     const rangeRow = document.createElement('div'); rangeRow.className = 'colorPanelControlRow';
-    const rangeLabel = document.createElement('span'); rangeLabel.textContent = 'Range';
-    const rangeSlider = document.createElement('input'); rangeSlider.type = 'range'; rangeSlider.min = '0'; rangeSlider.max = '100'; rangeSlider.step = '1'; rangeSlider.value = String(stickRadius); rangeSlider.className = 'ui-slider'; rangeSlider.dataset.stickKey = 'stickRadius'; rangeSlider.style.flex = '1';
+    const rangeLabel = document.createElement('span'); rangeLabel.className = 'ui-label colorPanelControlLabel'; rangeLabel.textContent = 'Range';
+    const rangeSlider = document.createElement('input'); rangeSlider.type = 'range'; rangeSlider.min = '0'; rangeSlider.max = '100'; rangeSlider.step = '1'; rangeSlider.value = String(stickRadius); rangeSlider.className = 'ui-slider'; rangeSlider.dataset.stickKey = 'stickRadius';
     const rangeValue = document.createElement('input'); rangeValue.type = 'number'; rangeValue.min = '0'; rangeValue.max = '100'; rangeValue.step = '1'; rangeValue.value = String(stickRadius); rangeValue.className = 'ui-input colorPanelValue'; rangeValue.dataset.stickKey = 'stickRadius';
     const updateRange = value => {
       if (value === '') return;
@@ -625,8 +625,8 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     trailCheckbox.dataset.stickKey = 'showTrail';
     trailCheckbox.disabled = !stickMovement;
     const makeTrailSlider = (labelText, initialValue, min, max, key) => {
-      const row = document.createElement('div'); row.className = 'colorPanelSliderRow';
-      const label = document.createElement('span'); label.textContent = labelText;
+      const row = document.createElement('div'); row.className = 'colorPanelControlRow';
+      const label = document.createElement('span'); label.className = 'ui-label colorPanelControlLabel'; label.textContent = labelText;
       const slider = document.createElement('input'); slider.type = 'range'; slider.min = String(min); slider.max = String(max); slider.step = '1'; slider.value = String(initialValue); slider.className = 'ui-slider'; slider.dataset.stickKey = key;
       const value = document.createElement('input'); value.type = 'number'; value.min = String(min); value.max = String(max); value.step = '1'; value.value = String(initialValue); value.className = 'ui-input colorPanelValue'; value.dataset.stickKey = key;
       const update = raw => {
@@ -649,7 +649,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     stickControls.appendChild(makeGroupTitle('Appearance'));
     const baseCheckbox = makeStickCheckbox('Base Visibility', baseVisibility, value => { stickState.baseVisibility = value; updateAnalogStickBases(); });
     baseCheckbox.dataset.stickKey = 'baseVisibility';
-    makeTrailSlider('Base Size', baseSize, 20, 300, 'baseSize');
+    makeTrailSlider('Size', baseSize, 20, 300, 'baseSize');
     contentArea.appendChild(stickControls);
 
     // Slider area (bottom)
@@ -658,10 +658,10 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
 
     // Outline sliders (In/Out) - with numeric inputs and a single shared "All" toggle
     const sliderWrapper = document.createElement('div'); sliderWrapper.className = 'colorPanelOutlineControls'; sliderWrapper.style.display = 'none';
-      const innerLabel = document.createElement('span'); innerLabel.className = 'colorPanelOutlineLabel'; innerLabel.textContent = 'In';
+      const innerLabel = document.createElement('span'); innerLabel.className = 'ui-label colorPanelControlLabel'; innerLabel.textContent = 'In';
       const innerSlider = document.createElement('input'); innerSlider.type = 'range'; innerSlider.min = 0; innerSlider.max = 10; innerSlider.step = 1; innerSlider.className = 'ui-slider colorPanelOutlineSlider';
       const innerValue = document.createElement('input'); innerValue.type = 'number'; innerValue.min = 0; innerValue.max = 10; innerValue.step = 1; innerValue.value = 0; innerValue.className = 'ui-input colorPanelSmallValue';
-      const outerLabel = document.createElement('span'); outerLabel.className = 'colorPanelOutlineLabel'; outerLabel.textContent = 'Out';
+      const outerLabel = document.createElement('span'); outerLabel.className = 'ui-label colorPanelControlLabel'; outerLabel.textContent = 'Out';
       const outerSlider = document.createElement('input'); outerSlider.type = 'range'; outerSlider.min = 0; outerSlider.max = 10; outerSlider.step = 1; outerSlider.className = 'ui-slider colorPanelOutlineSlider';
       const outerValue = document.createElement('input'); outerValue.type = 'number'; outerValue.min = 0; outerValue.max = 10; outerValue.step = 1; outerValue.value = 0; outerValue.className = 'ui-input colorPanelSmallValue';
       const outlineAllLabel = document.createElement('label'); outlineAllLabel.className = 'ui-checkbox-label colorPanelInlineControl';
@@ -669,8 +669,8 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     sliderWrapper.appendChild(innerLabel); sliderWrapper.appendChild(innerSlider); sliderWrapper.appendChild(innerValue); sliderWrapper.appendChild(outerLabel); sliderWrapper.appendChild(outerSlider); sliderWrapper.appendChild(outerValue); sliderWrapper.appendChild(outlineAllLabel);
 
     // Symbol size control - with numeric input
-    const sizeCtrl = document.createElement('div'); sizeCtrl.className = 'symbolSizeControl colorPanelSizeControl';
-      const sizeLabel = document.createElement('span'); sizeLabel.className = 'colorPanelSizeLabel'; sizeLabel.textContent = 'Size';
+    const sizeCtrl = document.createElement('div'); sizeCtrl.className = 'symbolSizeControl colorPanelSizeControl ui-control-group';
+      const sizeLabel = document.createElement('span'); sizeLabel.className = 'ui-label colorPanelControlLabel'; sizeLabel.textContent = 'Size';
     const sizeSlider = document.createElement('input'); sizeSlider.type = 'range'; sizeSlider.min = 0; sizeSlider.max = 200; sizeSlider.step = 10; sizeSlider.value = 100; sizeSlider.className = 'symbolSizeSlider ui-slider';
       const sizeValue = document.createElement('input'); sizeValue.type = 'number'; sizeValue.min = 0; sizeValue.max = 200; sizeValue.step = 10; sizeValue.value = 100; sizeValue.className = 'symbolSizeValue ui-input colorPanelSymbolValue';
     sizeCtrl.appendChild(sizeLabel); sizeCtrl.appendChild(sizeSlider); sizeCtrl.appendChild(sizeValue);
@@ -678,8 +678,8 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     sizeCtrl.appendChild(clearBtn);
 
     // Text size control (0-100px) - visible only in TEXT mode - with "All" checkbox
-    const textSizeCtrl = document.createElement('div'); textSizeCtrl.className = 'textSizeControl colorPanelSizeControl';
-      const textSizeLabel = document.createElement('span'); textSizeLabel.className = 'colorPanelSizeLabel'; textSizeLabel.textContent = 'Size';
+    const textSizeCtrl = document.createElement('div'); textSizeCtrl.className = 'textSizeControl colorPanelSizeControl ui-control-group';
+      const textSizeLabel = document.createElement('span'); textSizeLabel.className = 'ui-label colorPanelControlLabel'; textSizeLabel.textContent = 'Size';
     const textSizeSlider = document.createElement('input'); textSizeSlider.type = 'range'; textSizeSlider.min = 0; textSizeSlider.max = 100; textSizeSlider.step = 1; textSizeSlider.value = 30; textSizeSlider.className = 'textSizeSlider colorPanelTextSlider ui-slider';
     const textSizeValue = document.createElement('input'); textSizeValue.type = 'number'; textSizeValue.min = 0; textSizeValue.max = 100; textSizeValue.step = 1; textSizeValue.value = textSizeSlider.value; textSizeValue.className = 'textSizeValue ui-input colorPanelTextValue';
     const textSizeAllLabel = document.createElement('label'); textSizeAllLabel.className = 'ui-checkbox-label colorPanelInlineControl';
@@ -961,7 +961,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
 
   // --- Symbol selector ---
   // assign to previously-declared symbolBtn (avoid redeclaring block-scoped variable)
-  symbolBtn = document.createElement('button'); symbolBtn.className = 'modeBtn colorPanelModeButton symbolBtn ui-tab'; symbolBtn.textContent = 'SYMBOL';
+  symbolBtn = document.createElement('button'); symbolBtn.className = 'symbolBtn ui-tab'; symbolBtn.textContent = 'SYMBOL';
   leftGroup.appendChild(symbolBtn);
   // assign fontBtn
   fontBtn = fontDiv;
@@ -1826,9 +1826,9 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
       if (presetsMenuEl) presetsMenuEl.remove();
       const menu = document.createElement('div'); menu.className = 'presetsMenu';
   // Header with toggle between Profiles and Presets
-  const hdr = document.createElement('div'); hdr.className = 'presetsHeader';
-  const profilesToggle = document.createElement('span'); profilesToggle.className = 'presetHeaderToggle'; profilesToggle.textContent = 'Profiles'; profilesToggle.style.cursor = 'pointer'; profilesToggle.style.marginRight = '10px';
-  const presetsToggle = document.createElement('span'); presetsToggle.className = 'presetHeaderToggle'; presetsToggle.textContent = 'Presets'; presetsToggle.style.cursor = 'pointer';
+  const hdr = document.createElement('div'); hdr.className = 'presetsHeader colorPanelModeToggle ui-tabs';
+  const profilesToggle = document.createElement('button'); profilesToggle.type = 'button'; profilesToggle.className = 'presetHeaderToggle ui-tab'; profilesToggle.textContent = 'Profiles';
+  const presetsToggle = document.createElement('button'); presetsToggle.type = 'button'; presetsToggle.className = 'presetHeaderToggle ui-tab'; presetsToggle.textContent = 'Presets';
   hdr.appendChild(profilesToggle); hdr.appendChild(presetsToggle); menu.appendChild(hdr);
   const wrapper = document.createElement('div'); wrapper.className = 'presetsList';
       // helper to show presets list
@@ -1883,11 +1883,9 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
       // wire header toggles and set classes
         function setActiveToggle(which) {
           if (which === 'profiles') {
-            profilesToggle.classList.add('active'); profilesToggle.classList.remove('inactive');
-            presetsToggle.classList.remove('active'); presetsToggle.classList.add('inactive');
+            profilesToggle.classList.add('active'); presetsToggle.classList.remove('active');
           } else {
-            presetsToggle.classList.add('active'); presetsToggle.classList.remove('inactive');
-            profilesToggle.classList.remove('active'); profilesToggle.classList.add('inactive');
+            presetsToggle.classList.add('active'); profilesToggle.classList.remove('active');
           }
         }
 
@@ -1927,8 +1925,6 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
       if (left + rect.width > vw) left = Math.max(8, vw - rect.width - 10);
       if (top + rect.height > vh) top = Math.max(8, vh - rect.height - 10);
       menu.style.left = left + 'px'; menu.style.top = top + 'px';
-  // make Presets toggle visually active by default
-  presetsToggle.style.fontWeight = 'bold';
       startUiHideTimer();
     } catch (e) { console.warn('openPresetsMenu failed', e); }
   }

@@ -12,46 +12,6 @@
   letter-spacing: 0.02em;
 }
 
-.presetsHeader {
-  display: flex;
-  gap: 8px;
-  padding: 6px 8px;
-  border-bottom: 1px solid var(--border-subtle);
-  margin-bottom: 3px;
-  font-weight: 700;
-  font-size: 11px;
-  color: var(--text-muted);
-}
-
-.presetHeaderToggle {
-  cursor: pointer;
-  color: var(--text-muted);
-  padding: 4px 8px;
-  border-radius: var(--radius-sm);
-  transition: color var(--transition-fast), background var(--transition-fast);
-  background: transparent;
-  border: none;
-  font: inherit;
-  text-transform: uppercase;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-}
-
-.presetHeaderToggle:hover {
-  color: var(--text-primary);
-  background: var(--bg-tertiary);
-}
-
-.presetHeaderToggle.active {
-  color: var(--text-primary);
-  background: var(--bg-tertiary);
-}
-
-.presetHeaderToggle.inactive {
-  color: var(--text-disabled);
-}
-
 .presetsList {
   max-height: calc(100vh - 120px);
   overflow-y: auto;
