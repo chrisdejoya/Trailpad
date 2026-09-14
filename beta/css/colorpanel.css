@@ -29,7 +29,10 @@
 }
 
 .colorPanelModeToggle {
+    justify-content: flex-start;
+    gap: 8px;
     overflow-x: auto;
+    margin-bottom: 8px;
     padding: 4px 8px;
     border-bottom: 1px solid var(--border-subtle);
     flex-shrink: 0;
@@ -42,6 +45,12 @@
 .colorPanelModeButton {
     padding: 6px 10px;
     font-size: var(--ui-font-size-small);
+}
+
+.colorPanelModeToggle .ui-tab {
+    flex: 0 0 auto;
+    min-height: 30px;
+    line-height: 1;
 }
 
 .colorPanelControlRow,
@@ -85,6 +94,10 @@
     flex-direction: column;
     gap: 12px;
     padding: 12px 8px;
+}
+
+.colorPanelControls.is-hidden {
+    display: none !important;
 }
 
 .colorPanelValue {
@@ -286,23 +299,13 @@
     z-index: 2;
 }
 
-.modeToggle {
-    display: flex;
-    justify-content: flex-start;
-    gap: 8px;
-    margin-bottom: 8px;
-}
-
-/* modeBtn styles moved to main.css as .ui-tab */
+/* modeBtn styles are shared by .ui-tab in main.css. */
 
 /* text size control inside color panel */
 .textSizeControl {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-top: 12px;
-    padding-top: 12px;
-    border-top: 1px solid var(--border-subtle);
 }
 .textSizeControl .textSizeValue {
     min-width: 50px;
@@ -336,56 +339,6 @@
 .textSizeControl .textSizeValue[type=number] {
     -moz-appearance: textfield;
     appearance: textfield;
-}
-
-/* Presets context menu (matches color panel) */
-.presetsMenu {
-    position: fixed;
-    z-index: 300;
-    border-radius: var(--radius-md);
-    color: var(--text-secondary);
-    padding: 4px;
-    min-width: 200px;
-    max-width: 400px;
-    box-shadow: var(--shadow-lg);
-    font-family: "Swiss 721", Arial, Helvetica, sans-serif;
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
-}
-.presetsMenu .presetsHeader {
-    font-weight: 700;
-    font-size: 11px;
-    padding: 6px 8px;
-    border-bottom: 1px solid var(--border-subtle);
-    margin-bottom: 3px;
-    color: var(--text-muted);
-}
-.presetsMenu .presetItem {
-    padding: 10px 12px;
-    cursor: pointer;
-    border-radius: var(--radius-sm);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-size: 13px;
-    transition: background var(--transition-fast), color var(--transition-fast);
-}
-.presetsMenu .presetItem:hover {
-    background: var(--bg-tertiary);
-    color: var(--text-primary);
-}
-.presetsMenu .presetPreviewNote {
-    font-size: 11px;
-    color: var(--text-disabled);
-    padding: 8px 10px 4px;
-}
-.presetsMenu .presetItem.empty {
-    color: var(--text-disabled);
-    cursor: default;
-}
-.presetsMenu .presetItem.empty:hover {
-    background: transparent;
-    color: var(--text-disabled);
 }
 
 .cursor {

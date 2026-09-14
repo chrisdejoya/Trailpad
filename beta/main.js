@@ -121,13 +121,7 @@ window.addEventListener('DOMContentLoaded', () => {
   function startUiHideTimer() {
     stopUiHideTimer();
     uiHideTimer = setTimeout(() => {
-      if (colorPanel && (colorPanel.style.display === 'block' || colorPanel.style.display === 'flex')) {
-        colorPanel.style.display = 'none';
-        revertPreview();
-      }
-      if (presetsMenuEl) {
-        closePresetsMenu(true);
-      }
+      closeContextMenus(true);
       // Also hide the selection cursor
       if (cursorEl) {
         cursorEl.classList.remove('active');
@@ -457,13 +451,12 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // --- initial DOM wiring: clicks, dblclicks, contextmenu ---
   document.addEventListener('mousedown', (e) => {
-    // If color panel is open and click is outside it, close it first
+    // Context menus share one outside-click lifecycle.
     if (colorPanel && (colorPanel.style.display === 'block' || colorPanel.style.display === 'flex') && !colorPanel.contains(e.target)) {
-      colorPanel.style.display = 'none';
-      revertPreview();
-      stopUiHideTimer();
+      closeColorPanel(true);
     }
-    if (colorPanel.contains(e.target)) return;
+    if (presetsMenuEl && !presetsMenuEl.contains(e.target)) closePresetsMenu(true);
+    if (colorPanel?.contains(e.target) || presetsMenuEl?.contains(e.target)) return;
     const topEl = document.elementFromPoint(e.clientX, e.clientY);
     const isOnUI = !!topEl?.closest?.('.btn') || !!topEl?.closest?.('#stickWrapper') || !!topEl?.closest?.('#eightWayWrapper') || !!topEl?.closest?.('#base');
     if (isOnUI) return;
@@ -474,13 +467,10 @@ window.addEventListener('DOMContentLoaded', () => {
 
   [base, stickWrapper, eightWayWrapper, joystick].forEach(el => {
     el.addEventListener('mousedown', e => { selectElement(el); e.stopPropagation(); });
-    el.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); selectElement(el); openColorPanel(el, e.pageX, e.pageY).catch(err => console.error('openColorPanel error', err)); });
   });
 
   Object.values(btnEls).forEach(btn => {
     btn.addEventListener('click', e => { selectElement(btn); lastPressedTimes[btn.dataset.btn] = performance.now(); showToast(btn.dataset.btn, 1000); e.stopPropagation(); if (colorPanel.style.display === 'block' || colorPanel.style.display === 'flex') panelAnchorTarget = btn; });
-    btn.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); selectElement(btn); openColorPanel(btn, e.pageX, e.pageY).catch(err => console.error('openColorPanel error', err)); });
-
     btn.addEventListener('dblclick', e => {
       if (btn.querySelector('input')) return;
       const old = btn.textContent.trim(); btn.textContent = '';
@@ -806,7 +796,10 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
 
   function setStickPanelVisible(visible) {
     clearGrids();
-    if (stickControls) stickControls.style.display = visible ? 'flex' : 'none';
+    if (stickControls) {
+      stickControls.classList.toggle('is-hidden', !visible);
+      stickControls.style.display = visible ? 'flex' : 'none';
+    }
     if (swatchContainer) swatchContainer.style.display = visible ? 'none' : '';
     if (visible) {
       sliderWrapper.style.display = 'none';
@@ -814,13 +807,15 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
       textSizeCtrl.style.display = 'none';
     }
   }
-  let mode = isStickTarget ? 'stick' : colorMode; if (mode === 'bg') bgDiv.classList.add('active'); if (mode === 'text') txtDiv.classList.add('active'); if (mode === 'stick') { stickDiv?.classList.add('active'); setStickPanelVisible(true); }
-  if (mode === 'outline') { outlineDiv.classList.add('active'); sliderWrapper.style.display = 'flex'; updatePanelForSelection(); }
+  let mode = isStickTarget ? 'stick' : colorMode;
+  function setActiveModeTab(activeTab) {
+    [fontDiv, bgDiv, txtDiv, outlineDiv, stickDiv, symbolBtn].forEach(tab => tab?.classList.toggle('active', tab === activeTab));
+  }
 
   bgDiv.addEventListener('click', () => {
-    mode = 'bg'; colorMode = 'bg'; localStorage.setItem('colorMode', colorMode); bgDiv.classList.add('active'); txtDiv.classList.remove('active'); outlineDiv.classList.remove('active'); fontDiv.classList.remove('active'); stickDiv?.classList.remove('active'); setStickPanelVisible(false);
+    mode = 'bg'; colorMode = 'bg'; localStorage.setItem('colorMode', colorMode); setActiveModeTab(bgDiv); setStickPanelVisible(false);
     // restore UI and remove symbol grid only
-    sliderWrapper.style.display = 'none'; if (typeof symbolBtn !== 'undefined') symbolBtn.classList.remove('active'); if (typeof swatchContainer !== 'undefined') swatchContainer.style.display = '';
+    sliderWrapper.style.display = 'none'; if (typeof swatchContainer !== 'undefined') swatchContainer.style.display = '';
     // hide symbol size control when not in symbol mode
     try { sizeCtrl.style.display = 'none'; } catch (e) {}
     // hide text size control when not in text mode
@@ -829,8 +824,8 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     const fontGrid = contentArea.querySelector('.fontGrid'); if (fontGrid) fontGrid.remove();
   });
   txtDiv.addEventListener('click', () => {
-    mode = 'text'; colorMode = 'text'; localStorage.setItem('colorMode', colorMode); txtDiv.classList.add('active'); bgDiv.classList.remove('active'); outlineDiv.classList.remove('active'); fontDiv.classList.remove('active'); stickDiv?.classList.remove('active'); setStickPanelVisible(false);
-    sliderWrapper.style.display = 'none'; if (typeof symbolBtn !== 'undefined') symbolBtn.classList.remove('active'); if (typeof swatchContainer !== 'undefined') swatchContainer.style.display = '';
+    mode = 'text'; colorMode = 'text'; localStorage.setItem('colorMode', colorMode); setActiveModeTab(txtDiv); setStickPanelVisible(false);
+    sliderWrapper.style.display = 'none'; if (typeof swatchContainer !== 'undefined') swatchContainer.style.display = '';
     // hide symbol size control when not in symbol mode
     try { sizeCtrl.style.display = 'none'; } catch (e) {}
     // show text size control when in text mode
@@ -839,8 +834,8 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     const fontGrid = contentArea.querySelector('.fontGrid'); if (fontGrid) fontGrid.remove();
   });
   outlineDiv.addEventListener('click', () => {
-    mode = 'outline'; colorMode = 'outline'; localStorage.setItem('colorMode', colorMode); outlineDiv.classList.add('active'); bgDiv.classList.remove('active'); txtDiv.classList.remove('active'); fontDiv.classList.remove('active'); stickDiv?.classList.remove('active'); setStickPanelVisible(false);
-    sliderWrapper.style.display = 'flex'; updatePanelForSelection(); if (typeof symbolBtn !== 'undefined') symbolBtn.classList.remove('active'); if (typeof swatchContainer !== 'undefined') swatchContainer.style.display = '';
+    mode = 'outline'; colorMode = 'outline'; localStorage.setItem('colorMode', colorMode); setActiveModeTab(outlineDiv); setStickPanelVisible(false);
+    sliderWrapper.style.display = 'flex'; updatePanelForSelection(); if (typeof swatchContainer !== 'undefined') swatchContainer.style.display = '';
     // hide symbol size control when not in symbol mode
     try { sizeCtrl.style.display = 'none'; } catch (e) {}
     // hide text size control when not in text mode
@@ -851,8 +846,8 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
   });
 
   fontDiv.addEventListener('click', async () => {
-    mode = 'font'; colorMode = 'font'; localStorage.setItem('colorMode', colorMode); fontDiv.classList.add('active'); bgDiv.classList.remove('active'); txtDiv.classList.remove('active'); outlineDiv.classList.remove('active'); stickDiv?.classList.remove('active'); setStickPanelVisible(false);
-    sliderWrapper.style.display = 'none'; if (typeof symbolBtn !== 'undefined') symbolBtn.classList.remove('active'); if (typeof swatchContainer !== 'undefined') swatchContainer.style.display = 'none';
+    mode = 'font'; colorMode = 'font'; localStorage.setItem('colorMode', colorMode); setActiveModeTab(fontDiv); setStickPanelVisible(false);
+    sliderWrapper.style.display = 'none'; if (typeof swatchContainer !== 'undefined') swatchContainer.style.display = 'none';
     // hide symbol size control when not in symbol mode
     try { sizeCtrl.style.display = 'none'; } catch (e) {}
     // hide text size control when not in text mode
@@ -863,7 +858,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
   });
 
   stickDiv?.addEventListener('click', () => {
-    mode = 'stick'; stickDiv.classList.add('active'); fontDiv.classList.remove('active'); bgDiv.classList.remove('active'); txtDiv.classList.remove('active'); outlineDiv.classList.remove('active'); setStickPanelVisible(true);
+    mode = 'stick'; setActiveModeTab(stickDiv); setStickPanelVisible(true);
   });
 
     innerSlider.addEventListener('input', () => {
@@ -966,7 +961,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
 
   // --- Symbol selector ---
   // assign to previously-declared symbolBtn (avoid redeclaring block-scoped variable)
-  symbolBtn = document.createElement('button'); symbolBtn.className = 'modeBtn symbolBtn ui-tab'; symbolBtn.textContent = 'SYMBOL';
+  symbolBtn = document.createElement('button'); symbolBtn.className = 'modeBtn colorPanelModeButton symbolBtn ui-tab'; symbolBtn.textContent = 'SYMBOL';
   leftGroup.appendChild(symbolBtn);
   // assign fontBtn
   fontBtn = fontDiv;
@@ -1136,7 +1131,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
 
     symbolBtn.addEventListener('click', async () => {
       // activate symbol mode UI and hide swatches + sliders
-      mode = 'symbol'; colorMode = 'symbol'; localStorage.setItem('colorMode', colorMode); bgDiv.classList.remove('active'); txtDiv.classList.remove('active'); outlineDiv.classList.remove('active'); fontDiv.classList.remove('active'); symbolBtn.classList.add('active'); swatchContainer.style.display = 'none';
+      mode = 'symbol'; colorMode = 'symbol'; localStorage.setItem('colorMode', colorMode); setActiveModeTab(symbolBtn); setStickPanelVisible(false); swatchContainer.style.display = 'none';
       // hide the In/Out slider wrapper when symbol panel is active
       if (typeof sliderWrapper !== 'undefined') sliderWrapper.style.display = 'none';
       // show symbol size control when in symbol mode, hide text size control
@@ -1144,6 +1139,14 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
       try { textSizeCtrl.style.display = 'none'; } catch (e) {}
       await showSymbolGrid();
     });
+
+      // Restore the saved mode through the same handlers used by user input.
+      if (mode === 'symbol') symbolBtn.click();
+      else if (mode === 'font') fontDiv.click();
+      else if (mode === 'text') txtDiv.click();
+      else if (mode === 'outline') outlineDiv.click();
+      else if (mode === 'stick') stickDiv?.click();
+      else bgDiv.click();
 
   // clamp - responsive sizing to fit viewport
   colorPanel.style.display = 'flex'; colorPanel.style.flexDirection = 'column'; colorPanel.style.left = '0px'; colorPanel.style.top = '0px';
@@ -1216,8 +1219,8 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
         if (!isStickTarget && colorMode === 'symbol') {
           if (typeof sliderWrapper !== 'undefined') sliderWrapper.style.display = 'none';
           if (typeof swatchContainer !== 'undefined') swatchContainer.style.display = 'none';
-          // mark symbol button active and show size control when auto-opening symbol grid
-          try { if (symbolBtn) symbolBtn.classList.add('active'); } catch (e) {}
+          // mark symbol mode active and show size control when auto-opening symbol grid
+          setActiveModeTab(symbolBtn);
           try { sizeCtrl.style.display = 'flex'; } catch (e) {}
           await showSymbolGrid();
         }
@@ -1225,7 +1228,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
         if (!isStickTarget && colorMode === 'font') {
           if (typeof sliderWrapper !== 'undefined') sliderWrapper.style.display = 'none';
           if (typeof swatchContainer !== 'undefined') swatchContainer.style.display = 'none';
-          try { if (fontBtn) fontBtn.classList.add('active'); } catch (e) {}
+          setActiveModeTab(fontBtn);
           try { sizeCtrl.style.display = 'none'; } catch (e) {}
           try { textSizeCtrl.style.display = 'none'; } catch (e) {}
           await showFontGrid();
@@ -1738,6 +1741,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
   let _previewFetchController = null;
   let _prevLayoutSnapshot = null;
   let _menuSelectionMade = false;
+  let contextMenuRequest = 0;
 
   async function loadLayoutsIndex() {
     if (layoutsIndex) return layoutsIndex;
@@ -1796,24 +1800,26 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
       try { importLayout(_prevLayoutSnapshot); } catch (e) { console.warn('Could not revert layout after cancelling presets menu', e); }
     }
     _prevLayoutSnapshot = null; _menuSelectionMade = false;
-    document.removeEventListener('mousedown', _presetsOutsideClickHandler);
-    document.removeEventListener('keydown', _presetsKeyHandler);
     stopUiHideTimer();
   }
 
-  function _presetsOutsideClickHandler(e) {
-    if (!presetsMenuEl) return;
-    if (presetsMenuEl.contains(e.target)) return;
-    closePresetsMenu(true);
+  function closeColorPanel(revert = true) {
+    if (!colorPanel || (colorPanel.style.display !== 'block' && colorPanel.style.display !== 'flex')) return;
+    colorPanel.style.display = 'none';
+    if (revert) revertPreview();
+    stopUiHideTimer();
   }
 
-  function _presetsKeyHandler(e) {
-    if (e.key === 'Escape') { closePresetsMenu(true); }
+  function closeContextMenus(revert = true) {
+    contextMenuRequest++;
+    closeColorPanel(revert);
+    closePresetsMenu(revert);
   }
 
-  async function openPresetsMenu(x, y) {
+  async function openPresetsMenu(x, y, requestId = contextMenuRequest) {
     try {
       const list = await loadLayoutsIndex();
+      if (requestId !== contextMenuRequest) return;
       // capture current layout snapshot so preview can be reverted
       _prevLayoutSnapshot = exportLayout(); _menuSelectionMade = false;
       // remove existing menu if present
@@ -1923,25 +1929,34 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
       menu.style.left = left + 'px'; menu.style.top = top + 'px';
   // make Presets toggle visually active by default
   presetsToggle.style.fontWeight = 'bold';
-  // register global handlers to close
-      document.addEventListener('mousedown', _presetsOutsideClickHandler);
-      document.addEventListener('keydown', _presetsKeyHandler);
       startUiHideTimer();
     } catch (e) { console.warn('openPresetsMenu failed', e); }
   }
 
-  // open presets menu on right-click when not on UI elements or colorPanel
+  // One delegated router owns all custom right-click behavior.
   document.addEventListener('contextmenu', (e) => {
-    // don't open if contextmenu invoked on colorPanel or on interactive UI
     try {
-      if (colorPanel && colorPanel.contains(e.target)) return;
-      const topEl = document.elementFromPoint(e.clientX, e.clientY);
-      const isOnUI = !!topEl?.closest?.('.btn') || !!topEl?.closest?.('#stickWrapper') || !!topEl?.closest?.('#eightWayWrapper') || !!topEl?.closest?.('#base');
-      if (isOnUI) return; e.preventDefault(); openPresetsMenu(e.pageX, e.pageY);
+      if (colorPanel?.contains(e.target) || presetsMenuEl?.contains(e.target)) return;
+      e.preventDefault();
+      const requestId = ++contextMenuRequest;
+      const target = e.target.closest?.('.btn, #stickWrapper, #eightWayWrapper, #joystickHead, #base');
+      if (target) {
+        const panelTarget = target.id === 'joystickHead' ? joystick : target;
+        selectElement(panelTarget);
+        openColorPanel(panelTarget, e.pageX, e.pageY).catch(err => console.error('openColorPanel error', err));
+        return;
+      }
+      closeColorPanel(true);
+      openPresetsMenu(e.pageX, e.pageY, requestId);
     } catch (err) { }
   });
 
-  document.addEventListener('keydown', e => { if (e.key === 'Tab') { e.preventDefault(); helpPanel.style.display = 'block'; } });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      closeContextMenus(true);
+    }
+    if (e.key === 'Tab') { e.preventDefault(); helpPanel.style.display = 'block'; }
+  });
   document.addEventListener('keyup', e => { if (e.key === 'Tab') helpPanel.style.display = 'none'; });
 
   // detect active gamepad & main animation loop
