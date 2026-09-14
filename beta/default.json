@@ -11,10 +11,11 @@
     "outlineOffset": "-6px",
     "boxShadow": "none",
     "backgroundColor": "rgba(0, 0, 0, 0.6)",
-    "backgroundImage": "none",
+    "backgroundImage": "",
     "backgroundSize": "auto",
     "color": "rgb(238, 238, 238)",
-    "fontSize": "16px",
+    "fontSize": "36px",
+    "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
     "label": ""
   },
   "joystick": {
@@ -29,10 +30,11 @@
     "outlineOffset": "0px",
     "boxShadow": "none",
     "backgroundColor": "rgba(0, 0, 0, 0)",
-    "backgroundImage": "url(\"/gate_strive.svg\")",
+    "backgroundImage": "images/gate_strive.svg",
     "backgroundSize": "cover",
     "color": "rgb(238, 238, 238)",
-    "fontSize": "16px",
+    "fontSize": "36px",
+    "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
     "label": ""
   },
   "joystickHead": {
@@ -47,10 +49,11 @@
     "outlineOffset": "0px",
     "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
     "backgroundColor": "rgb(64, 64, 64)",
-    "backgroundImage": "none",
+    "backgroundImage": "",
     "backgroundSize": "auto",
     "color": "rgb(0, 0, 0)",
-    "fontSize": "30px",
+    "fontSize": "36px",
+    "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
     "label": ""
   },
   "eightWayWrapper": {
@@ -65,14 +68,15 @@
     "outlineOffset": "0px",
     "boxShadow": "none",
     "backgroundColor": "rgba(0, 0, 0, 0)",
-    "backgroundImage": "url(\"/sf/gate_strive.svg\")",
+    "backgroundImage": "images/sf/gate_strive.svg",
     "backgroundSize": "auto",
     "color": "rgb(238, 238, 238)",
-    "fontSize": "16px",
+    "fontSize": "36px",
+    "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
     "label": "",
     "arrowSize": 90,
-    "arrowImageOn": "/arrow-on.svg",
-    "arrowImageOff": "/arrow-off.svg"
+    "arrowImageOn": "images/arrow-on.svg",
+    "arrowImageOff": "images/arrow-off.svg"
   },
   "buttons": {
     "Up": {
@@ -87,10 +91,11 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"/up.svg\")",
+      "backgroundImage": "images/up.svg",
       "backgroundSize": "70px auto",
       "color": "rgba(0, 0, 0, 0)",
-      "fontSize": "49px",
+      "fontSize": "36px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": ""
     },
     "Down": {
@@ -105,10 +110,11 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"/down.svg\")",
+      "backgroundImage": "images/down.svg",
       "backgroundSize": "70px auto",
       "color": "rgba(0, 0, 0, 0)",
-      "fontSize": "29px",
+      "fontSize": "36px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": ""
     },
     "Left": {
@@ -123,10 +129,11 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"/left.svg\")",
+      "backgroundImage": "images/left.svg",
       "backgroundSize": "70px auto",
       "color": "rgba(0, 0, 0, 0)",
-      "fontSize": "29px",
+      "fontSize": "36px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": ""
     },
     "Right": {
@@ -141,10 +148,11 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "url(\"/right.svg\")",
+      "backgroundImage": "images/right.svg",
       "backgroundSize": "70px auto",
       "color": "rgba(0, 0, 0, 0)",
-      "fontSize": "29px",
+      "fontSize": "36px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": ""
     },
     "A": {
@@ -159,10 +167,11 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "none",
+      "backgroundImage": "",
       "backgroundSize": "contain",
       "color": "rgb(255, 255, 255)",
-      "fontSize": "44px",
+      "fontSize": "36px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": "a"
     },
     "B": {
@@ -177,10 +186,11 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "none",
+      "backgroundImage": "",
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
-      "fontSize": "44px",
+      "fontSize": "36px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": "B"
     },
     "X": {
@@ -195,10 +205,11 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "none",
+      "backgroundImage": "",
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
-      "fontSize": "44px",
+      "fontSize": "36px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": "X"
     },
     "Y": {
@@ -213,10 +224,11 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "none",
+      "backgroundImage": "",
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
-      "fontSize": "44px",
+      "fontSize": "36px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": "Y"
     },
     "LB": {
@@ -231,10 +243,11 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "none",
+      "backgroundImage": "",
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
-      "fontSize": "44px",
+      "fontSize": "36px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": "LB"
     },
     "RB": {
@@ -249,10 +262,11 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "none",
+      "backgroundImage": "",
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
-      "fontSize": "44px",
+      "fontSize": "36px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": "RB"
     },
     "LT": {
@@ -267,10 +281,11 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "none",
+      "backgroundImage": "",
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
-      "fontSize": "44px",
+      "fontSize": "36px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": "LT"
     },
     "RT": {
@@ -285,10 +300,11 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "none",
+      "backgroundImage": "",
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
-      "fontSize": "44px",
+      "fontSize": "36px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": "RT"
     },
     "LS": {
@@ -303,16 +319,19 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "none",
+      "backgroundImage": "",
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "36px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": "LS",
-      "stickRadius": 8,
       "stickMovement": true,
+      "showTrail": false,
+      "stickRadius": 20,
+      "trailLength": 10,
+      "trailWidth": 10,
       "baseVisibility": false,
-      "trailWidth": 12,
-      "trailLength": 8
+      "baseSize": 100
     },
     "RS": {
       "display": "flex",
@@ -326,16 +345,19 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "none",
+      "backgroundImage": "",
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "36px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": "RS",
-      "stickRadius": 8,
       "stickMovement": true,
+      "showTrail": false,
+      "stickRadius": 20,
+      "trailLength": 10,
+      "trailWidth": 10,
       "baseVisibility": false,
-      "trailWidth": 12,
-      "trailLength": 8
+      "baseSize": 100
     },
     "View": {
       "display": "flex",
@@ -349,10 +371,11 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "none",
+      "backgroundImage": "",
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "20px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": "View"
     },
     "Menu": {
@@ -367,17 +390,19 @@
       "outlineOffset": "-4px",
       "boxShadow": "rgb(0, 0, 0) 0px 0px 0px 4px",
       "backgroundColor": "rgb(48, 48, 48)",
-      "backgroundImage": "none",
+      "backgroundImage": "",
       "backgroundSize": "contain",
       "color": "rgb(238, 238, 238)",
       "fontSize": "20px",
+      "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
       "label": "Menu"
     }
   },
   "trailColor": "#eedd44",
-  "analog": {    "pressureEnabled": false,
+  "analog": {
+    "pressureEnabled": false,
     "minTriggerBrightness": 1,
     "maxTriggerBrightness": 3,
-    "triggerDeadzone": 0.0
+    "triggerDeadzone": 0
   }
 }
