@@ -1,5 +1,6 @@
 import { createTrailSystem } from './js/trail.js';
 import { TrailChainClient } from './js/trailchain-client.js';
+import { createColorPicker } from './js/color-picker.js';
 
 window.addEventListener('DOMContentLoaded', () => {
   const STORAGE_KEY = 'trailpad_1';
@@ -69,6 +70,8 @@ window.addEventListener('DOMContentLoaded', () => {
   const ctx = canvas.getContext('2d');
   let colorPanel = document.getElementById('colorPanel');
   const toastEl = document.getElementById('toast');
+  const colorPicker = createColorPicker({ onPick: color => applyPickedColor?.(color) });
+  let applyPickedColor = null;
   const markers = Array.from({ length: 8 }, (_, i) => document.getElementById('marker' + i));
 
   let arrowSize = 90;
@@ -1014,18 +1017,33 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
 
     swatchContainer = document.createElement('div'); swatchContainer.className = 'swatchContainer';
     swatchContainer.classList.add('colorPanelSwatches');
+    const applyColor = color => {
+      const applyTarget = selected || panelAnchorTarget; if (!applyTarget) return;
+      const btnId = applyTarget.dataset?.btn;
+      if (mode === 'bg') {
+        applyTarget.style.backgroundColor = color;
+        if (btnId) { appState.buttons[btnId] = appState.buttons[btnId] || {}; appState.buttons[btnId].backgroundColor = color; }
+      } else if (mode === 'text') {
+        applyTarget.style.color = color;
+        if (btnId) { appState.buttons[btnId] = appState.buttons[btnId] || {}; appState.buttons[btnId].color = color; }
+        else if (applyTarget === base) { appState.base.color = color; }
+      } else if (mode === 'outline') {
+        const width = parseInt(innerSlider.value) || 0; const spread = parseInt(outerSlider.value) || 0;
+        applyTarget.style.outline = `${width}px solid ${color}`; applyTarget.style.outlineOffset = `-${width}px`; applyTarget.style.boxShadow = `0 0 0 ${spread}px black`;
+        if (btnId) { appState.buttons[btnId] = appState.buttons[btnId] || {}; appState.buttons[btnId].outlineWidth = width; appState.buttons[btnId].outlineColor = color; appState.buttons[btnId].boxShadowSpread = spread; }
+      }
+      saveStateData();
+    };
+    const pickerButton = document.createElement('button');
+    pickerButton.type = 'button'; pickerButton.className = 'colorPickerButton';
+    pickerButton.title = 'Pick color from canvas'; pickerButton.setAttribute('aria-label', 'Pick color from canvas');
+    pickerButton.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5 4 4M13 7l4 4m-9 9 9-9a2.83 2.83 0 0 0-4-4l-9 9-1 5 5-1Z"/></svg>';
+    applyPickedColor = applyColor;
+    pickerButton.addEventListener('click', () => colorPicker.start());
+    swatchContainer.appendChild(pickerButton);
     palette.forEach(c => {
       const s = document.createElement('div'); s.className = 'swatch'; s.dataset.color = c; s.title = c; s.style.background = c;
-      s.addEventListener('click', () => {
-        const applyTarget = selected || panelAnchorTarget; if (!applyTarget) return; const btnId = applyTarget.dataset?.btn;
-        if (mode === 'bg') { applyTarget.style.backgroundColor = c; if (btnId) { appState.buttons[btnId] = appState.buttons[btnId] || {}; appState.buttons[btnId].backgroundColor = c; } }
-        else if (mode === 'text') { applyTarget.style.color = c; if (btnId) { appState.buttons[btnId] = appState.buttons[btnId] || {}; appState.buttons[btnId].color = c; } else if (applyTarget === base) { appState.base.color = c; } }
-        else if (mode === 'outline') {
-          const width = parseInt(innerSlider.value) || 0; const spread = parseInt(outerSlider.value) || 0; applyTarget.style.outline = `${width}px solid ${c}`; applyTarget.style.outlineOffset = `-${width}px`; applyTarget.style.boxShadow = `0 0 0 ${spread}px black`;
-          if (btnId) { appState.buttons[btnId] = appState.buttons[btnId] || {}; appState.buttons[btnId].outlineWidth = width; appState.buttons[btnId].outlineColor = c; appState.buttons[btnId].boxShadowSpread = spread; }
-        }
-        saveStateData();
-      });
+      s.addEventListener('click', () => applyColor(c));
       swatchContainer.appendChild(s);
     });
 
@@ -1853,8 +1871,6 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
   if (appState.base) { applyPropertiesToElement(base, appState.base); if (appState.base.display !== undefined) base.style.display = appState.base.display; }
   if (appState.eightWayWrapper) { applyPropertiesToElement(eightWayWrapper, appState.eightWayWrapper); if (appState.eightWayWrapper.display !== undefined) eightWayWrapper.style.display = appState.eightWayWrapper.display; if (appState.eightWayWrapper.arrowSize !== undefined) { arrowSize = appState.eightWayWrapper.arrowSize || 90; resizeEightWayArrows(); } }
   if (appState.trailColor) document.documentElement.style.setProperty('--trail-color', appState.trailColor);
-  // Persist current joystick head style to appState
-  appState.joystickHead = captureElementProperties(joystick);
   resizeJoystickWrapper(); joystick.style.left = canvas.width/2 + 'px'; joystick.style.top = canvas.height/2 + 'px'; applyJoystickHeadFromState();
   // analog prefs applied via importLayout/exportLayout only (no on-screen controls)
   updateCursor(true);
@@ -2178,6 +2194,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
       }
       // Apply joystick head style after loading
       applyJoystickHeadFromState();
+      preloadFontsForLayout(appState);
       console.debug('[Trailpad] state loaded');
     } catch (e) { console.warn(e); }
   }

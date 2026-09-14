@@ -295,6 +295,71 @@
     gap: 6px;
 }
 
+.colorPickerButton {
+    width: 100%;
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+    padding: 4px;
+    cursor: pointer;
+    color: var(--text-primary);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-default);
+    border-radius: 50%;
+}
+
+.colorPickerButton svg {
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.8;
+}
+
+.colorPickerButton:hover,
+.colorPickerButton:focus-visible {
+    color: var(--border-focus);
+    border-color: var(--border-focus);
+    box-shadow: var(--shadow-md);
+}
+
+body.colorPickerActive,
+body.colorPickerActive * {
+    cursor: none !important;
+}
+
+.colorPickerLens {
+    position: fixed;
+    z-index: 10001;
+    display: none;
+    width: 34px;
+    height: 34px;
+    margin: -17px 0 0 -17px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px #000, 0 3px 12px rgba(0, 0, 0, 0.55);
+    pointer-events: none;
+    box-sizing: border-box;
+}
+
+.colorPickerLens.active {
+    display: block;
+}
+
+.colorPickerLens span {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 1px solid #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px #000;
+}
+
 .swatch {
     width: 100%;
     padding-top: 100%;
