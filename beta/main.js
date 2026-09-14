@@ -1,6 +1,7 @@
 import { createTrailSystem } from './js/trail.js';
 import { TrailChainClient } from './js/trailchain-client.js';
 import { createColorPicker } from './js/color-picker.js';
+import { createDonateButton } from './js/donate-button.js';
 
 window.addEventListener('DOMContentLoaded', () => {
   const STORAGE_KEY = 'trailpad_1';
@@ -73,6 +74,8 @@ window.addEventListener('DOMContentLoaded', () => {
   const colorPicker = createColorPicker({ onPick: color => applyPickedColor?.(color) });
   let applyPickedColor = null;
   const markers = Array.from({ length: 8 }, (_, i) => document.getElementById('marker' + i));
+  const donateButton = createDonateButton();
+  document.body.appendChild(donateButton.element);
 
   let arrowSize = 90;
 
@@ -129,6 +132,7 @@ window.addEventListener('DOMContentLoaded', () => {
       if (cursorEl) {
         cursorEl.classList.remove('active');
       }
+      donateButton.hide();
     }, UI_HIDE_DELAY);
   }
   function stopUiHideTimer() {
@@ -136,6 +140,7 @@ window.addEventListener('DOMContentLoaded', () => {
   }
   function resetUiHideTimer() {
     stopUiHideTimer();
+    donateButton.show();
     startUiHideTimer();
   }
   // Add analog configuration to appState (persisted)
