@@ -189,6 +189,11 @@ window.addEventListener('DOMContentLoaded', () => {
       if (data[k] !== undefined) el.style[k] = data[k];
     });
     if (data.backgroundImage !== undefined) applyBgImage(el, data.backgroundImage);
+    if (el === base && data.backgroundImage) {
+      if (data.backgroundSize === undefined) el.style.backgroundSize = 'cover';
+      el.style.backgroundPosition = 'center';
+      el.style.backgroundRepeat = 'no-repeat';
+    }
     if (data.label !== undefined && el.dataset && el.dataset.btn) el.textContent = data.label;
   }
 
@@ -240,12 +245,23 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  function getExportBgImagePath(el) {
+    const path = getBgImagePath(el);
+    if (el !== base || !path) return path;
+    if (!/^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(path)) return path;
+    try {
+      const parsed = new URL(path, document.baseURI);
+      if (parsed.protocol === 'http:' || parsed.protocol === 'https:' || parsed.protocol === 'file:') return parsed.href;
+    } catch (e) { }
+    return path;
+  }
+
   function captureElementProperties(el) {
     const cs = window.getComputedStyle(el);
     const snap = {
       display: cs.display, zIndex: cs.zIndex, top: cs.top, left: cs.left, width: cs.width, height: cs.height,
       borderRadius: cs.borderRadius, outline: cs.outline, outlineOffset: cs.outlineOffset, boxShadow: cs.boxShadow,
-      backgroundColor: cs.backgroundColor, backgroundImage: getBgImagePath(el), backgroundSize: cs.backgroundSize,
+      backgroundColor: cs.backgroundColor, backgroundImage: getExportBgImagePath(el), backgroundSize: cs.backgroundSize,
       color: cs.color, fontSize: cs.fontSize, fontFamily: cs.fontFamily, label: (el.textContent || '').trim()
     };
     if (el.dataset && el.dataset.btn) {
@@ -784,10 +800,65 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     sliderArea.appendChild(sizeCtrl);
     sliderArea.appendChild(textSizeCtrl);
 
+    const baseImageControl = document.createElement('div');
+    baseImageControl.className = 'baseImageControl colorPanelControlRow';
+    baseImageControl.style.display = anchorTarget === base ? 'grid' : 'none';
+    const baseImageLabel = document.createElement('span');
+    baseImageLabel.className = 'ui-label colorPanelControlLabel';
+    baseImageLabel.textContent = 'Image';
+    const baseImageInput = document.createElement('input');
+    baseImageInput.type = 'text';
+    baseImageInput.className = 'ui-input baseImageInput';
+    baseImageInput.value = appState.base?.backgroundImage || getBgImagePath(base);
+    baseImageInput.placeholder = 'URL or path';
+    const baseImageButtons = document.createElement('div');
+    baseImageButtons.className = 'baseImageButtons';
+    const applyBaseImageButton = document.createElement('button');
+    applyBaseImageButton.type = 'button';
+    applyBaseImageButton.className = 'ui-button primary';
+    applyBaseImageButton.textContent = 'Apply';
+    const clearBaseImageButton = document.createElement('button');
+    clearBaseImageButton.type = 'button';
+    clearBaseImageButton.className = 'ui-button';
+    clearBaseImageButton.textContent = 'Clear';
+    baseImageButtons.appendChild(applyBaseImageButton);
+    baseImageButtons.appendChild(clearBaseImageButton);
+    baseImageControl.appendChild(baseImageLabel);
+    baseImageControl.appendChild(baseImageInput);
+    baseImageControl.appendChild(baseImageButtons);
+
+    function applyBaseImage(value) {
+      const image = value.trim();
+      if (!image) return;
+      applyBgImage(base, image);
+      base.style.backgroundSize = 'cover';
+      base.style.backgroundPosition = 'center';
+      base.style.backgroundRepeat = 'no-repeat';
+      appState.base.backgroundImage = image;
+      appState.base.backgroundSize = 'cover';
+      saveStateData();
+    }
+
+    applyBaseImageButton.addEventListener('click', () => applyBaseImage(baseImageInput.value));
+    baseImageInput.addEventListener('keydown', event => {
+      if (event.key === 'Enter') applyBaseImage(baseImageInput.value);
+    });
+    clearBaseImageButton.addEventListener('click', () => {
+      applyBgImage(base, '');
+      base.style.backgroundSize = '';
+      base.style.backgroundPosition = '';
+      base.style.backgroundRepeat = '';
+      delete appState.base.backgroundImage;
+      delete appState.base.backgroundSize;
+      baseImageInput.value = '';
+      saveStateData();
+    });
+
     // Build panel structure: header -> content -> sliders
     colorPanel.appendChild(toggle);
     colorPanel.appendChild(contentArea);
     colorPanel.appendChild(sliderArea);
+    colorPanel.appendChild(baseImageControl);
 
   function clearGrids() {
     contentArea.querySelectorAll('.symbolGrid, .fontGrid').forEach(grid => grid.remove());
@@ -810,6 +881,8 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
   let mode = isStickTarget ? 'stick' : colorMode;
   function setActiveModeTab(activeTab) {
     [fontDiv, bgDiv, txtDiv, outlineDiv, stickDiv, symbolBtn].forEach(tab => tab?.classList.toggle('active', tab === activeTab));
+    const baseImageControl = colorPanel.querySelector('.baseImageControl');
+    if (baseImageControl) baseImageControl.style.display = (mode === 'bg' && (selected || panelAnchorTarget) === base) ? 'grid' : 'none';
   }
 
   bgDiv.addEventListener('click', () => {
@@ -1257,6 +1330,14 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
   function updatePanelForSelection() {
     if (!colorPanel) return;
     const applyTarget = selected || panelAnchorTarget;
+    const baseImageControl = colorPanel.querySelector('.baseImageControl');
+    if (baseImageControl) {
+      baseImageControl.style.display = (colorMode === 'bg' && applyTarget === base) ? 'grid' : 'none';
+      if (applyTarget === base) {
+        const input = baseImageControl.querySelector('.baseImageInput');
+        if (input) input.value = appState.base?.backgroundImage || getBgImagePath(base);
+      }
+    }
     const btnId = applyTarget?.dataset?.btn;
     if (btnId === 'LS' || btnId === 'RS') {
       const state = appState.buttons[btnId] || {};
@@ -1300,6 +1381,8 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
 
   // --- Keyboard/hotkeys ---
   document.addEventListener('keydown', (e) => {
+    const isEditableTarget = e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement || e.target.isContentEditable;
+
     // Snap to Grid
     if (e.ctrlKey && e.key.toLowerCase() === 't') { snapLayoutToGrid(10); saveStateData(); }
 
@@ -1318,8 +1401,8 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     }
 
     if (e.ctrlKey && e.key.toLowerCase() === 'o') { e.preventDefault(); importInput.click(); return; }
-    if (e.ctrlKey && e.key.toLowerCase() === 'c') { e.preventDefault(); copyLayoutToClipboard(); return; }
-    if (e.ctrlKey && e.key.toLowerCase() === 'v') { e.preventDefault(); pasteLayoutFromClipboard(); return; }
+    if (!isEditableTarget && e.ctrlKey && e.key.toLowerCase() === 'c') { e.preventDefault(); copyLayoutToClipboard(); return; }
+    if (!isEditableTarget && e.ctrlKey && e.key.toLowerCase() === 'v') { e.preventDefault(); pasteLayoutFromClipboard(); return; }
 
     // Change the selected element's stacking order.
     if (e.key === 'PageUp' || e.key === 'PageDown') {

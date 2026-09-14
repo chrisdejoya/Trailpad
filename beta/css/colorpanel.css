@@ -240,6 +240,32 @@
     font-size: var(--ui-font-size-small);
 }
 
+.baseImageControl {
+    grid-template-columns: var(--ui-control-label-width) minmax(0, 1fr) auto;
+    margin-top: 6px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border-subtle);
+}
+
+.baseImageInput {
+    width: 100%;
+    min-width: 0;
+    min-height: var(--ui-control-height);
+    padding: 4px 6px;
+    text-transform: none;
+}
+
+.baseImageButtons {
+    display: flex;
+    gap: 6px;
+}
+
+.baseImageButtons .ui-button {
+    min-height: var(--ui-control-height);
+    padding: 4px 10px;
+    font-size: var(--ui-font-size-small);
+}
+
 .colorPanelSwatches {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(16px, 1fr));
