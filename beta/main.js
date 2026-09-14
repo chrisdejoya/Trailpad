@@ -1411,19 +1411,25 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
   }
 
   function directionFromHatValue(value) {
-    if (typeof value !== 'number' || Math.abs(value) < 0.1) return -1;
-    const rounded = Math.round(value * 7);
-    switch (rounded) {
-      case -7: return 6;
-      case -5: return 7;
-      case -3: return 0;
-      case -1: return 1;
-      case 1: return 2;
-      case 3: return 3;
-      case 5: return 4;
-      case 7: return 5;
-      default: return -1;
+    if (typeof value !== 'number' || !Number.isFinite(value)) return -1;
+    // Some leverless controllers expose the SDL hat on axis 9. Their neutral
+    // value may be 23/7 instead of zero, while active values are the usual
+    // seven-step values between -1 and 1.
+    const hatValues = [
+      [3.28571, -1],
+      [-1, 6], [-5 / 7, 7], [-3 / 7, 0], [-1 / 7, 1],
+      [1 / 7, 2], [3 / 7, 3], [5 / 7, 4], [1, 5]
+    ];
+    let closest = -1;
+    let distance = Infinity;
+    for (const [hatValue, direction] of hatValues) {
+      const candidateDistance = Math.abs(value - hatValue);
+      if (candidateDistance < distance) {
+        distance = candidateDistance;
+        closest = direction;
+      }
     }
+    return distance <= 0.08 ? closest : -1;
   }
 
   function vectorFromDirection(direction) {
@@ -1458,9 +1464,8 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     }
 
     const axes = pad.axes || [];
-    // TrailChain places its normalized hat at axis 9. Do not scan arbitrary
-    // trailing axes: raw controllers often expose additional stick/gyro axes,
-    // which must remain neutral for the d-pad.
+    // TrailChain and some native leverless controllers expose the d-pad hat at
+    // axis 9. Decode only recognized hat values so unrelated axes stay inert.
     if (axes.length > 9) {
       const direction = directionFromHatValue(axes[9]);
       if (direction !== -1) return direction;
@@ -1470,7 +1475,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     // Do not inspect the standard left/right stick pairs when the browser reports a
     // standard mapping; those axes are already handled by the analog direction below.
     if (pad.mapping !== 'standard') {
-      for (const [xIndex, yIndex] of [[4, 5], [6, 7]]) {
+      for (const [xIndex, yIndex] of [[6, 7]]) {
         if (xIndex >= axes.length || yIndex >= axes.length) continue;
         const x = axes[xIndex] || 0;
         const y = axes[yIndex] || 0;
