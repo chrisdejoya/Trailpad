@@ -2180,7 +2180,10 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
       const system = stickTrailSystems[id];
       if (!system) return;
       const state = appState.buttons[id] || {};
-      if (!getStickMovementEnabled(id) || state.showTrail === false) { system.clear(); return; }
+      const button = btnEls[id];
+      // Hide trail if the stick button is hidden (display: none)
+      const isButtonHidden = button && (button.style.display === 'none' || getComputedStyle(button).display === 'none');
+      if (!getStickMovementEnabled(id) || state.showTrail === false || isButtonHidden) { system.clear(); return; }
       system.config.trailLength = Math.max(1, Math.min(60, parseInt(state.trailLength ?? state.trailSize ?? ANALOG_DEFAULTS.trailLength, 10) || ANALOG_DEFAULTS.trailLength));
       system.config.trailWidth = Math.max(1, Math.min(40, parseInt(state.trailWidth ?? ANALOG_DEFAULTS.trailWidth, 10) || ANALOG_DEFAULTS.trailWidth));
       system.addPoint(value.x, value.y);
