@@ -50,3 +50,19 @@
   background: transparent;
   border-left-color: transparent;
 }
+
+.profile-rename-input {
+  padding: 6px 10px;
+  border: 1px solid var(--border-accent);
+  border-radius: var(--radius-sm);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+}
+
+.profile-rename-input:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 2px var(--accent-primary-transparent);
+}

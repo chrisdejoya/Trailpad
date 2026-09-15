@@ -936,14 +936,15 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
   });
   outlineDiv.addEventListener('click', () => {
     mode = 'outline'; colorMode = 'outline'; localStorage.setItem('colorMode', colorMode); setActiveModeTab(outlineDiv); setStickPanelVisible(false);
-    sliderWrapper.style.display = 'flex'; updatePanelForSelection(); if (typeof swatchContainer !== 'undefined') swatchContainer.style.display = '';
+    // Ensure outline sliders are visible and grids are cleared
+    clearGrids();
+    sliderWrapper.style.display = 'flex';
+    if (typeof swatchContainer !== 'undefined') swatchContainer.style.display = '';
     // hide symbol size control when not in symbol mode
     try { sizeCtrl.style.display = 'none'; } catch (e) {}
     // hide text size control when not in text mode
     try { textSizeCtrl.style.display = 'none'; } catch (e) {}
-    const grid = contentArea.querySelector('.symbolGrid'); if (grid) grid.remove();
-    // remove font grid if present
-    const fontGrid = contentArea.querySelector('.fontGrid'); if (fontGrid) fontGrid.remove();
+    updatePanelForSelection();
   });
 
   fontDiv.addEventListener('click', async () => {
@@ -1870,12 +1871,14 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
 
   // --- Profiles: save/load unified with helpers ---
   function saveProfile(n) {
-    if (n < 1 || n > PROFILE_COUNT) return; const snap = exportLayout(); appState.profiles['profile' + n] = snap; appState.lastProfile = n; saveStateData();
+    if (n < 1 || n > PROFILE_COUNT) return; const snap = exportLayout(); const key = 'profile' + n; const existing = appState.profiles[key]; snap.name = existing?.name || 'Profile ' + n; appState.profiles[key] = snap; appState.lastProfile = n; saveStateData();
   }
 
   function loadProfile(n) {
-    const snap = appState.profiles['profile' + n]; if (!snap) { showToast('Profile ' + n + ' empty', 1000); return; }
-    importLayout(snap); appState.lastProfile = n; showToast('Profile ' + n + ' loaded', 1000); saveStateData();
+    const key = 'profile' + n;
+    const snap = appState.profiles[key]; if (!snap) { showToast('Profile ' + n + ' empty', 1000); return; }
+    const profileName = snap.name || 'Profile ' + n;
+    importLayout(snap); appState.lastProfile = n; showToast(profileName + ' loaded', 1000); saveStateData();
   }
 
   async function resetToDefault() {
@@ -2077,14 +2080,69 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
           const key = 'profile' + i;
           const saved = appState.profiles && appState.profiles[key];
           const item = document.createElement('div'); item.className = 'presetItem';
-          const label = 'Profile ' + i + (saved ? '' : ' (Empty)');
+          const profileName = saved?.name || 'Profile ' + i;
+          const label = profileName + (saved ? '' : ' (Empty)');
           item.textContent = label; item.dataset.profile = i;
           if (saved) {
             item.addEventListener('mouseenter', () => { try { applyLayoutPreview(saved); } catch (e) { console.warn('profile preview failed', e); } });
-            item.addEventListener('click', () => { try { importLayout(saved); _menuSelectionMade = true; closePresetsMenu(false); showToast('Profile ' + i + ' loaded', 1000); } catch (e) { console.warn('profile load failed', e); } });
+            item.addEventListener('click', () => { try { importLayout(saved); _menuSelectionMade = true; closePresetsMenu(false); showToast(profileName + ' loaded', 1000); } catch (e) { console.warn('profile load failed', e); } });
+            item.addEventListener('contextmenu', (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              startRenameProfile(i, item);
+            });
+          } else {
+            item.classList.add('empty');
           }
           wrapper.appendChild(item);
         }
+      }
+
+      function startRenameProfile(profileIndex, itemEl) {
+        if (itemEl.querySelector('input')) return;
+        const key = 'profile' + profileIndex;
+        const saved = appState.profiles && appState.profiles[key];
+        if (!saved) return;
+        const currentName = saved.name || 'Profile ' + profileIndex;
+        itemEl.textContent = '';
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'profile-rename-input';
+        input.value = currentName;
+        input.style.width = '100%';
+        input.style.boxSizing = 'border-box';
+        itemEl.appendChild(input);
+        input.focus();
+        input.select();
+
+        function finishRename(commit) {
+          if (!itemEl.contains(input)) return;
+          itemEl.removeChild(input);
+          if (commit) {
+            const newName = input.value.trim();
+            if (newName) {
+              saved.name = newName;
+              itemEl.textContent = newName;
+              saveStateData();
+              showToast('Profile renamed to ' + newName, 1000);
+            } else {
+              itemEl.textContent = currentName;
+            }
+          } else {
+            itemEl.textContent = currentName;
+          }
+        }
+
+        input.addEventListener('blur', () => finishRename(true));
+        input.addEventListener('keydown', (ev) => {
+          if (ev.key === 'Enter') {
+            ev.preventDefault();
+            finishRename(true);
+          } else if (ev.key === 'Escape') {
+            ev.preventDefault();
+            finishRename(false);
+          }
+        });
       }
 
   // initial render shows profiles by default
