@@ -15,8 +15,8 @@
   --bg-secondary: #222;
   --bg-tertiary: #2a2a2a;
   --bg-elevated: #333;
-  --bg-panel: rgba(30, 30, 30, 0.92);
-  --bg-panel-hover: rgba(40, 40, 40, 0.95);
+  --bg-panel: rgba(30, 30, 30, 0.9);
+  --bg-panel-hover: rgba(40, 40, 40, 0.9);
   --border-subtle: #3a3a3a;
   --border-default: #4a4a4a;
   --border-focus: #fff;
@@ -50,8 +50,8 @@
 #toast,
 .presetsMenu {
   background: var(--bg-panel);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border: 1px solid var(--border-default);
 }
 
