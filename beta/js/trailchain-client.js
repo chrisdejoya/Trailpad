@@ -126,8 +126,10 @@ function transformController(controller) {
 
   // Synthesize LT/RT buttons (indices 6 and 7) from trigger axes
   // TrailChain reports triggers as axes[4] (LT) and axes[5] (RT) on both XInput and SDL
-  buttons[6] = makeButton(sourceAxes[4] > TRIGGER_DEADZONE, sourceAxes[4] || 0);
-  buttons[7] = makeButton(sourceAxes[5] > TRIGGER_DEADZONE, sourceAxes[5] || 0);
+  const leftTrigger = typeof sourceAxes[4] === 'number' ? Math.max(0, sourceAxes[4]) : 0;
+  const rightTrigger = typeof sourceAxes[5] === 'number' ? Math.max(0, sourceAxes[5]) : 0;
+  buttons[6] = makeButton(leftTrigger > TRIGGER_DEADZONE, leftTrigger);
+  buttons[7] = makeButton(rightTrigger > TRIGGER_DEADZONE, rightTrigger);
 
   return {
     id: controller.name || 'TrailChain Controller',

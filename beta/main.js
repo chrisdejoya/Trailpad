@@ -1614,6 +1614,15 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     return -1;
   }
 
+  function getDpadComponents(direction) {
+    return {
+      up: direction === 5 || direction === 6 || direction === 7,
+      down: direction === 1 || direction === 2 || direction === 3,
+      left: direction === 3 || direction === 4 || direction === 5,
+      right: direction === 7 || direction === 0 || direction === 1
+    };
+  }
+
   function moveSelected(dx, dy, key) {
     if (!selected) return; const cs = window.getComputedStyle(selected); let top = parseInt(cs.top) || 0; let left = parseInt(cs.left) || 0; top = Math.max(0, top + dy); left = Math.max(0, left + dx); selected.style.top = top + 'px'; selected.style.left = left + 'px';
     if (selected.classList.contains('btn')) { const name = selected.dataset.btn; appState.buttons[name] = appState.buttons[name] || {}; appState.buttons[name].top = selected.style.top; appState.buttons[name].left = selected.style.left; if (name === 'LS' || name === 'RS') { resizeStickTrails(); updateAnalogStickBases(); } }
@@ -1699,18 +1708,19 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     if (!pad || !pad.buttons) { resetJoystickHead(); Object.values(btnEls).forEach(b => b.classList.remove('active')); return; }
     let anyPressed = false;
     const dpadDirection = getDpadDirection(pad);
-    const directionButtons = { Up: 6, Down: 2, Left: 4, Right: 0 };
+    const dpadComponents = getDpadComponents(dpadDirection);
     for (const key in btnEls) {
       const idx = map[key]; if (idx === undefined) continue;
-      if (directionButtons[key] !== undefined) {
-        const pressed = dpadDirection === directionButtons[key];
+      if (dpadComponents[key.toLowerCase()] !== undefined) {
+        const pressed = dpadComponents[key.toLowerCase()];
         btnEls[key].classList.toggle('active', pressed);
         if (pressed) { anyPressed = true; lastPressedTimes[key] = performance.now(); }
         continue;
       }
       const DEADZONE = 0.45;
       // raw value from button (some controllers expose analog value on triggers)
-      let raw = (pad.buttons[idx] && (typeof pad.buttons[idx].value === 'number')) ? pad.buttons[idx].value : (pad.buttons[idx] && pad.buttons[idx].pressed ? 1 : 0);
+      const button = pad.buttons[idx];
+      let raw = button?.pressed ? (typeof button.value === 'number' ? button.value : 1) : 0;
       let val = raw;
 
       // Handle analog triggers (LT/RT) by mapping pressure -> brightness & subtle scale
