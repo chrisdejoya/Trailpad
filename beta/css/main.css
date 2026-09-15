@@ -71,62 +71,39 @@ html, body {
   right: 10px;
   bottom: 10px;
   z-index: 120;
-  display: inline-flex;
-  flex-direction: row-reverse;
-  align-items: center;
   width: 48px;
   height: 48px;
-  overflow: hidden;
-  box-sizing: border-box;
-  color: var(--text-primary);
-  text-decoration: none;
-  background: rgba(30, 30, 30, 0.88);
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(30, 30, 30, 0.7);
+  border: 2px solid rgba(255, 255, 255, 1.0);
+  border-radius: 50%;
   box-shadow: var(--shadow-sm);
-  cursor: pointer;  
-  transition: width 0.2s ease, transform 0.15s ease, filter 0.15s ease, opacity 0.2s ease;
+  cursor: pointer;
+  transition: transform 0.25s ease, filter 0.15s ease, opacity 0.2s ease;
+  text-decoration: none;
 }
 
-.donateButton  img {
-  flex: 0 0 48px;
-  width: 45px;
-  height: 45px;
-  padding: 10px;
-  box-sizing: border-box;
-}
-
-.donateButtonLabel {
-  width: 0;
-  overflow: hidden;
-  opacity: 0;
-  transform: translateX(12px);
-  white-space: nowrap;
-  font-size: 12px;
-  transition: width 0.2s ease, opacity 0.15s ease, transform 0.2s ease;
+.donateButton img {
+  width: 28px;
+  height: 28px;
 }
 
 .donateButton:hover,
 .donateButton:focus-visible {
-  width: 210px;
-  filter: brightness(1.2);
-  outline: 2px solid rgba(255, 255, 255, 0.75);
+  transform: scale(0.9);
+  filter: brightness(0.5);
+  outline: 2px solid rgba(255, 255, 255, 1.0);
   outline-offset: 0px;
 }
 
-.donateButton:hover .donateButtonLabel,
-.donateButton:focus-visible .donateButtonLabel {
-  width: 170px;
-  opacity: 1;
-  transform: translateX(0);
-}
-
 .donateButton:active {
-  transform: scale(0.94);
+  transform: scale(0.9);
 }
 
-.donateButton.is-clicked img {
-  animation: donateButtonClick 0.22s ease-out;
+.donateButton.is-clicked {
+  animation: donateButtonClick 0.2s ease-out;
 }
 
 .donateButton.is-auto-hidden {
@@ -135,8 +112,51 @@ html, body {
   transform: translateY(8px);
 }
 
+.donatePanel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 200;
+  width: 260px;
+  height: 320px;
+  transform: translate(-50%, -50%) scale(0.5  );
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 10px;
+  box-sizing: border-box;
+  background: rgba(20, 20, 20, 0.95);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.25s cubic-bezier(0.3, 1.5, 0.65, 1);
+}
+
+.donatePanel.is-visible {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+  pointer-events: auto;
+}
+
+.donatePanel img {
+  width: 180px;
+  height: 180px;
+  object-fit: contain;
+}
+
+.donatePanel span {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
 @keyframes donateButtonClick {
-  50% { transform: scale(0.82) rotate(-8deg); }
+  50% { transform: scale(0.8) rotate(-0.5deg); }
 }
 
 #app {
