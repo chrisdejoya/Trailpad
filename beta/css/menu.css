@@ -4,8 +4,10 @@
   box-shadow: var(--shadow-lg);
   z-index: 10000;
   font-size: 13px;
+  width: max-content;
   min-width: 200px;
-  max-width: 360px;
+  max-width: calc(100vw - 16px);
+  box-sizing: border-box;
   padding: 4px;
   font-family: "Swiss 721", Arial, Helvetica, sans-serif;
   text-transform: uppercase;
@@ -39,6 +41,32 @@
 
 .presetItem:active {
   background: var(--bg-secondary);
+}
+
+.controllerItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  text-align: left;
+  font-family: inherit;
+  background: transparent;
+  border-top: 0;
+  border-right: 0;
+  border-bottom: 0;
+}
+
+.controllerItem.active {
+  color: var(--text-primary);
+}
+
+.controllerCheck {
+  flex: 0 0 auto;
+  color: var(--accent-green);
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1;
 }
 
 .presetItem.empty {

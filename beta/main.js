@@ -150,6 +150,7 @@ window.addEventListener('DOMContentLoaded', () => {
   let selected = null;
   let lastPressedTimes = {};
   let activeGamepadIndex = null;
+  let selectedNativeGamepadIndex = null;
   let trailChain = null;
   let padSource = 'gamepad';
   let panelAnchorTarget = null;
@@ -1802,6 +1803,50 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
 
   function detectActiveGamepad() { const gps = navigator.getGamepads ? navigator.getGamepads() : []; for (let i = 0; i < gps.length; i++) { const p = gps[i]; if (!p) continue; const anyBtn = p.buttons.some(b => b.pressed); const axisThreshold = (appState.analog && typeof appState.analog.triggerDeadzone === 'number') ? appState.analog.triggerDeadzone : cfg.deadzone; const anyAx = p.axes.some(a => Math.abs(a) > axisThreshold); if (anyBtn || anyAx) return i; } return null; }
 
+  function getNativeGamepads() {
+    return navigator.getGamepads ? Array.from(navigator.getGamepads()).filter(Boolean) : [];
+  }
+
+  function getDetectedControllers() {
+    const controllers = [];
+    if (trailChain?.getConnected()) {
+      trailChain.controllers.forEach((controller, index) => controllers.push({
+        source: 'trailchain',
+        index,
+        name: controller.name || controller.product || controller.id || `Controller ${index + 1}`,
+        key: `trailchain:${controller.instanceId ?? controller.guid ?? controller.path ?? controller.serial ?? controller.index ?? controller.name ?? index}`
+      }));
+    }
+    getNativeGamepads().forEach((gamepad, index) => controllers.push({
+      source: 'gamepad',
+      index: gamepad.index ?? index,
+      name: gamepad.id || `Controller ${index + 1}`,
+      key: `gamepad:${gamepad.index ?? index}`
+    }));
+    return controllers;
+  }
+
+  function getSelectedControllerKey() {
+    if (trailChain?.getConnected() && trailChain.controllerKey) return `trailchain:${trailChain.controllerKey}`;
+    return selectedNativeGamepadIndex === null ? null : `gamepad:${selectedNativeGamepadIndex}`;
+  }
+
+  function selectController(controller) {
+    if (!controller) return;
+    if (controller.source === 'trailchain') {
+      trailChain?.setControllerIndex(controller.index);
+      showToast(controller.name + ' selected', 1000);
+    } else {
+      selectedNativeGamepadIndex = controller.index;
+      activeGamepadIndex = controller.index;
+      showToast(controller.name + ' selected', 1000);
+    }
+    renderControllerList?.();
+  }
+
+  window.addEventListener('gamepadconnected', () => renderControllerList?.());
+  window.addEventListener('gamepaddisconnected', () => renderControllerList?.());
+
   // draw trail
   function resizeJoystickWrapper() { 
     canvas.width = stickWrapper.clientWidth; 
@@ -1953,6 +1998,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
   let _previewFetchController = null;
   let _prevLayoutSnapshot = null;
   let _menuSelectionMade = false;
+  let renderControllerList = null;
   let contextMenuRequest = 0;
 
   async function loadLayoutsIndex() {
@@ -2005,6 +2051,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
   function closePresetsMenu(revert = true) {
     if (!presetsMenuEl) return;
     presetsMenuEl.remove(); presetsMenuEl = null;
+    renderControllerList = null;
     // stop any outstanding fetch
     try { if (_previewFetchController) _previewFetchController.abort(); } catch (e) {}
     // if a selection wasn't made, revert to previous snapshot
@@ -2037,11 +2084,12 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
       // remove existing menu if present
       if (presetsMenuEl) presetsMenuEl.remove();
       const menu = document.createElement('div'); menu.className = 'presetsMenu';
-  // Header with toggle between Profiles and Presets
+  // Header with toggles for Profiles, Presets, and connected Controllers
   const hdr = document.createElement('div'); hdr.className = 'presetsHeader colorPanelModeToggle ui-tabs';
   const profilesToggle = document.createElement('button'); profilesToggle.type = 'button'; profilesToggle.className = 'presetHeaderToggle ui-tab'; profilesToggle.textContent = 'Profiles';
   const presetsToggle = document.createElement('button'); presetsToggle.type = 'button'; presetsToggle.className = 'presetHeaderToggle ui-tab'; presetsToggle.textContent = 'Presets';
-  hdr.appendChild(profilesToggle); hdr.appendChild(presetsToggle); menu.appendChild(hdr);
+  const controllerToggle = document.createElement('button'); controllerToggle.type = 'button'; controllerToggle.className = 'presetHeaderToggle ui-tab'; controllerToggle.textContent = 'Controller';
+  hdr.appendChild(profilesToggle); hdr.appendChild(presetsToggle); hdr.appendChild(controllerToggle); menu.appendChild(hdr);
   const wrapper = document.createElement('div'); wrapper.className = 'presetsList';
       // helper to show presets list
       function renderPresetsList() {
@@ -2098,6 +2146,40 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
         }
       }
 
+      function renderControllersList() {
+        wrapper.innerHTML = '';
+        const controllers = getDetectedControllers();
+        if (controllers.length === 0) {
+          const none = document.createElement('div'); none.className = 'presetItem empty'; none.textContent = '(no controllers detected)'; wrapper.appendChild(none);
+          return;
+        }
+        const selectedKey = getSelectedControllerKey();
+        for (const controller of controllers) {
+          const item = document.createElement('button');
+          item.type = 'button';
+          item.className = 'presetItem controllerItem';
+          item.dataset.controllerKey = controller.key;
+          const label = document.createElement('span');
+          label.textContent = controller.name;
+          item.appendChild(label);
+          if (controller.key === selectedKey) {
+            const check = document.createElement('span');
+            check.className = 'controllerCheck';
+            check.textContent = '\u2713';
+            check.setAttribute('aria-label', 'Active controller');
+            item.appendChild(check);
+            item.classList.add('active');
+          }
+          item.addEventListener('click', event => {
+            event.stopPropagation();
+            selectController(controller);
+            renderControllersList();
+          });
+          wrapper.appendChild(item);
+        }
+      }
+      renderControllerList = renderControllersList;
+
       function startRenameProfile(profileIndex, itemEl) {
         if (itemEl.querySelector('input')) return;
         const key = 'profile' + profileIndex;
@@ -2151,8 +2233,12 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
         function setActiveToggle(which) {
           if (which === 'profiles') {
             profilesToggle.classList.add('active'); presetsToggle.classList.remove('active');
-          } else {
+            controllerToggle.classList.remove('active');
+          } else if (which === 'presets') {
             presetsToggle.classList.add('active'); profilesToggle.classList.remove('active');
+            controllerToggle.classList.remove('active');
+          } else {
+            controllerToggle.classList.add('active'); profilesToggle.classList.remove('active'); presetsToggle.classList.remove('active');
           }
         }
 
@@ -2178,6 +2264,11 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
           setActiveToggle('presets');
           renderPresetsList();
           repositionPresetsMenu();
+      });
+      controllerToggle.addEventListener('click', () => {
+        setActiveToggle('controllers');
+        renderControllersList();
+        repositionPresetsMenu();
       });
   setActiveToggle('profiles');
       menu.appendChild(wrapper);
@@ -2232,8 +2323,13 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     }
     if (!pad) {
       padSource = 'gamepad';
-      activeGamepadIndex = detectActiveGamepad();
-      pad = (navigator.getGamepads && activeGamepadIndex !== null) ? navigator.getGamepads()[activeGamepadIndex] : null;
+      if (selectedNativeGamepadIndex !== null) {
+        activeGamepadIndex = selectedNativeGamepadIndex;
+        pad = (navigator.getGamepads && activeGamepadIndex !== null) ? navigator.getGamepads()[activeGamepadIndex] : null;
+      } else {
+        activeGamepadIndex = detectActiveGamepad();
+        pad = (navigator.getGamepads && activeGamepadIndex !== null) ? navigator.getGamepads()[activeGamepadIndex] : null;
+      }
     }
     updateButtonsFromPad(pad);
     const dpadDir = handleDpadMovement(pad); updateArrowHighlights(dpadDir);
@@ -2304,10 +2400,10 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
   const urlParams = new URLSearchParams(window.location.search);
   const chainHost = urlParams.get('host') || (window.location.hostname || '127.0.0.1');
   trailChain = new TrailChainClient(chainHost, 3819, {
-    onConnect: () => { showToast('Chainlink connected', 2000); },
-    onDisconnect: () => { showToast('Chainlink disconnected', 2000); },
+    onConnect: () => { showToast('Chainlink connected', 2000); renderControllerList?.(); },
+    onDisconnect: () => { showToast('Chainlink disconnected', 2000); renderControllerList?.(); },
     onError: (err) => { console.warn('[Trailpad] Chainlink WebSocket error:', err?.message || err); },
-    onControllers: () => {},
+    onControllers: () => { renderControllerList?.(); },
   });
   trailChain.connect();
 

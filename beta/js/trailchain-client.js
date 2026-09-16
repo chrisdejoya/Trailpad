@@ -163,6 +163,7 @@ export class TrailChainClient {
     this.controllers = [];
     this.currentGamepad = null;
     this.controllerIndex = options.controllerIndex ?? 0;
+    this.controllerKey = null;
 
     this.onConnect = options.onConnect || (() => {});
     this.onDisconnect = options.onDisconnect || (() => {});
@@ -251,6 +252,10 @@ export class TrailChainClient {
     this.controllers = Array.isArray(packet.controllers) ? packet.controllers : [];
     this.onControllers(this.controllers);
 
+    if (this.controllerKey) {
+      const matchingIndex = this.controllers.findIndex(controller => getControllerKey(controller) === this.controllerKey);
+      if (matchingIndex !== -1) this.controllerIndex = matchingIndex;
+    }
     const ctrl = this.controllers[this.controllerIndex];
     this.currentGamepad = ctrl ? transformController(ctrl) : null;
   }
@@ -273,8 +278,9 @@ export class TrailChainClient {
   }
 
   setControllerIndex(index) {
-    this.controllerIndex = index;
-    const ctrl = this.controllers[index];
+    this.controllerIndex = Math.max(0, Number(index) || 0);
+    const ctrl = this.controllers[this.controllerIndex];
+    this.controllerKey = ctrl ? getControllerKey(ctrl) : null;
     this.currentGamepad = ctrl ? transformController(ctrl) : null;
   }
 
@@ -293,6 +299,11 @@ export class TrailChainClient {
     this.connected = false;
     this.currentGamepad = null;
   }
+}
+
+function getControllerKey(controller) {
+  if (!controller) return '';
+  return String(controller.instanceId ?? controller.guid ?? controller.path ?? controller.serial ?? controller.index ?? controller.name ?? '');
 }
 
 export { transformController, sdlBitmaskToGamepadHat, trailChainToGamepadIndex };
