@@ -644,7 +644,7 @@ window.addEventListener('DOMContentLoaded', () => {
     els: { base, stickWrapper, eightWayWrapper, joystick, btnEls },
         getResizeEightWayArrows: () => resizeEightWayArrows, resizeJoystickWrapper,
     getDetectedControllers, getSelectedControllerKey, selectController,
-    saveStateData, showToast, stopUiHideTimer,
+    saveStateData, showToast, startUiHideTimer, stopUiHideTimer,
     getContextMenuRequest: () => contextMenuRequest,
         setArrowSize: (v) => { if (v !== undefined) arrowSize.value = v; }
   });
@@ -696,7 +696,7 @@ window.addEventListener('DOMContentLoaded', () => {
       }
       closeColorPanel(true);
       presetsMenu.open(e.pageX, e.pageY, requestId);
-    } catch (err) { }
+    } catch (err) { console.error('contextmenu error:', err); }
   });
 
   document.addEventListener('keydown', e => {

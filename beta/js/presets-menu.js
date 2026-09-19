@@ -20,7 +20,7 @@ export function createPresetsMenu({
   els, // { base, stickWrapper, eightWayWrapper, joystick, btnEls }
     getResizeEightWayArrows, resizeJoystickWrapper,
   getDetectedControllers, getSelectedControllerKey, selectController,
-  saveStateData, showToast, stopUiHideTimer,
+  saveStateData, showToast, startUiHideTimer, stopUiHideTimer,
   getContextMenuRequest, setArrowSize
 }) {
   const { base, stickWrapper, eightWayWrapper, joystick, btnEls } = els;
@@ -83,8 +83,13 @@ export function createPresetsMenu({
 
   async function openPresetsMenu(x, y, requestId = getContextMenuRequest()) {
     try {
+      console.log('openPresetsMenu called:', { x, y, requestId, currentRequest: getContextMenuRequest() });
       const list = await loadLayoutsIndex();
-      if (requestId !== getContextMenuRequest()) return;
+      console.log('loadLayoutsIndex result:', list?.length || 0, 'items');
+      if (requestId !== getContextMenuRequest()) {
+        console.log('requestId mismatch, aborting:', requestId, '!=', getContextMenuRequest());
+        return;
+      }
       // capture current layout snapshot so preview can be reverted
       _prevLayoutSnapshot = exportLayout(); _menuSelectionMade = false;
       // remove existing menu if present
@@ -290,7 +295,19 @@ export function createPresetsMenu({
       if (top + rect.height > vh) top = Math.max(8, vh - rect.height - 10);
       menu.style.left = left + 'px'; menu.style.top = top + 'px';
       startUiHideTimer();
+      console.log('Presets menu opened successfully at:', left, top);
     } catch (e) { console.warn('openPresetsMenu failed', e); }
+  }
+
+  async function loadLayoutsIndex() {
+    if (layoutsIndex) return layoutsIndex;
+    try {
+      const res = await fetch('layouts/index.json'); if (!res.ok) throw new Error('not found');
+      const parsed = await res.json();
+      // normalized to array of {file, name}
+      layoutsIndex = Array.isArray(parsed) ? parsed.map(it => (typeof it === 'string' ? { file: it, name: it.replace(/\.json$/i,'') } : { file: it.file, name: it.name || it.file })) : [];
+      return layoutsIndex;
+    } catch (e) { console.warn('Could not load layouts/index.json', e); layoutsIndex = []; return layoutsIndex; }
   }
 
   const api = {
@@ -303,14 +320,3 @@ export function createPresetsMenu({
   };
   return api;
 }
-
-  async function loadLayoutsIndex() {
-    if (layoutsIndex) return layoutsIndex;
-    try {
-      const res = await fetch('layouts/index.json'); if (!res.ok) throw new Error('not found');
-      const parsed = await res.json();
-      // normalized to array of {file, name}
-      layoutsIndex = Array.isArray(parsed) ? parsed.map(it => (typeof it === 'string' ? { file: it, name: it.replace(/\.json$/i,'') } : { file: it.file, name: it.name || it.file })) : [];
-      return layoutsIndex;
-    } catch (e) { console.warn('Could not load layouts/index.json', e); layoutsIndex = []; return layoutsIndex; }
-  }
