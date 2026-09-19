@@ -17,6 +17,7 @@ import { createSelection } from './js/selection.js';
 import { createStickUpdate } from './js/stick-update.js';
 import { createCursor } from './js/cursor.js';
 import { createToast } from './js/toast.js';
+import { createStatePersistence } from './js/state-persistence.js';
 
 window.addEventListener('DOMContentLoaded', () => {
   const STORAGE_KEY = 'trailpad_1';
@@ -147,7 +148,9 @@ window.addEventListener('DOMContentLoaded', () => {
   // --- Helpers (centralized to reduce repetition) ---
   // Layout snapshot/apply + element property helpers live in js/layout-state.js.
   // appState/ANALOG_DEFAULTS/els are shared by reference; arrowSize crosses via
-  // accessors; the hoisted helpers passed here are safe to reference this early.
+  // accessors; saveStateData is a delegating wrapper (defined below before the
+  // persistence factory) so hoisting differences can't break this call.
+  // getBgImagePath is a hoisted function declaration.
   const layout = createLayoutState({
     appState, ANALOG_DEFAULTS,
     els: { base, stickWrapper, eightWayWrapper, joystick, btnEls },
@@ -158,38 +161,16 @@ window.addEventListener('DOMContentLoaded', () => {
   const { applyPropertiesToElement, applyAndStore, getExportBgImagePath, captureElementProperties, applyJoystickHeadFromState, exportLayout, importLayout } = layout;
 
 
-  function saveStateData() {
-    try {
-      syncGeometryState();
-      // Device-specific, so it rides along with the rest of appState but is kept
-      // out of exportLayout/importLayout (layouts and profiles must not clobber it).
-      appState.buttonMap = buttonMap;
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(appState)); console.debug('Saving state');
-    } catch (e) { console.warn(e); }
-  }
+  // App-state persistence (localStorage save/load) lives in
+  // js/state-persistence.js. updateStateData/resizeJoystickWrapper are hoisted
+  // function declarations below; the get/set buttonMap accessors keep the
+  // remap panel as the single writer. The saveStateData wrapper is hoisted so
+  // factories above can already reference it; it delegates to the api object
+  // assigned here.
+  let persistenceApi = null;
+  function saveStateData() { persistenceApi?.saveStateData(); }
 
-  function syncGeometryState() {
-    const sync = (element, store) => {
-      if (!element || !store) return;
-      const styles = window.getComputedStyle(element);
-      ['top', 'left', 'width', 'height'].forEach(key => {
-        if (styles[key] && styles[key] !== 'auto') store[key] = styles[key];
-      });
-    };
-    Object.entries(btnEls).forEach(([key, element]) => {
-      appState.buttons[key] = appState.buttons[key] || {};
-      sync(element, appState.buttons[key]);
-    });
-    sync(base, appState.base);
-    sync(stickWrapper, appState.joystick);
-    sync(eightWayWrapper, appState.eightWayWrapper);
-  }
-
-
-
-  // apply data to element and merge into store (store may be appState.*)
-
-
+  const persistence = () => persistenceApi;
 
   // Helper to get backgroundImage path while preserving relative URLs
   function getBgImagePath(el) {
@@ -455,14 +436,6 @@ window.addEventListener('DOMContentLoaded', () => {
     else if (selected === eightWayWrapper) { appState.eightWayWrapper.top = selected.style.top; appState.eightWayWrapper.left = selected.style.left; }
     saveStateData(); showToast(`x:${left}, y:${top}`, 500); elementMoveTimers[key] = performance.now(); updateCursor();
   }
-
-
-
-
-
-
-
-  // stick helpers (the pure math lives in js/stick-math.js)
 
 
   // --- buttons update from gamepad ---
@@ -837,40 +810,18 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 
   // Boot
+  persistenceApi = createStatePersistence({
+    appState, STORAGE_KEY,
+    els: { joystick, btnEls, base, stickWrapper, eightWayWrapper },
+    getButtonMap: () => buttonMap,
+    setButtonMap: v => { buttonMap = v; },
+    DEFAULT_BUTTON_MAP,
+    applyJoystickHeadFromState, resizeJoystickWrapper, updateStateData,
+    remapButton
+  });
+
   function loadStateData() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY); if (!raw) return; const parsed = JSON.parse(raw);
-      appState.buttons = Object.assign({}, appState.buttons || {}, parsed.buttons || {});
-      appState.profiles = Object.assign({}, appState.profiles || {}, parsed.profiles || {});
-      appState.joystick = Object.assign({}, appState.joystick || {}, parsed.joystick || {});
-      appState.base = Object.assign({}, appState.base || {}, parsed.base || {});
-      appState.eightWayWrapper = Object.assign({}, appState.eightWayWrapper || {}, parsed.eightWayWrapper || {});
-      if (parsed.joystickHead !== undefined) appState.joystickHead = Object.assign({}, parsed.joystickHead);
-      if (parsed.hiddenButtons !== undefined) appState.hiddenButtons = parsed.hiddenButtons;
-      if (parsed.trailColor !== undefined) appState.trailColor = parsed.trailColor;
-      if (parsed.lastProfile !== undefined) appState.lastProfile = parsed.lastProfile;
-      // Device button mapping is part of the saved state but not of a layout.
-      if (parsed.buttonMap !== undefined) buttonMap = Object.assign({}, DEFAULT_BUTTON_MAP, parsed.buttonMap);
-      if (parsed.analog !== undefined) {
-        const safeAnalog = Object.assign({}, parsed.analog);
-        ['LS', 'RS'].forEach(key => {
-          appState.buttons[key] = appState.buttons[key] || {};
-          if (appState.buttons[key].stickMovement === undefined && safeAnalog[key] !== undefined) appState.buttons[key].stickMovement = safeAnalog[key];
-          if (appState.buttons[key].stickRadius === undefined && safeAnalog.analogVisualRange !== undefined) appState.buttons[key].stickRadius = safeAnalog.analogVisualRange;
-        });
-        delete safeAnalog.showDistance;
-        delete safeAnalog.LS;
-        delete safeAnalog.RS;
-        delete safeAnalog.analogVisualRange;
-        appState.analog = Object.assign({}, appState.analog || {}, safeAnalog);
-      }
-      // Apply joystick head style after loading
-      applyJoystickHeadFromState();
-      preloadFontsForLayout(appState);
-      // Keep the panel's row values in step with a freshly loaded mapping.
-      remapButton.refresh();
-      console.debug('[Trailpad] state loaded');
-    } catch (e) { console.warn(e); }
+    persistence().loadStateData();
   }
 
   loadStateData(); updateStateData(); resizeJoystickWrapper();
