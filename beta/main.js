@@ -1,5 +1,5 @@
 import { createTrailSystem } from './js/trail.js';
-import { TrailChainClient } from './js/trailchain-client.js';
+import { TrailChainClient, getControllerKey as trailchainControllerKeyOf } from './js/trailchain-client.js';
 import { createColorPicker } from './js/color-picker.js';
 import { createDonateButton } from './js/donate-button.js';
 import { createRemapButton, DEFAULT_BUTTON_MAP, isDefaultButtonMap, DPAD_DIRECTIONS, parseVectorValue } from './js/button-remap.js';
@@ -1852,7 +1852,83 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     Object.entries(btnEls).forEach(([k, el]) => { appState.buttons[k] = appState.buttons[k] || {}; snapElement(el, appState.buttons[k]); }); snapElement(stickWrapper, appState.joystick = appState.joystick || {}); snapElement(eightWayWrapper, appState.eightWayWrapper = appState.eightWayWrapper || {}); snapElement(base, appState.base = appState.base || {}); resizeStickTrails(); updateAnalogStickBases(); saveStateData(); showToast('Snapped layout to grid!', 1000); updateCursor(true);
   }
 
-  function detectActiveGamepad() { const gps = navigator.getGamepads ? navigator.getGamepads() : []; for (let i = 0; i < gps.length; i++) { const p = gps[i]; if (!p) continue; const anyBtn = p.buttons.some(b => b.pressed); const axisThreshold = (appState.analog && typeof appState.analog.triggerDeadzone === 'number') ? appState.analog.triggerDeadzone : cfg.deadzone; const anyAx = p.axes.some(a => Math.abs(a) > axisThreshold); if (anyBtn || anyAx) return i; } return null; }
+  // First native gamepad producing real input, or null. Uses
+  // controllerHasInput (fixed detection thresholds) so idle sticks/triggers
+  // can never count as input — a pad only becomes eligible for the active
+  // slot once the player actually presses something or moves a stick.
+  function detectActiveGamepad() {
+    const gps = navigator.getGamepads ? navigator.getGamepads() : [];
+    for (let i = 0; i < gps.length; i++) { if (controllerHasInput(gps[i])) return i; }
+    return null;
+  }
+
+  // Thresholds used ONLY to decide whether a controller is producing real
+  // input for the wait-for-assignment logic. They must not come from
+  // appState.analog.triggerDeadzone: that setting drives trigger-brightness
+  // display and is 0 in most layouts, which would make any resting analog
+  // jitter (sticks idle within ±0.05, triggers rest slightly above 0) look
+  // like input and instantly assign a controller on page load.
+  const INPUT_DETECT_BUTTON_THRESHOLD = 0.5; // digital buttons read 0/1; analog triggers must pass half-travel
+  const INPUT_DETECT_AXIS_THRESHOLD = 0.15;  // resting sticks sit within roughly ±0.1 of center
+
+  // True when a controller-shaped object (native Gamepad or a TrailChain
+  // controller snapshot) is producing deliberate input: a button held past
+  // half-travel, or an axis pushed past the detection deadzone. Deliberately
+  // ignores GamepadButton.pressed — browsers set pressed=true for analog
+  // buttons (triggers) whenever the value is merely above zero, so idle
+  // triggers would otherwise read as pressed.
+  function controllerHasInput(pad) {
+    if (!pad) return false;
+    const buttons = Array.isArray(pad.buttons) ? pad.buttons : [];
+    const anyBtn = buttons.some(b => {
+      if (b === true) return true; // TrailChain boolean button state
+      const value = (b && typeof b.value === 'number') ? b.value : (b ? 1 : 0);
+      return value > INPUT_DETECT_BUTTON_THRESHOLD;
+    });
+    const axes = Array.isArray(pad.axes) ? pad.axes : [];
+    const anyAx = axes.some(a => typeof a === 'number' && Math.abs(a) > INPUT_DETECT_AXIS_THRESHOLD);
+    return anyBtn || anyAx;
+  }
+
+  // Auto-assign the active controller on first input: no controller is
+  // considered active on load. The first connected controller (TrailChain or
+  // native Gamepad API) to produce input is locked in as the active one, the
+  // same path as an explicit pick from the Controller list, so it sticks and
+  // shows the checkmark there. Runs once per connection until the assignment
+  // is cleared (e.g. on disconnect) or overridden manually.
+  function autoAssignActiveController() {
+    // TrailChain controllers first (they take priority in the animate loop)
+    if (trailChain && trailChain.getConnected()) {
+      // Release a stale assignment (its controller disappeared) so the
+      // wait-for-input scan below can hand the slot to a live controller.
+      if (trailChain.controllerKey && !trailChain.controllers.some(c => trailchainControllerKeyOf(c) === trailChain.controllerKey)) {
+        trailChain.clearController();
+        renderControllerList?.();
+      }
+      if (!trailChain.controllerKey && trailChain.controllers.length > 0) {
+        const idx = trailChain.controllers.findIndex(c => controllerHasInput(c));
+        if (idx !== -1) {
+          trailChain.setControllerIndex(idx);
+          const name = trailChain.controllers[idx]?.name || trailChain.controllers[idx]?.product || 'Controller';
+          showToast(name + ' is now active', 1500);
+          renderControllerList?.();
+        }
+      }
+      // While TrailChain has controllers to wait on, don't auto-assign native
+      // pads underneath it — the animate loop prefers TrailChain data. If
+      // TrailChain is connected but has no controllers, fall through so a
+      // native pad can still claim the active slot on input.
+      if (trailChain.controllers.length > 0) return;
+    }
+    if (selectedNativeGamepadIndex !== null) return; // already assigned
+    const detected = detectActiveGamepad();
+    if (detected === null) return; // no input yet — stay unassigned
+    const gps = navigator.getGamepads ? navigator.getGamepads() : [];
+    selectedNativeGamepadIndex = detected;
+    activeGamepadIndex = detected;
+    if (gps[detected]) showToast((gps[detected].id || 'Controller') + ' is now active', 1500);
+    renderControllerList?.();
+  }
 
   function getNativeGamepads() {
     return navigator.getGamepads ? Array.from(navigator.getGamepads()).filter(Boolean) : [];
@@ -1885,9 +1961,15 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
   function selectController(controller) {
     if (!controller) return;
     if (controller.source === 'trailchain') {
+      // Picking a TrailChain controller releases any native assignment so
+      // exactly one controller is active at a time.
+      selectedNativeGamepadIndex = null;
+      activeGamepadIndex = null;
       trailChain?.setControllerIndex(controller.index);
       showToast(controller.name + ' selected', 1000);
     } else {
+      // Picking a native controller releases any TrailChain assignment.
+      if (trailChain && trailChain.getConnected() && trailChain.controllerKey) trailChain.clearController();
       selectedNativeGamepadIndex = controller.index;
       activeGamepadIndex = controller.index;
       showToast(controller.name + ' selected', 1000);
@@ -1896,7 +1978,16 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
   }
 
   window.addEventListener('gamepadconnected', () => renderControllerList?.());
-  window.addEventListener('gamepaddisconnected', () => renderControllerList?.());
+  window.addEventListener('gamepaddisconnected', (e) => {
+    // Release the assignment when the active controller goes away so the app
+    // goes back to waiting for input from whichever controller is used next.
+    if (e && e.gamepad && e.gamepad.index === selectedNativeGamepadIndex) {
+      selectedNativeGamepadIndex = null;
+      activeGamepadIndex = null;
+      showToast('Controller disconnected — waiting for input', 1500);
+    }
+    renderControllerList?.();
+  });
 
   // draw trail
   function resizeJoystickWrapper() { 
@@ -2366,9 +2457,14 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
 
   // detect active gamepad & main animation loop
   function animate() {
-    // Prefer TrailChain WebSocket data; fall back to native Gamepad API
+    // Prefer TrailChain WebSocket data; fall back to native Gamepad API.
+    // No controller is active until one produces input — autoAssignActiveController
+    // locks the first controller that sends input in as active.
+    autoAssignActiveController();
     let pad = null;
-    if (trailChain && trailChain.getConnected()) {
+    // Only use TrailChain data once a TrailChain controller has been assigned
+    // (manually or auto-assigned on first input); otherwise fall through.
+    if (trailChain && trailChain.getConnected() && trailChain.controllerKey) {
       padSource = 'trailchain';
       pad = trailChain.getGamepad();
     }
@@ -2377,16 +2473,19 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
       if (selectedNativeGamepadIndex !== null) {
         activeGamepadIndex = selectedNativeGamepadIndex;
         pad = (navigator.getGamepads && activeGamepadIndex !== null) ? navigator.getGamepads()[activeGamepadIndex] : null;
-      } else {
-        activeGamepadIndex = detectActiveGamepad();
-        pad = (navigator.getGamepads && activeGamepadIndex !== null) ? navigator.getGamepads()[activeGamepadIndex] : null;
+        if (!pad) {
+          // The assigned pad is gone (missed disconnect event): release the
+          // slot so wait-for-input can hand it to the next controller used.
+          selectedNativeGamepadIndex = null;
+          activeGamepadIndex = null;
+        }
       }
     }
     updateButtonsFromPad(pad);
-    // The auto-detected pad is null while no button is held, so hand the remap
-    // cycle AND the per-row listen mode a continuously available pad: both need
-    // idle frames to arm the capture (and to spot the first press) even when no
-    // controller was picked manually.
+    // While no controller is assigned (before the first input), pad is null.
+    // Hand the remap cycle AND the per-row listen mode a continuously
+    // available pad: both need idle frames to arm the capture (and to spot
+    // the first press) even before a controller becomes active.
     let remapPad = pad;
     if (!remapPad && (remapButton.isCapturing() || remapButton.isListening())) {
       // Prefer TrailChain's pad when it has one, otherwise the first native pad.
@@ -2466,7 +2565,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
   const chainHost = urlParams.get('host') || (window.location.hostname || '127.0.0.1');
   trailChain = new TrailChainClient(chainHost, 3819, {
     onConnect: () => { showToast('Chainlink connected', 2000); renderControllerList?.(); },
-    onDisconnect: () => { showToast('Chainlink disconnected', 2000); renderControllerList?.(); },
+    onDisconnect: () => { showToast('Chainlink disconnected', 2000); trailChain.clearController(); renderControllerList?.(); },
     onError: (err) => { console.warn('[Trailpad] Chainlink WebSocket error:', err?.message || err); },
     onControllers: () => { renderControllerList?.(); },
   });

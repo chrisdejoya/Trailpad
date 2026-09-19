@@ -284,6 +284,14 @@ export class TrailChainClient {
     this.currentGamepad = ctrl ? transformController(ctrl) : null;
   }
 
+  // Drop the current controller assignment so the wait-for-input
+  // auto-assignment can pick a controller again.
+  clearController() {
+    this.controllerIndex = 0;
+    this.controllerKey = null;
+    this.currentGamepad = null;
+  }
+
   disconnect() {
     if (this._retryTimer) {
       clearTimeout(this._retryTimer);
@@ -306,4 +314,4 @@ function getControllerKey(controller) {
   return String(controller.instanceId ?? controller.guid ?? controller.path ?? controller.serial ?? controller.index ?? controller.name ?? '');
 }
 
-export { transformController, sdlBitmaskToGamepadHat, trailChainToGamepadIndex };
+export { transformController, sdlBitmaskToGamepadHat, trailChainToGamepadIndex, getControllerKey };
