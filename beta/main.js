@@ -13,6 +13,7 @@ import { createClipboardIO } from './js/clipboard-io.js';
 import { createProfiles } from './js/profiles.js';
 import { createPresetsMenu } from './js/presets-menu.js';
 import { createLayoutState } from './js/layout-state.js';
+import { createSizing } from './js/sizing.js';
 import { createSelection } from './js/selection.js';
 import { createStickUpdate } from './js/stick-update.js';
 import { createCursor } from './js/cursor.js';
@@ -66,7 +67,7 @@ window.addEventListener('DOMContentLoaded', () => {
   });
   document.body.appendChild(remapButton.element);
 
-  let arrowSize = 90;
+         const arrowSize = { value: 90 };
 
   // stick trail and base refs
   const stickTrailCanvases = { LS: document.getElementById('LSTrailCanvas'), RS: document.getElementById('RSTrailCanvas') };
@@ -147,9 +148,10 @@ window.addEventListener('DOMContentLoaded', () => {
   const layout = createLayoutState({
     appState, ANALOG_DEFAULTS,
     els: { base, stickWrapper, eightWayWrapper, joystick, btnEls },
-    getArrowSize: () => arrowSize,
-    setArrowSize: v => { if (v !== undefined) arrowSize = v; },
-    resizeEightWayArrows, updateAnalogStickBases, saveStateData, getBgImagePath
+        getArrowSize: () => arrowSize.value,
+    setArrowSize: v => { if (v !== undefined) arrowSize.value = v; },
+    getResizeEightWayArrows: () => resizeEightWayArrows,
+    updateAnalogStickBases, saveStateData, getBgImagePath
   });
   const { applyPropertiesToElement, applyAndStore, getExportBgImagePath, captureElementProperties, applyJoystickHeadFromState, exportLayout, importLayout } = layout;
 
@@ -296,7 +298,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // --- Keyboard/hotkeys ---
   // --- color panel (DOM + state live in js/color-panel.js) ---
-  let openColorPanel, closeColorPanel, revertPreview, updatePanelForSelection;
+   let openColorPanel, closeColorPanel, revertPreview, updatePanelForSelection;
+   let clampResizeEightWayArrows, resizeEightWayArrows, snapLayoutToGrid;
 
   document.addEventListener('keydown', (e) => {
     const isEditableTarget = e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement || e.target.isContentEditable;
@@ -340,7 +343,7 @@ window.addEventListener('DOMContentLoaded', () => {
     if (e.ctrlKey && (e.key === '[' || e.key === ']')) {
       if (selected) {
         if (selected === eightWayWrapper) {
-          arrowSize += (e.key === ']') ? 5 : -5; arrowSize = Math.max(20, arrowSize); resizeEightWayArrows(); appState.eightWayWrapper = appState.eightWayWrapper || {}; appState.eightWayWrapper.arrowSize = arrowSize; saveStateData(); showToast('Arrow size: ' + arrowSize + 'px', 1000);
+                    arrowSize.value += (e.key === ']') ? 5 : -5; arrowSize.value = Math.max(20, arrowSize.value); resizeEightWayArrows(); appState.eightWayWrapper = appState.eightWayWrapper || {}; appState.eightWayWrapper.arrowSize = arrowSize.value; saveStateData(); showToast('Arrow size: ' + arrowSize.value + 'px', 1000);
         } else if (selected.classList && selected.classList.contains('btn')) {
           const cs = window.getComputedStyle(selected); let fs = parseInt(cs.fontSize) || 30; fs += (e.key === ']') ? 1 : -1; fs = Math.max(6, fs); selected.style.fontSize = fs + 'px'; appState.buttons[selected.dataset.btn] = appState.buttons[selected.dataset.btn] || {}; appState.buttons[selected.dataset.btn].fontSize = selected.style.fontSize; saveStateData(); showToast('Font size: ' + fs, 1000);
           if (selected.style.backgroundImage && selected.style.backgroundImage !== 'none') {
@@ -435,29 +438,23 @@ window.addEventListener('DOMContentLoaded', () => {
 
 
 
+   // --- sizing & arrows (js/sizing.js) ---
+   // Sizing helpers are created after trail init (they inject
+   // resizeStickTrails/updateAnalogStickBases, hoisted function declarations
+   // defined below). The factory also installs its own ResizeObserver/window
+   // resize listeners for the eight-way wrapper.
+   const sizing = createSizing({
+     appState, ANALOG_DEFAULTS,
+     els: { btnEls, base, stickWrapper, eightWayWrapper },
+     getArrowSize: () => arrowSize.value,
+     setArrowSize: v => { if (v !== undefined) arrowSize.value = v; },
+     resizeStickTrails, updateAnalogStickBases, getBgImagePath,
+     saveStateData, showToast, updateCursor
+   });
+   ({ clampResizeEightWayArrows, resizeEightWayArrows, snapLayoutToGrid } = sizing);
+   sizing.installListeners();
 
-  // --- sizing & arrows ---
-  function clampResizeEightWayArrows() {
-    const rect = eightWayWrapper.getBoundingClientRect(); const cx = rect.width / 2; const cy = rect.height / 2; const radius = Math.min(cx, cy);
-    for (let i = 0; i < 8; i++) {
-      const angle = (i * 45) * Math.PI / 180; const tx = cx + radius * Math.cos(angle); const ty = cy + radius * Math.sin(angle); const arrow = document.getElementById('arrow' + i); if (!arrow) continue;
-      const left = tx - arrowSize; const top = ty - (arrowSize / 2); arrow.style.left = left + 'px'; arrow.style.top = top + 'px'; arrow.style.transformOrigin = '100% 50%'; arrow.style.transform = `rotate(${i * 45}deg)`;
-    }
-  }
-
-  function resizeEightWayArrows() {
-    for (let i = 0; i < 8; i++) { const arrow = document.getElementById('arrow' + i); if (!arrow) continue; arrow.style.width = arrowSize + 'px'; arrow.style.height = arrowSize + 'px'; arrow.style.transformOrigin = '100% 50%'; arrow.style.transform = `rotate(${i * 45}deg)`; }
-    clampResizeEightWayArrows();
-  }
-
-  if (window.ResizeObserver) { const ro = new ResizeObserver(clampResizeEightWayArrows); ro.observe(eightWayWrapper); }
-  window.addEventListener('resize', () => { clampResizeEightWayArrows(); updateCursor(true); });
-
-  function snapLayoutToGrid(grid = 10) {
-    const snap = v => Math.round((parseInt(v) || 0) / grid) * grid + 'px';
-    function snapElement(el, store) { if (!el) return; const cs = getComputedStyle(el); el.style.top = snap(cs.top); el.style.left = snap(cs.left); store.top = el.style.top; store.left = el.style.left; let br = parseInt(cs.borderRadius) || 0; if (br > 0) { const maxBr = Math.max(el.offsetWidth, el.offsetHeight) / 2; br = Math.min(br, maxBr); br = Math.round(br / grid) * grid; br = Math.min(br, maxBr); el.style.borderRadius = br + 'px'; store.borderRadius = el.style.borderRadius; } }
-    Object.entries(btnEls).forEach(([k, el]) => { appState.buttons[k] = appState.buttons[k] || {}; snapElement(el, appState.buttons[k]); }); snapElement(stickWrapper, appState.joystick = appState.joystick || {}); snapElement(eightWayWrapper, appState.eightWayWrapper = appState.eightWayWrapper || {}); snapElement(base, appState.base = appState.base || {}); resizeStickTrails(); updateAnalogStickBases(); saveStateData(); showToast('Snapped layout to grid!', 1000); updateCursor(true);
-  }
+   // Auto-assign the active controller on first input: no controller is
 
   // Auto-assign the active controller on first input: no controller is
   // considered active on load. The first connected controller (TrailChain or
@@ -650,7 +647,7 @@ window.addEventListener('DOMContentLoaded', () => {
   if (appState.joystick) { applyPropertiesToElement(stickWrapper, appState.joystick); if (appState.joystick.display !== undefined) stickWrapper.style.display = appState.joystick.display; }
   updateAnalogStickBases();
   if (appState.base) { applyPropertiesToElement(base, appState.base); if (appState.base.display !== undefined) base.style.display = appState.base.display; }
-  if (appState.eightWayWrapper) { applyPropertiesToElement(eightWayWrapper, appState.eightWayWrapper); if (appState.eightWayWrapper.display !== undefined) eightWayWrapper.style.display = appState.eightWayWrapper.display; if (appState.eightWayWrapper.arrowSize !== undefined) { arrowSize = appState.eightWayWrapper.arrowSize || 90; resizeEightWayArrows(); } }
+  if (appState.eightWayWrapper) { applyPropertiesToElement(eightWayWrapper, appState.eightWayWrapper); if (appState.eightWayWrapper.display !== undefined) eightWayWrapper.style.display = appState.eightWayWrapper.display; if (appState.eightWayWrapper.arrowSize !== undefined) { arrowSize.value = appState.eightWayWrapper.arrowSize || 90; resizeEightWayArrows(); } }
   if (appState.trailColor) document.documentElement.style.setProperty('--trail-color', appState.trailColor);
   resizeJoystickWrapper(); applyJoystickHeadFromState();
   // analog prefs applied via importLayout/exportLayout only (no on-screen controls)
@@ -674,11 +671,11 @@ window.addEventListener('DOMContentLoaded', () => {
     exportLayout, importLayout,
     applyPropertiesToElement, applyBgImage,
     els: { base, stickWrapper, eightWayWrapper, joystick, btnEls },
-    resizeEightWayArrows, resizeJoystickWrapper,
+        getResizeEightWayArrows: () => resizeEightWayArrows, resizeJoystickWrapper,
     getDetectedControllers, getSelectedControllerKey, selectController,
     saveStateData, showToast, stopUiHideTimer,
     getContextMenuRequest: () => contextMenuRequest,
-    setArrowSize: (v) => { if (v !== undefined) arrowSize = v; }
+        setArrowSize: (v) => { if (v !== undefined) arrowSize.value = v; }
   });
   const renderControllerList = () => presetsMenu.renderControllerList?.();
 

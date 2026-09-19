@@ -18,7 +18,7 @@ export function createPresetsMenu({
   exportLayout, importLayout,
   applyPropertiesToElement, applyBgImage,
   els, // { base, stickWrapper, eightWayWrapper, joystick, btnEls }
-  resizeEightWayArrows, resizeJoystickWrapper,
+    getResizeEightWayArrows, resizeJoystickWrapper,
   getDetectedControllers, getSelectedControllerKey, selectController,
   saveStateData, showToast, stopUiHideTimer,
   getContextMenuRequest, setArrowSize
@@ -63,7 +63,7 @@ export function createPresetsMenu({
           if (parsed.eightWayWrapper.arrowImageOn) arrow.dataset._previewOn = parsed.eightWayWrapper.arrowImageOn;
         }
       }
-      resizeEightWayArrows(); resizeJoystickWrapper();
+            getResizeEightWayArrows()(); resizeJoystickWrapper();
     } catch (e) { console.warn('preview apply failed', e); }
   }
 

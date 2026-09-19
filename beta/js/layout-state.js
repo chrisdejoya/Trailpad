@@ -14,7 +14,7 @@ export function createLayoutState({
   appState, ANALOG_DEFAULTS,
   els, // { base, stickWrapper, eightWayWrapper, joystick, btnEls }
   getArrowSize, setArrowSize,
-  resizeEightWayArrows, updateAnalogStickBases, saveStateData, getBgImagePath
+  getResizeEightWayArrows, updateAnalogStickBases, saveStateData, getBgImagePath  // getResizeEightWayArrows: () => resizeEightWayArrows (lazy â€” js/sizing.js)
 }) {
   const { base, stickWrapper, eightWayWrapper, joystick, btnEls } = els;
 
@@ -142,8 +142,8 @@ export function createLayoutState({
       });
     }
     if (parsed.eightWayWrapper?.arrowSize !== undefined) {
-      setArrowSize(parseInt(parsed.eightWayWrapper.arrowSize) || getArrowSize());
-      resizeEightWayArrows();
+            setArrowSize(parseInt(parsed.eightWayWrapper.arrowSize) || getArrowSize());
+      getResizeEightWayArrows()();
     }
     // Set arrowImageOn/Off if present
     if (parsed.eightWayWrapper?.arrowImageOn) {
