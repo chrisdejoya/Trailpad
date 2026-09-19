@@ -16,7 +16,8 @@ import { createLayoutState } from './js/layout-state.js';
 import { createSizing } from './js/sizing.js';
 import { createRenderState } from './js/render-state.js';
 import { createSelection } from './js/selection.js';
-import { createStickUpdate } from './js/stick-update.js';import { createCursor } from './js/cursor.js';
+import { createStickUpdate } from './js/stick-update.js';
+import { createCursor } from './js/cursor.js';
 import { createToast } from './js/toast.js';
 import { createStatePersistence } from './js/state-persistence.js';
 import { createUiHideTimer } from './js/ui-hide-timer.js';
@@ -32,16 +33,32 @@ window.addEventListener('DOMContentLoaded', () => {
   // on-screen highlights.
   let buttonMap = Object.assign({}, DEFAULT_BUTTON_MAP);
 
-  const cfg = { deadzone: 0.1, trail: 8, invertY: false, ignoredForJoystick: ['View', 'Menu', 'Up', 'Down', 'Left', 'Right'] };
-  const ANALOG_DEFAULTS = { stickMovement: true, stickRadius: 8, trailWidth: 12, trailLength: 8, baseVisibility: false, baseSize: 100 };
+  // Config defaults.
+  const cfg = {
+    deadzone: 0.1,
+    trail: 8,
+    invertY: false,
+    ignoredForJoystick: ['View', 'Menu', 'Up', 'Down', 'Left', 'Right'],
+  };
+  const ANALOG_DEFAULTS = {
+    stickMovement: true,
+    stickRadius: 8,
+    trailWidth: 12,
+    trailLength: 8,
+    baseVisibility: false,
+    baseSize: 100,
+  };
 
-  // DOM refs
+  // DOM element references.
   const btnEls = {};
   document.querySelectorAll('.btn').forEach(el => {
-  btnEls[el.dataset.btn] = el;
-  // smooth visual feedback for analog changes (triggers / press scale)
-  // Include top/left so position changes animate instead of snapping (this preserves stylesheet transitions)
-  try { el.style.transition = 'filter 30ms linear, transform 30ms linear, top 30ms linear, left 30ms linear'; } catch (e) {}
+    btnEls[el.dataset.btn] = el;
+    // Smooth visual feedback for analog changes (triggers / press scale).
+    // Include top/left so position changes animate instead of snapping
+    // (this preserves stylesheet transitions).
+    try {
+      el.style.transition = 'filter 30ms linear, transform 30ms linear, top 30ms linear, left 30ms linear';
+    } catch (e) {}
   });
   const base = document.getElementById('base');
   const stickWrapper = document.getElementById('stickWrapper');
@@ -49,11 +66,13 @@ window.addEventListener('DOMContentLoaded', () => {
   const eightWayWrapper = document.getElementById('eightWayWrapper');
   const canvas = document.getElementById('stickCanvas');
   const ctx = canvas.getContext('2d');
-  let colorPanel; // assigned from js/color-panel.js once the factory runs
-  const toastEl = document.getElementById('toast');
+  let colorPanel;
+  // Color panel element - assigned from js/color-panel.js once the factory runs.
+
   // Toast notifications live in js/toast.js; the #toast element is injected.
   // Function declaration hoisting does NOT apply to this const, so it must
   // run before any factory call below that receives showToast.
+  const toastEl = document.getElementById('toast');
   const { showToast } = createToast({ toastEl });
   const markers = Array.from({ length: 8 }, (_, i) => document.getElementById('marker' + i));
   const donateButton = createDonateButton();
@@ -62,24 +81,40 @@ window.addEventListener('DOMContentLoaded', () => {
   // Trailpad's logical inputs and saves the physical button pressed for each one.
   const remapButton = createRemapButton({
     getMapping: () => buttonMap,
-    onApply: (nextMap) => { buttonMap = Object.assign({}, DEFAULT_BUTTON_MAP, nextMap); saveStateData(); },
-    showToast
+    onApply: (nextMap) => {
+      buttonMap = Object.assign({}, DEFAULT_BUTTON_MAP, nextMap);
+      saveStateData();
+    },
+    showToast,
   });
   document.body.appendChild(remapButton.element);
 
-         const arrowSize = { value: 90 };
+  const arrowSize = { value: 90 };
 
-  // stick trail and base refs
-  const stickTrailCanvases = { LS: document.getElementById('LSTrailCanvas'), RS: document.getElementById('RSTrailCanvas') };
-  const analogStickBases = { LS: document.getElementById('LSBase'), RS: document.getElementById('RSBase') };
+  // Stick trail and base refs.
+  const stickTrailCanvases = {
+    LS: document.getElementById('LSTrailCanvas'),
+    RS: document.getElementById('RSTrailCanvas'),
+  };
+  const analogStickBases = {
+    LS: document.getElementById('LSBase'),
+    RS: document.getElementById('RSBase'),
+  };
 
-  // distance readouts removed (no on-screen numeric distance)
+  // Distance readouts removed (no on-screen numeric distance).
 
   // Per-stick analog settings live in buttons.LS/RS; analog stores trigger-only preferences.
 
-  // App state
+  // App state.
   let appState = {
-    buttons: {}, joystick: {}, joystickHead: {}, base: {}, eightWayWrapper: { arrowSize: 90 }, hiddenButtons: [], trailColor: getComputedStyle(document.documentElement).getPropertyValue('--trail-color') || '#CEEC73', profiles: {}
+    buttons: {},
+    joystick: {},
+    joystickHead: {},
+    base: {},
+    eightWayWrapper: { arrowSize: 90 },
+    hiddenButtons: [],
+    trailColor: getComputedStyle(document.documentElement).getPropertyValue('--trail-color') || '#CEEC73',
+    profiles: {},
   };
 
   // Cursor element for selection bounding box (DOM lives in js/cursor.js;
@@ -101,15 +136,26 @@ window.addEventListener('DOMContentLoaded', () => {
     isRemapOpen: () => remapButton.isOpen(),
     closeContextMenus: (...a) => closeContextMenus(...a),
     hideCursor: () => cursor.hideCursor(),
-    hideWidgets: () => { donateButton.hide(); remapButton.hide(); },
-    showWidgets: () => { donateButton.show(); remapButton.show(); },
+    hideWidgets: () => {
+      donateButton.hide();
+      remapButton.hide();
+    },
+    showWidgets: () => {
+      donateButton.show();
+      remapButton.show();
+    },
   });
   const { startUiHideTimer, stopUiHideTimer, resetUiHideTimer } = uiHide;
   uiHide.installActivityListeners();
-  // Add analog configuration to appState (persisted)
-  // pressureEnabled: whether LT/RT respond to analog pressure
-  // minTriggerBrightness/maxTriggerBrightness: mapping from 0..1 trigger value to brightness
-    appState.analog = { pressureEnabled: true, minTriggerBrightness: 1.0, maxTriggerBrightness: 3.0, triggerDeadzone: 0.1 };
+  // Add analog configuration to appState (persisted).
+  // pressureEnabled: whether LT/RT respond to analog pressure.
+  // minTriggerBrightness/maxTriggerBrightness: mapping from 0..1 trigger value to brightness.
+  appState.analog = {
+    pressureEnabled: true,
+    minTriggerBrightness: 1.0,
+    maxTriggerBrightness: 3.0,
+    triggerDeadzone: 0.1,
+  };
   let selected = null;
   let lastPressedTimes = {};
   let activeGamepadIndex = null;
@@ -117,6 +163,7 @@ window.addEventListener('DOMContentLoaded', () => {
   let trailChain = null;
   let padSource = 'gamepad';
   let panelAnchorTarget = null;
+  let currentPreviewTarget = null;
   let trailSystem = null;
   const stickTrailSystems = {};
 
@@ -155,7 +202,6 @@ window.addEventListener('DOMContentLoaded', () => {
   });
   const { applyPropertiesToElement, applyAndStore, getExportBgImagePath, captureElementProperties, applyJoystickHeadFromState, exportLayout, importLayout } = layout;
 
-
   // App-state persistence (localStorage save/load) lives in
   // js/state-persistence.js. updateStateData/resizeJoystickWrapper are hoisted
   // function declarations below; the get/set buttonMap accessors keep the
@@ -193,17 +239,9 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-
-
-
-
   // unified applyJoystickHead
 
-
   // export/import layout helpers
-
-
-
 
   // --- UI helpers ---
   // Selection helpers live in js/selection.js; selection state crosses via
@@ -226,14 +264,7 @@ window.addEventListener('DOMContentLoaded', () => {
   // revertPreview lives in js/color-panel.js (it owns the preview state) and
   // is assigned from the module's api below.
 
-
-
-
-
-
-
   // arrow highlight helper
-
 
   // --- initial DOM wiring: clicks, dblclicks, contextmenu ---
   document.addEventListener('mousedown', (e) => {
@@ -405,8 +436,6 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-
-
   // appState/cfg/ANALOG_DEFAULTS/els/lastPressedTimes are shared by reference;
   // buttonMap crosses via a getter; saveStateData is a hoisted function
   // declaration, so passing it here by reference is safe.
@@ -433,10 +462,7 @@ window.addEventListener('DOMContentLoaded', () => {
     saveStateData(); showToast(`x:${left}, y:${top}`, 500); elementMoveTimers[key] = performance.now(); updateCursor();
   }
 
-
   // --- buttons update from gamepad ---
-
-
 
    // --- sizing & arrows (js/sizing.js) ---
    // Sizing helpers are created after trail init (they inject
