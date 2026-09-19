@@ -18,6 +18,7 @@ import { createStickUpdate } from './js/stick-update.js';
 import { createCursor } from './js/cursor.js';
 import { createToast } from './js/toast.js';
 import { createStatePersistence } from './js/state-persistence.js';
+import { createUiHideTimer } from './js/ui-hide-timer.js';
 
 window.addEventListener('DOMContentLoaded', () => {
   const STORAGE_KEY = 'trailpad_1';
@@ -87,31 +88,23 @@ window.addEventListener('DOMContentLoaded', () => {
   const cursor = createCursor({ getSelected: () => selected });
   const updateCursor = cursor.updateCursor;
 
-  // Auto-hide timer for UI menus (color panel, presets menu)
-  let uiHideTimer = null;
+  // Auto-hide timer for UI menus (color panel, presets menu) lives in
+  // js/ui-hide-timer.js. The timer itself stays here but its expiry callback
+  // trio is main.js-owned, so it crosses via injected callbacks closing over
+  // the factories/panels below (called lazily at fire time, after setup).
+  // NOTE: closeContextMenus is a hoisted function declaration below, so
+  // referencing it here before its definition line is safe.
   const UI_HIDE_DELAY = 5000;
-  function startUiHideTimer() {
-    stopUiHideTimer();
-    uiHideTimer = setTimeout(() => {
-      // The remap panel is driven by controller presses, which generate no mouse
-      // event to restart the timer, so leave everything visible while it is open.
-      if (remapButton.isOpen()) return;
-      closeContextMenus(true);
-      // Also hide the selection cursor
-      cursor.hideCursor();
-      donateButton.hide();
-      remapButton.hide();
-    }, UI_HIDE_DELAY);
-  }
-  function stopUiHideTimer() {
-    if (uiHideTimer) { clearTimeout(uiHideTimer); uiHideTimer = null; }
-  }
-  function resetUiHideTimer() {
-    stopUiHideTimer();
-    donateButton.show();
-    remapButton.show();
-    startUiHideTimer();
-  }
+  const uiHide = createUiHideTimer({
+    UI_HIDE_DELAY,
+    isRemapOpen: () => remapButton.isOpen(),
+    closeContextMenus: (...a) => closeContextMenus(...a),
+    hideCursor: () => cursor.hideCursor(),
+    hideWidgets: () => { donateButton.hide(); remapButton.hide(); },
+    showWidgets: () => { donateButton.show(); remapButton.show(); },
+  });
+  const { startUiHideTimer, stopUiHideTimer, resetUiHideTimer } = uiHide;
+  uiHide.installActivityListeners();
   // Add analog configuration to appState (persisted)
   // pressureEnabled: whether LT/RT respond to analog pressure
   // minTriggerBrightness/maxTriggerBrightness: mapping from 0..1 trigger value to brightness
