@@ -13,6 +13,7 @@ import { createClipboardIO } from './js/clipboard-io.js';
 import { createProfiles } from './js/profiles.js';
 import { createPresetsMenu } from './js/presets-menu.js';
 import { createLayoutState } from './js/layout-state.js';
+import { createSelection } from './js/selection.js';
 
 window.addEventListener('DOMContentLoaded', () => {
   const STORAGE_KEY = 'trailpad_1';
@@ -253,72 +254,34 @@ window.addEventListener('DOMContentLoaded', () => {
 
 
   // --- UI helpers ---
+  // Selection helpers live in js/selection.js; selection state crosses via
+  // accessors. revertPreview/updatePanelForSelection/updateCursor are hoisted
+  // function declarations (or assigned before first use), so passing them
+  // here by reference is safe.
+  const selection = createSelection({
+    appState,
+    els: { base, stickWrapper, eightWayWrapper, joystick },
+    getSelected: () => selected,
+    setSelected: v => { selected = v; },
+    setPanelAnchorTarget: v => { panelAnchorTarget = v; },
+    getColorPanel: () => colorPanel,
+    revertPreview: (...a) => revertPreview(...a),
+    updatePanelForSelection: (...a) => updatePanelForSelection(...a),
+    updateCursor
+  });
+  const { selectElement, stateForElement, deselect, updateArrowHighlights } = selection;
+
   // revertPreview lives in js/color-panel.js (it owns the preview state) and
   // is assigned from the module's api below.
 
-  function selectElement(el) {
-    revertPreview();
-    if (!el) {
-      if (selected) { selected.classList.remove('selected'); selected.classList.remove('selectedOutline'); }
-      selected = null; updateCursor(true); return;
-    }
-    if (selected && selected !== el) { selected.classList.remove('selected'); selected.classList.remove('selectedOutline'); }
-    selected = el; selected.classList.add('selected'); selected.classList.add('selectedOutline'); updatePanelForSelection(); updateCursor(true);
-    if (colorPanel.style.display === 'block' || colorPanel.style.display === 'flex') panelAnchorTarget = selected;
-    // sync persistent size slider to selected element's backgroundSize (percent if set)
-    try {
-      const slider = colorPanel.querySelector('.symbolSizeSlider'); const valEl = colorPanel.querySelector('.symbolSizeValue');
-      if (slider) {
-        const cs = window.getComputedStyle(selected);
-        let bgSize = cs.backgroundSize || selected.style.backgroundSize || '';
-        // try to extract percent value
-        const m = (selected.style.backgroundSize || bgSize).match(/(\d+)%/);
-        if (m) { slider.value = parseInt(m[1]); if (valEl) valEl.value = slider.value; }
-        else { slider.value = 100; if (valEl) valEl.value = slider.value; }
-      }
-    } catch (e) { }
 
-    // sync text size slider to selected element's font size
-    try {
-      const txtSlider = colorPanel.querySelector('.textSizeSlider'); const txtVal = colorPanel.querySelector('.textSizeValue');
-      if (txtSlider) {
-        const cs2 = window.getComputedStyle(selected);
-        let fs = cs2.fontSize || selected.style.fontSize || '';
-        const m2 = (fs || '').match(/(\d+)/);
-  if (m2) { txtSlider.value = parseInt(m2[1]); if (txtVal) txtVal.value = txtSlider.value; }
-  else { txtSlider.value = 30; if (txtVal) txtVal.value = txtSlider.value; }
-      }
-    } catch (e) {}
-  }
 
-  function stateForElement(el) {
-    if (el === base) return appState.base;
-    if (el === stickWrapper) return appState.joystick;
-    if (el === joystick) return appState.joystickHead;
-    if (el === eightWayWrapper) return appState.eightWayWrapper;
-    if (el?.classList?.contains('btn')) {
-      const name = el.dataset.btn;
-      appState.buttons[name] = appState.buttons[name] || {};
-      return appState.buttons[name];
-    }
-    return null;
-  }
 
-  function deselect() { selectElement(null); }
+
+
 
   // arrow highlight helper
-  function updateArrowHighlights(idx) {
-    for (let i = 0; i < 8; i++) {
-      const arrow = document.getElementById('arrow' + i);
-      if (!arrow) continue;
-      const isActive = i === idx;
-      arrow.classList.toggle('active', isActive);
-      // Set background image based on state
-      if (appState.eightWayWrapper?.arrowImageOn && appState.eightWayWrapper?.arrowImageOff) {
-        applyBgImage(arrow, isActive ? appState.eightWayWrapper.arrowImageOn : appState.eightWayWrapper.arrowImageOff);
-      }
-    }
-  }
+
 
   // --- initial DOM wiring: clicks, dblclicks, contextmenu ---
   document.addEventListener('mousedown', (e) => {
