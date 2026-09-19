@@ -15,6 +15,8 @@ import { createPresetsMenu } from './js/presets-menu.js';
 import { createLayoutState } from './js/layout-state.js';
 import { createSelection } from './js/selection.js';
 import { createStickUpdate } from './js/stick-update.js';
+import { createCursor } from './js/cursor.js';
+import { createToast } from './js/toast.js';
 
 window.addEventListener('DOMContentLoaded', () => {
   const STORAGE_KEY = 'trailpad_1';
@@ -46,6 +48,10 @@ window.addEventListener('DOMContentLoaded', () => {
   const ctx = canvas.getContext('2d');
   let colorPanel; // assigned from js/color-panel.js once the factory runs
   const toastEl = document.getElementById('toast');
+  // Toast notifications live in js/toast.js; the #toast element is injected.
+  // Function declaration hoisting does NOT apply to this const, so it must
+  // run before any factory call below that receives showToast.
+  const { showToast } = createToast({ toastEl });
   const markers = Array.from({ length: 8 }, (_, i) => document.getElementById('marker' + i));
   const donateButton = createDonateButton();
   document.body.appendChild(donateButton.element);
@@ -73,34 +79,12 @@ window.addEventListener('DOMContentLoaded', () => {
     buttons: {}, joystick: {}, joystickHead: {}, base: {}, eightWayWrapper: { arrowSize: 90 }, hiddenButtons: [], trailColor: getComputedStyle(document.documentElement).getPropertyValue('--trail-color') || '#CEEC73', profiles: {}
   };
 
-  // Cursor element for selection bounding box
-  const cursorEl = document.createElement('div');
-  cursorEl.className = 'cursor';
-  cursorEl.innerHTML = '<div class="corner"></div>';
-  document.body.appendChild(cursorEl);
-
-  function updateCursor(immediate = false) {
-    if (!selected) {
-      cursorEl.classList.remove('active');
-      return;
-    }
-    const apply = () => {
-      const rect = selected.getBoundingClientRect();
-      cursorEl.style.left = rect.left + 'px';
-      cursorEl.style.top = rect.top + 'px';
-      cursorEl.style.width = rect.width + 'px';
-      cursorEl.style.height = rect.height + 'px';
-      cursorEl.classList.add('active');
-    };
-    if (immediate) {
-      apply();
-    } else {
-      // Wait for CSS transition (60ms on top/left) to complete
-      requestAnimationFrame(() => {
-        setTimeout(apply, 70);
-      });
-    }
-  }
+  // Cursor element for selection bounding box (DOM lives in js/cursor.js;
+  // the selected element crosses via accessor, same as js/selection.js).
+  // Declared before `selected` below: the factory only reads it lazily via
+  // getSelected, so referencing the hoisted `let` here is safe.
+  const cursor = createCursor({ getSelected: () => selected });
+  const updateCursor = cursor.updateCursor;
 
   // Auto-hide timer for UI menus (color panel, presets menu)
   let uiHideTimer = null;
@@ -113,9 +97,7 @@ window.addEventListener('DOMContentLoaded', () => {
       if (remapButton.isOpen()) return;
       closeContextMenus(true);
       // Also hide the selection cursor
-      if (cursorEl) {
-        cursorEl.classList.remove('active');
-      }
+      cursor.hideCursor();
       donateButton.hide();
       remapButton.hide();
     }, UI_HIDE_DELAY);
@@ -175,13 +157,6 @@ window.addEventListener('DOMContentLoaded', () => {
   });
   const { applyPropertiesToElement, applyAndStore, getExportBgImagePath, captureElementProperties, applyJoystickHeadFromState, exportLayout, importLayout } = layout;
 
-
-  function showToast(msg, dur = 1000, type = 'info') {
-    toastEl.textContent = msg;
-    toastEl.className = 'show ' + type;
-    clearTimeout(toastEl._t);
-    toastEl._t = setTimeout(() => { toastEl.className = ''; }, dur);
-  }
 
   function saveStateData() {
     try {
