@@ -16,8 +16,7 @@ import { createLayoutState } from './js/layout-state.js';
 import { createSizing } from './js/sizing.js';
 import { createRenderState } from './js/render-state.js';
 import { createSelection } from './js/selection.js';
-import { createStickUpdate } from './js/stick-update.js';
-import { createCursor } from './js/cursor.js';
+import { createStickUpdate } from './js/stick-update.js';import { createCursor } from './js/cursor.js';
 import { createToast } from './js/toast.js';
 import { createStatePersistence } from './js/state-persistence.js';
 import { createUiHideTimer } from './js/ui-hide-timer.js';
@@ -406,8 +405,8 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // --- Movement helpers used by gamepad ---
-  // Per-frame stick + button highlight updates live in js/stick-update.js.
+
+
   // appState/cfg/ANALOG_DEFAULTS/els/lastPressedTimes are shared by reference;
   // buttonMap crosses via a getter; saveStateData is a hoisted function
   // declaration, so passing it here by reference is safe.
