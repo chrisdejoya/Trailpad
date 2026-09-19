@@ -1915,6 +1915,17 @@ window.addEventListener('DOMContentLoaded', () => {
   });
   const renderControllerList = () => presetsMenu.renderControllerList?.();
 
+  // Restored: this was dropped during the previous modularization pass while
+  // three call sites (outside-click close, Escape/idle closeContextMenus, and
+  // the empty-canvas right-click branch) kept referencing it, so closing the
+  // color panel threw a ReferenceError.
+  function closeColorPanel(revert = true) {
+    if (!colorPanel || (colorPanel.style.display !== 'block' && colorPanel.style.display !== 'flex')) return;
+    colorPanel.style.display = 'none';
+    if (revert) revertPreview();
+    stopUiHideTimer();
+  }
+
   function closeContextMenus(revert = true) {
     contextMenuRequest++;
     closeColorPanel(revert);
