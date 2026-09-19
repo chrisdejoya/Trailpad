@@ -16,6 +16,10 @@
 // capture). Unassigned inputs render as such and simply never trigger their
 // widget.
 //
+// The same targeted listen is reachable from the pad itself: main.js calls
+// listenFor(key) when a pad button is held down (long-press), which opens the
+// panel and arms that input's row directly.
+//
 // D-pad rows additionally accept directional vectors: an SDL hat axis or a
 // bipolar axis pair (stick / d-pad HID pair) tilted in the prompted direction.
 // A captured vector is stored as a string ('hat:9' / 'axis:2'); the direction
@@ -329,6 +333,19 @@ export function createRemapButton(options = {}) {
     render();
   }
 
+  // Pad-button entry point (main.js wires this to a pad button long-press):
+  // drop any walkthrough in progress and arm `key`'s row directly, opening the
+  // panel if needed so the press prompt is on screen.
+  function listenFor(key) {
+    capturing = false;
+    currentIndex = -1;
+    listeningKey = key;
+    armed = false;
+    openPanel();
+    render();
+    promptListen();
+  }
+
   // Single write path for every assignment (capture, per-row default, per-row
   // unassign). Numbers get "latest wins": any other input holding the same
   // physical button is unassigned. Vector sources are per-direction, so two
@@ -467,6 +484,7 @@ export function createRemapButton(options = {}) {
     isOpen() { return open; },
     isCapturing() { return capturing; },
     isListening() { return listeningKey !== null; },
+    listenFor,
     open: openPanel,
     close: closePanel,
     refresh: render,

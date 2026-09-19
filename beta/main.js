@@ -547,6 +547,28 @@ window.addEventListener('DOMContentLoaded', () => {
       input.addEventListener('keydown', ev => { if (ev.key === 'Enter') save(); if (ev.key === 'Escape') { if (btn.contains(input)) btn.removeChild(input); btn.textContent = old; } });
       e.stopPropagation();
     });
+    // Long-press (hold ~0.5s) a pad button to arm its row in the mapping
+    // panel: the next controller press is captured for that input alone.
+    // Buttons only — the direction arrows (Up/Down/Left/Right) have no
+    // editable label, and the base/joystick widgets are not buttons.
+    if (DPAD_DIRECTIONS[btn.dataset.btn] === undefined) {
+      let longPressTimer = 0;
+      btn.addEventListener('pointerdown', e => {
+        if (e.button !== 0) return;
+        if (btn.querySelector('input')) return; // label edit in progress
+        clearTimeout(longPressTimer);
+        longPressTimer = setTimeout(() => {
+          longPressTimer = 0;
+          remapButton.listenFor(btn.dataset.btn);
+          // Opening the panel mid-idle must not leave the circle button hidden.
+          remapButton.show();
+        }, 2000);
+      });
+      const cancelLongPress = () => { clearTimeout(longPressTimer); longPressTimer = 0; };
+      btn.addEventListener('pointerup', cancelLongPress);
+      btn.addEventListener('pointercancel', cancelLongPress);
+      btn.addEventListener('pointerleave', cancelLongPress);
+    }
   });
 
   // --- color panel ---
