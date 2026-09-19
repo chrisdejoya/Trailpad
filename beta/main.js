@@ -2,7 +2,10 @@ import { createTrailSystem } from './js/trail.js';
 import { TrailChainClient, getControllerKey as trailchainControllerKeyOf } from './js/trailchain-client.js';
 import { createColorPicker } from './js/color-picker.js';
 import { createDonateButton } from './js/donate-button.js';
-import { createRemapButton, DEFAULT_BUTTON_MAP, isDefaultButtonMap, DPAD_DIRECTIONS, parseVectorValue } from './js/button-remap.js';
+import { createRemapButton, DEFAULT_BUTTON_MAP, DPAD_DIRECTIONS } from './js/button-remap.js';
+import { PALETTE } from './js/palette.js';
+import { getDpadDirection, directionFromVector, vectorFromDirection, getDpadComponents } from './js/dpad.js';
+import { radialDeadzone, clampRoundedSquare, getAnalogStick } from './js/stick-math.js';
 
 window.addEventListener('DOMContentLoaded', () => {
   const STORAGE_KEY = 'trailpad_1';
@@ -10,50 +13,13 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // Trailpad's input convention lives in js/button-remap.js: logical input ->
   // physical button index of the Gamepad API "standard" mapping. The remap panel
-  // edits a copy of that table, and updateButtonsFromPad/getDpadDirection read it
-  // back every frame so custom mappings drive the on-screen highlights.
+  // edits a copy of that table, and updateButtonsFromPad/getDpadDirection (in
+  // js/dpad.js) read it back every frame so custom mappings drive the
+  // on-screen highlights.
   let buttonMap = Object.assign({}, DEFAULT_BUTTON_MAP);
 
   const cfg = { deadzone: 0.1, trail: 8, invertY: false, ignoredForJoystick: ['View', 'Menu', 'Up', 'Down', 'Left', 'Right'] };
   const ANALOG_DEFAULTS = { stickMovement: true, stickRadius: 8, trailWidth: 12, trailLength: 8, baseVisibility: false, baseSize: 100 };
-
-  const palette = [
-    // Reds
-    "#660D0D","#801515","#992020","#B32D2D","#CC3A3A","#E64D4D","#FF6666","#FF8080","#FF9999",
-    "#FF4643", // [B] rgb(255, 70, 67)
-
-    // Oranges
-    "#66380D","#804514","#99551F","#B3662D","#CC773A","#E68C4D","#FF9966","#FFB380","#FFCC99",
-    "#FE8002", // [LB] rgb(254, 128, 2)
-
-    // Yellows & Lime
-    "#66660D","#808013","#999926","#B3B32D","#CCCC40","#E6E64D","#FFFF66","#FFFF80","#FFFF99",
-    "#CDF563", // [RT] rgb(205, 245, 99)
-
-    // Greens
-    "#0D660D","#158015","#208020","#2DB32D","#39CC39","#4DE64D","#66FF66","#80FF80","#99FF99",
-
-    // Cyans & Light Blues
-    "#0D6666","#148080","#209999","#26B3B3","#33CCCC","#4DE6E6","#66FFFF","#80FFFF","#99FFFF",
-    "#3CC4FFDD", // [A] rgba(60, 196, 255, 0.867)
-
-    // Blues
-    "#0D0D66","#151580","#202099","#2D2DB3","#3939CC","#4D4DE6","#6666FF","#8080FF","#9999FF",
-    "#2979FE", // [LT] rgb(41, 121, 254)
-
-    // Purples
-    "#330D66","#451580","#552099","#6B2DB3","#8039CC","#994DE6","#B366FF","#CC80FF","#D9A6FF",
-    "#9025F7", // [RB] rgb(144, 37, 247)
-    "#BB72FF", // [Y] rgb(187, 114, 255)
-    "#D4A8FF", // [X] rgb(212, 168, 255)
-
-    // Magentas / Pinks
-    "#660D66","#801580","#992099","#B32DB3","#CC39CC","#E64DE6","#FF66FF","#FF80FF","#FF99FF",
-
-    // Grays / Neutrals
-    "#000000","#333333","#666666","#999999","#CCCCCC","#FFFFFF",
-    "#00000000","#ffffff20","#ffffff40","#ffffff60","#ffffff80"
-  ];
 
   // DOM refs
   const btnEls = {};
@@ -1109,7 +1075,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     applyPickedColor = applyColor;
     pickerButton.addEventListener('click', () => colorPicker.start());
     swatchContainer.appendChild(pickerButton);
-    palette.forEach(c => {
+    PALETTE.forEach(c => {
       const s = document.createElement('div'); s.className = 'swatch'; s.dataset.color = c; s.title = c; s.style.background = c;
       s.addEventListener('click', () => applyColor(c));
       swatchContainer.appendChild(s);
@@ -1574,129 +1540,6 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
   const elementMoveTimers = { up: 0, down: 0, left: 0, right: 0, ls: 0, rs: 0, hat: 0 };
   const moveDelay = 60; const moveStep = 10;
 
-  function directionFromVector(x, y) {
-    if (Math.hypot(x, y) <= 0.3) return -1;
-    return Math.round(8 * Math.atan2(y, x) / (2 * Math.PI) + 8) % 8;
-  }
-
-  function directionFromHatValue(value) {
-    if (typeof value !== 'number' || !Number.isFinite(value)) return -1;
-    // Some leverless controllers expose the SDL hat on axis 9. Their neutral
-    // value may be 23/7 instead of zero, while active values are the usual
-    // seven-step values between -1 and 1.
-    const hatValues = [
-      [3.28571, -1],
-      [-1, 6], [-5 / 7, 7], [-3 / 7, 0], [-1 / 7, 1],
-      [1 / 7, 2], [3 / 7, 3], [5 / 7, 4], [1, 5]
-    ];
-    let closest = -1;
-    let distance = Infinity;
-    for (const [hatValue, direction] of hatValues) {
-      const candidateDistance = Math.abs(value - hatValue);
-      if (candidateDistance < distance) {
-        distance = candidateDistance;
-        closest = direction;
-      }
-    }
-    return distance <= 0.08 ? closest : -1;
-  }
-
-  function vectorFromDirection(direction) {
-    if (direction < 0) return null;
-    const angle = direction * Math.PI / 4;
-    return { x: Math.cos(angle), y: Math.sin(angle) };
-  }
-
-  // Shared by the remapped and layout-sniffing direction readers below.
-  function directionFromPressedComponents(pressed) {
-    if (pressed.up && pressed.left) return 5;
-    if (pressed.up && pressed.right) return 7;
-    if (pressed.down && pressed.left) return 3;
-    if (pressed.down && pressed.right) return 1;
-    if (pressed.up) return 6;
-    if (pressed.down) return 2;
-    if (pressed.left) return 4;
-    return 0;
-  }
-
-  function getDpadDirection(pad) {
-    if (!pad) return -1;
-    const buttons = pad.buttons || [];
-    const axes = pad.axes || [];
-
-    // A custom mapping wins: the user told us which physical button (or vector
-    // source) drives each direction, so honour it instead of guessing from the
-    // device layout. The default map is skipped on purpose so non-standard pads
-    // keep the offset sniffing below (their D-pad does not sit at indices 12-15).
-    if (!isDefaultButtonMap(buttonMap)) {
-      const dirPressed = (key) => {
-        const value = buttonMap[key];
-        if (typeof value === 'number') return !!buttons[value]?.pressed;
-        // Vector sources: 'hat:9' decodes the hat axis, 'axis:2' reads the
-        // bipolar axis pair (x, x+1) and compares it with this input's
-        // direction (Right=0, Down=2, Left=4, Up=6).
-        const vector = parseVectorValue(value);
-        if (!vector) return false;
-        const actual = vector.type === 'hat'
-          ? directionFromHatValue(axes[vector.index])
-          : directionFromVector(axes[vector.index] || 0, axes[vector.index + 1] || 0);
-        return actual === DPAD_DIRECTIONS[key];
-      };
-      const mapped = {
-        up: dirPressed('Up'),
-        down: dirPressed('Down'),
-        left: dirPressed('Left'),
-        right: dirPressed('Right')
-      };
-      if (mapped.up || mapped.down || mapped.left || mapped.right) return directionFromPressedComponents(mapped);
-    }
-
-    const id = String(pad.id || '').toLowerCase();
-    const isPlayStation = /sony|054c|dualshock|dualsense|playstation|wireless controller(?!.*xbox)/.test(id);
-    const buttonOffsets = isPlayStation || pad.mapping !== 'standard' ? [11, 12] : [12, 11];
-    for (const dpadButtonOffset of buttonOffsets) {
-      const pressed = {
-        up: !!buttons[dpadButtonOffset]?.pressed,
-        down: !!buttons[dpadButtonOffset + 1]?.pressed,
-        left: !!buttons[dpadButtonOffset + 2]?.pressed,
-        right: !!buttons[dpadButtonOffset + 3]?.pressed
-      };
-      if (pressed.up || pressed.down || pressed.left || pressed.right) return directionFromPressedComponents(pressed);
-    }
-
-    // TrailChain and some native leverless controllers expose the d-pad hat at
-    // axis 9. Decode only recognized hat values so unrelated axes stay inert.
-    if (axes.length > 9) {
-      const direction = directionFromHatValue(axes[9]);
-      if (direction !== -1) return direction;
-    }
-
-    // A few HID/SDL devices expose the d-pad as a second axis pair instead of buttons.
-    // Do not inspect the standard left/right stick pairs when the browser reports a
-    // standard mapping; those axes are already handled by the analog direction below.
-    if (pad.mapping !== 'standard') {
-      for (const [xIndex, yIndex] of [[6, 7]]) {
-        if (xIndex >= axes.length || yIndex >= axes.length) continue;
-        const x = axes[xIndex] || 0;
-        const y = axes[yIndex] || 0;
-        // Positive-only values in the trigger/right-stick slots are not a d-pad.
-        if (xIndex < 6 && x >= 0 && y >= 0) continue;
-        const direction = directionFromVector(x, y);
-        if (direction !== -1) return direction;
-      }
-    }
-    return -1;
-  }
-
-  function getDpadComponents(direction) {
-    return {
-      up: direction === 5 || direction === 6 || direction === 7,
-      down: direction === 1 || direction === 2 || direction === 3,
-      left: direction === 3 || direction === 4 || direction === 5,
-      right: direction === 7 || direction === 0 || direction === 1
-    };
-  }
-
   function moveSelected(dx, dy, key) {
     if (!selected) return; const cs = window.getComputedStyle(selected); let top = parseInt(cs.top) || 0; let left = parseInt(cs.left) || 0; top = Math.max(0, top + dy); left = Math.max(0, left + dx); selected.style.top = top + 'px'; selected.style.left = left + 'px';
     if (selected.classList.contains('btn')) { const name = selected.dataset.btn; appState.buttons[name] = appState.buttons[name] || {}; appState.buttons[name].top = selected.style.top; appState.buttons[name].left = selected.style.left; if (name === 'LS' || name === 'RS') { resizeStickTrails(); updateAnalogStickBases(); } }
@@ -1707,7 +1550,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
 
   function handleDpadMovement(pad) {
     if (!pad) return -1; const now = performance.now(); let direction = -1;
-    direction = getDpadDirection(pad);
+    direction = getDpadDirection(pad, buttonMap);
     const lx = pad.axes?.[0] || 0, ly = pad.axes?.[1] || 0;
     const stickDirection = directionFromVector(lx, ly);
     if (stickDirection !== -1) direction = stickDirection;
@@ -1748,40 +1591,23 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     }
   }
 
-  // stick helpers
-  function radialDeadzone(x, y, dz) { const mag = Math.hypot(x, y); if (mag < dz) return { x: 0, y: 0 }; const s = (mag - dz) / (1 - dz); return { x: x * s / mag, y: y * s / mag }; }
-  function clampRoundedSquare(x, y, n = 8) { const mag = Math.pow(Math.abs(x), n) + Math.pow(Math.abs(y), n); if (mag > 1) { const scale = Math.pow(mag, -1 / n); return { x: x * scale, y: y * scale }; } return { x, y }; }
+  // stick helpers (the pure math lives in js/stick-math.js)
   function getStickXY(pad) {
     if (!pad) return { x: 0, y: 0 };
   const stickDz = (appState.analog && typeof appState.analog.triggerDeadzone === 'number') ? appState.analog.triggerDeadzone : cfg.deadzone;
     const axes = pad.axes || [];
     let a = radialDeadzone(axes[0] || 0, axes[1] || 0, stickDz); let { x, y } = a;
-    const direction = getDpadDirection(pad);
+    const direction = getDpadDirection(pad, buttonMap);
     const dpadVector = vectorFromDirection(direction);
     if (dpadVector) { x = dpadVector.x; y = dpadVector.y; }
     return clampRoundedSquare(x, cfg.invertY ? -y : y);
-  }
-
-  function getAnalogStick(pad, stick = 'left', deadzone = 0.1, invertY = false) {
-    if (!pad) return { x: 0, y: 0 };
-    const axes = pad.axes || [];
-    let axisOffset = stick === 'left' ? 0 : 2;
-    if (stick === 'right' && pad.mapping !== 'standard' && axes.length >= 5) {
-      const standardMagnitude = Math.hypot(axes[2] || 0, axes[3] || 0);
-      const alternateMagnitude = Math.hypot(axes[3] || 0, axes[4] || 0);
-      if (standardMagnitude < deadzone && alternateMagnitude >= deadzone) axisOffset = 3;
-    }
-    let x = axes[axisOffset] || 0; let y = axes[axisOffset + 1] || 0; if (invertY) y = -y;
-    // allow default deadzone from appState.analog if not explicitly provided
-  const dz = (typeof deadzone === 'number' && deadzone !== undefined) ? deadzone : ((appState.analog && typeof appState.analog.triggerDeadzone === 'number') ? appState.analog.triggerDeadzone : 0.1);
-    const mag = Math.hypot(x, y); if (mag < dz) return { x: 0, y: 0 }; const scale = (mag - dz) / (1 - dz); return { x: (x / mag) * scale, y: (y / mag) * scale };
   }
 
   // --- buttons update from gamepad ---
   function updateButtonsFromPad(pad) {
     if (!pad || !pad.buttons) { resetJoystickHead(); Object.values(btnEls).forEach(b => b.classList.remove('active')); return; }
     let anyPressed = false;
-    const dpadDirection = getDpadDirection(pad);
+    const dpadDirection = getDpadDirection(pad, buttonMap);
     const dpadComponents = getDpadComponents(dpadDirection);
     for (const key in btnEls) {
       const idx = buttonMap[key];
