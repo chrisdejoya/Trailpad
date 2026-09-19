@@ -2,17 +2,17 @@ import { createTrailSystem } from './js/trail.js';
 import { TrailChainClient } from './js/trailchain-client.js';
 import { createColorPicker } from './js/color-picker.js';
 import { createDonateButton } from './js/donate-button.js';
+import { createRemapButton, DEFAULT_BUTTON_MAP, isDefaultButtonMap, DPAD_DIRECTIONS, parseVectorValue } from './js/button-remap.js';
 
 window.addEventListener('DOMContentLoaded', () => {
   const STORAGE_KEY = 'trailpad_1';
   const PROFILE_COUNT = 8;
 
-  const map = Object.fromEntries([
-    "A", "B", "X", "Y",
-    "LB", "RB", "LT", "RT",
-    "View", "Menu", "LS", "RS",
-    "Up", "Down", "Left", "Right"
-  ].map((k, i) => [k, i]));
+  // Trailpad's input convention lives in js/button-remap.js: logical input ->
+  // physical button index of the Gamepad API "standard" mapping. The remap panel
+  // edits a copy of that table, and updateButtonsFromPad/getDpadDirection read it
+  // back every frame so custom mappings drive the on-screen highlights.
+  let buttonMap = Object.assign({}, DEFAULT_BUTTON_MAP);
 
   const cfg = { deadzone: 0.1, trail: 8, invertY: false, ignoredForJoystick: ['View', 'Menu', 'Up', 'Down', 'Left', 'Right'] };
   const ANALOG_DEFAULTS = { stickMovement: true, stickRadius: 8, trailWidth: 12, trailLength: 8, baseVisibility: false, baseSize: 100 };
@@ -76,6 +76,14 @@ window.addEventListener('DOMContentLoaded', () => {
   const markers = Array.from({ length: 8 }, (_, i) => document.getElementById('marker' + i));
   const donateButton = createDonateButton();
   document.body.appendChild(donateButton.element);
+  // Remap popup sits next to the donate button: it walks the user through
+  // Trailpad's logical inputs and saves the physical button pressed for each one.
+  const remapButton = createRemapButton({
+    getMapping: () => buttonMap,
+    onApply: (nextMap) => { buttonMap = Object.assign({}, DEFAULT_BUTTON_MAP, nextMap); saveStateData(); },
+    showToast
+  });
+  document.body.appendChild(remapButton.element);
 
   let arrowSize = 90;
 
@@ -127,12 +135,16 @@ window.addEventListener('DOMContentLoaded', () => {
   function startUiHideTimer() {
     stopUiHideTimer();
     uiHideTimer = setTimeout(() => {
+      // The remap panel is driven by controller presses, which generate no mouse
+      // event to restart the timer, so leave everything visible while it is open.
+      if (remapButton.isOpen()) return;
       closeContextMenus(true);
       // Also hide the selection cursor
       if (cursorEl) {
         cursorEl.classList.remove('active');
       }
       donateButton.hide();
+      remapButton.hide();
     }, UI_HIDE_DELAY);
   }
   function stopUiHideTimer() {
@@ -141,6 +153,7 @@ window.addEventListener('DOMContentLoaded', () => {
   function resetUiHideTimer() {
     stopUiHideTimer();
     donateButton.show();
+    remapButton.show();
     startUiHideTimer();
   }
   // Add analog configuration to appState (persisted)
@@ -189,6 +202,9 @@ window.addEventListener('DOMContentLoaded', () => {
   function saveStateData() {
     try {
       syncGeometryState();
+      // Device-specific, so it rides along with the rest of appState but is kept
+      // out of exportLayout/importLayout (layouts and profiles must not clobber it).
+      appState.buttonMap = buttonMap;
       localStorage.setItem(STORAGE_KEY, JSON.stringify(appState)); console.debug('Saving state');
     } catch (e) { console.warn(e); }
   }
@@ -501,7 +517,10 @@ window.addEventListener('DOMContentLoaded', () => {
       closeColorPanel(true);
     }
     if (presetsMenuEl && !presetsMenuEl.contains(e.target)) closePresetsMenu(true);
-    if (colorPanel?.contains(e.target) || presetsMenuEl?.contains(e.target)) return;
+    // Clicks inside a floating panel belong to that panel: don't deselect or pick
+    // up the base element sitting underneath it. (remapButton.panel is created by
+    // js/button-remap.js and appended to the body there.)
+    if (colorPanel?.contains(e.target) || presetsMenuEl?.contains(e.target) || remapButton.panel?.contains(e.target)) return;
     const topEl = document.elementFromPoint(e.clientX, e.clientY);
     const isOnUI = !!topEl?.closest?.('.btn') || !!topEl?.closest?.('#stickWrapper') || !!topEl?.closest?.('#eightWayWrapper') || !!topEl?.closest?.('#base');
     if (isOnUI) return;
@@ -1566,9 +1585,50 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     return { x: Math.cos(angle), y: Math.sin(angle) };
   }
 
+  // Shared by the remapped and layout-sniffing direction readers below.
+  function directionFromPressedComponents(pressed) {
+    if (pressed.up && pressed.left) return 5;
+    if (pressed.up && pressed.right) return 7;
+    if (pressed.down && pressed.left) return 3;
+    if (pressed.down && pressed.right) return 1;
+    if (pressed.up) return 6;
+    if (pressed.down) return 2;
+    if (pressed.left) return 4;
+    return 0;
+  }
+
   function getDpadDirection(pad) {
     if (!pad) return -1;
     const buttons = pad.buttons || [];
+    const axes = pad.axes || [];
+
+    // A custom mapping wins: the user told us which physical button (or vector
+    // source) drives each direction, so honour it instead of guessing from the
+    // device layout. The default map is skipped on purpose so non-standard pads
+    // keep the offset sniffing below (their D-pad does not sit at indices 12-15).
+    if (!isDefaultButtonMap(buttonMap)) {
+      const dirPressed = (key) => {
+        const value = buttonMap[key];
+        if (typeof value === 'number') return !!buttons[value]?.pressed;
+        // Vector sources: 'hat:9' decodes the hat axis, 'axis:2' reads the
+        // bipolar axis pair (x, x+1) and compares it with this input's
+        // direction (Right=0, Down=2, Left=4, Up=6).
+        const vector = parseVectorValue(value);
+        if (!vector) return false;
+        const actual = vector.type === 'hat'
+          ? directionFromHatValue(axes[vector.index])
+          : directionFromVector(axes[vector.index] || 0, axes[vector.index + 1] || 0);
+        return actual === DPAD_DIRECTIONS[key];
+      };
+      const mapped = {
+        up: dirPressed('Up'),
+        down: dirPressed('Down'),
+        left: dirPressed('Left'),
+        right: dirPressed('Right')
+      };
+      if (mapped.up || mapped.down || mapped.left || mapped.right) return directionFromPressedComponents(mapped);
+    }
+
     const id = String(pad.id || '').toLowerCase();
     const isPlayStation = /sony|054c|dualshock|dualsense|playstation|wireless controller(?!.*xbox)/.test(id);
     const buttonOffsets = isPlayStation || pad.mapping !== 'standard' ? [11, 12] : [12, 11];
@@ -1579,19 +1639,9 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
         left: !!buttons[dpadButtonOffset + 2]?.pressed,
         right: !!buttons[dpadButtonOffset + 3]?.pressed
       };
-      if (pressed.up || pressed.down || pressed.left || pressed.right) {
-        if (pressed.up && pressed.left) return 5;
-        if (pressed.up && pressed.right) return 7;
-        if (pressed.down && pressed.left) return 3;
-        if (pressed.down && pressed.right) return 1;
-        if (pressed.up) return 6;
-        if (pressed.down) return 2;
-        if (pressed.left) return 4;
-        return 0;
-      }
+      if (pressed.up || pressed.down || pressed.left || pressed.right) return directionFromPressedComponents(pressed);
     }
 
-    const axes = pad.axes || [];
     // TrailChain and some native leverless controllers expose the d-pad hat at
     // axis 9. Decode only recognized hat values so unrelated axes stay inert.
     if (axes.length > 9) {
@@ -1712,7 +1762,8 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     const dpadDirection = getDpadDirection(pad);
     const dpadComponents = getDpadComponents(dpadDirection);
     for (const key in btnEls) {
-      const idx = map[key]; if (idx === undefined) continue;
+      const idx = buttonMap[key];
+      if (idx === undefined || idx === null) { btnEls[key].classList.remove('active'); continue; }
       if (dpadComponents[key.toLowerCase()] !== undefined) {
         const pressed = dpadComponents[key.toLowerCase()];
         btnEls[key].classList.toggle('active', pressed);
@@ -2290,7 +2341,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
   // One delegated router owns all custom right-click behavior.
   document.addEventListener('contextmenu', (e) => {
     try {
-      if (colorPanel?.contains(e.target) || presetsMenuEl?.contains(e.target)) return;
+      if (colorPanel?.contains(e.target) || presetsMenuEl?.contains(e.target) || remapButton.panel?.contains(e.target)) return;
       e.preventDefault();
       const requestId = ++contextMenuRequest;
       const target = e.target.closest?.('.btn, #stickWrapper, #eightWayWrapper, #joystickHead, #base');
@@ -2332,6 +2383,16 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
       }
     }
     updateButtonsFromPad(pad);
+    // The auto-detected pad is null while no button is held, so hand the remap
+    // cycle AND the per-row listen mode a continuously available pad: both need
+    // idle frames to arm the capture (and to spot the first press) even when no
+    // controller was picked manually.
+    let remapPad = pad;
+    if (!remapPad && (remapButton.isCapturing() || remapButton.isListening())) {
+      // Prefer TrailChain's pad when it has one, otherwise the first native pad.
+      remapPad = (trailChain && trailChain.getGamepad && trailChain.getGamepad()) || getNativeGamepads()[0] || null;
+    }
+    remapButton.update(remapPad);
     const dpadDir = handleDpadMovement(pad); updateArrowHighlights(dpadDir);
     const { x, y } = getStickXY(pad); const cx = canvas.width/2, cy = canvas.height/2; const radius = canvas.width/2 - 25; const jx = cx + x * radius, jy = cy + y * radius; joystick.style.left = jx + 'px'; joystick.style.top = jy + 'px';
     if (trailSystem) {
@@ -2371,6 +2432,8 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
       if (parsed.hiddenButtons !== undefined) appState.hiddenButtons = parsed.hiddenButtons;
       if (parsed.trailColor !== undefined) appState.trailColor = parsed.trailColor;
       if (parsed.lastProfile !== undefined) appState.lastProfile = parsed.lastProfile;
+      // Device button mapping is part of the saved state but not of a layout.
+      if (parsed.buttonMap !== undefined) buttonMap = Object.assign({}, DEFAULT_BUTTON_MAP, parsed.buttonMap);
       if (parsed.analog !== undefined) {
         const safeAnalog = Object.assign({}, parsed.analog);
         ['LS', 'RS'].forEach(key => {
@@ -2387,6 +2450,8 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
       // Apply joystick head style after loading
       applyJoystickHeadFromState();
       preloadFontsForLayout(appState);
+      // Keep the panel's row values in step with a freshly loaded mapping.
+      remapButton.refresh();
       console.debug('[Trailpad] state loaded');
     } catch (e) { console.warn(e); }
   }

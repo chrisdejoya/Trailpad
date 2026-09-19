@@ -66,9 +66,9 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-.donateButton {
+.donateButton,
+.remapButton {
   position: fixed;
-  right: 10px;
   bottom: 10px;
   z-index: 120;
   width: 48px;
@@ -85,31 +85,59 @@ html, body {
   text-decoration: none;
 }
 
-.donateButton img {
-  width: 28px;
-  height: 28px;
+/* The remap button is a <button>, so undo the native control look; it sits to
+   the left of the donate button at the same 48px size. */
+.remapButton {
+  right: 68px;
+  padding: 0;
+  font: inherit;
+  color: var(--text-primary);
+  -webkit-appearance: none;
+  appearance: none;
 }
 
-.donateButton:hover,
-.donateButton:focus-visible {
+.remapButton.is-open {
   transform: scale(0.9);
   filter: brightness(0.5);
   outline: 2px solid rgba(255, 255, 255, 1.0);
   outline-offset: 0px;
 }
 
-.donateButton:active {
+.donateButton img,
+.remapButton img {
+  width: 28px;
+  height: 28px;
+}
+
+.donateButton:hover,
+.donateButton:focus-visible,
+.remapButton:hover,
+.remapButton:focus-visible {
+  transform: scale(0.9);
+  filter: brightness(0.5);
+  outline: 2px solid rgba(255, 255, 255, 1.0);
+  outline-offset: 0px;
+}
+
+.donateButton:active,
+.remapButton:active {
   transform: scale(0.9);
 }
 
-.donateButton.is-clicked {
+.donateButton.is-clicked,
+.remapButton.is-clicked {
   animation: donateButtonClick 0.2s ease-out;
 }
 
-.donateButton.is-auto-hidden {
+.donateButton.is-auto-hidden,
+.remapButton.is-auto-hidden {
   opacity: 0;
   pointer-events: none;
   transform: translateY(8px);
+}
+
+.donateButton {
+  right: 10px;
 }
 
 .donatePanel {

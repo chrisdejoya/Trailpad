@@ -1,0 +1,233 @@
+/* Remap popup menu — docked above the donate/remap circle buttons */
+
+.remapPanel {
+  position: fixed;
+  right: 10px;
+  bottom: 70px;
+  z-index: 200;
+  width: 280px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 10px;
+  box-sizing: border-box;
+  background: rgba(20, 20, 20, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px) scale(0.95);
+  transition: opacity 0.15s ease, transform 0.25s cubic-bezier(0.3, 1.5, 0.65, 1);
+}
+
+.remapPanel.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.remapPanel,
+.remapPanel * {
+  font-family: "Swiss 721", Arial, Helvetica, sans-serif;
+  text-transform: uppercase;
+}
+
+.remapTitle {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.025em;
+  text-align: center;
+  color: var(--text-primary);
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.remapList {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+}
+
+.remapList::-webkit-scrollbar {
+  width: 5px;
+}
+
+.remapList::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+.remapList::-webkit-scrollbar-thumb {
+  background: var(--border-default);
+  border-radius: 5px;
+}
+
+.remapList::-webkit-scrollbar-thumb:hover {
+  background: var(--border-focus);
+}
+
+.remapItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  border-left: 3px solid transparent;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 10px;
+  transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.remapItem:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.remapItemLabel {
+  flex: 1 1 auto;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.remapItemValue {
+  flex: 0 0 auto;
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+.remapItemTools {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 2px;
+}
+
+.remapTool {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  font-size: 12px;
+  line-height: 1;
+  color: var(--text-muted);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.remapTool:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--border-default);
+  color: var(--text-primary);
+}
+
+.remapTool:active {
+  background: var(--bg-secondary);
+}
+
+.remapTool:focus-visible {
+  outline: none;
+  border-color: var(--border-accent);
+}
+
+.remapTool.is-dim {
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+.remapItem.is-current {
+  background: var(--bg-tertiary);
+  border-left-color: var(--border-accent);
+  color: var(--text-primary);
+}
+
+.remapItem.is-current .remapItemValue {
+  color: var(--border-accent);
+}
+
+.remapItem.is-duplicate .remapItemValue {
+  color: #FF6666;
+}
+
+.remapItem.is-unassigned .remapItemValue {
+  font-style: italic;
+  opacity: 0.75;
+}
+
+.remapStatus {
+  min-height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 10px;
+  line-height: 1.25;
+  color: var(--text-muted);
+}
+
+.remapFooter {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding-top: 5px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.remapAction {
+  flex: 1 1 0;
+  height: var(--ui-control-height);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.remapAction:hover {
+  background: var(--bg-elevated);
+  border-color: var(--border-focus);
+}
+
+.remapAction:active {
+  background: var(--bg-secondary);
+}
+
+.remapAction:focus-visible {
+  outline: none;
+  border-color: var(--border-accent);
+  box-shadow: 0 0 0 2px rgba(206, 236, 115, 0.2);
+}
+
+.remapAction.remapPrimary {
+  background: var(--accent-green);
+  border-color: var(--accent-green);
+  color: #000;
+}
+
+.remapAction.remapPrimary:hover,
+.remapAction.remapPrimary:active {
+  background: var(--accent-green-hover);
+  border-color: var(--accent-green-hover);
+  color: #000;
+}
