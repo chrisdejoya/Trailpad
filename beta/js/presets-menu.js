@@ -140,17 +140,47 @@ export function createPresetsMenu({
           const saved = appState.profiles && appState.profiles[key];
           const item = document.createElement('div'); item.className = 'presetItem';
           const profileName = saved?.name || 'Profile ' + i;
-          const label = profileName + (saved ? '' : ' (Empty)');
-          item.textContent = label; item.dataset.profile = i;
           if (saved) {
-            item.addEventListener('mouseenter', () => { try { applyLayoutPreview(saved); } catch (e) { console.warn('profile preview failed', e); } });
-            item.addEventListener('click', () => { try { importLayout(saved); _menuSelectionMade = true; closePresetsMenu(false); showToast(profileName + ' loaded', 1000); } catch (e) { console.warn('profile load failed', e); } });
-            item.addEventListener('contextmenu', (e) => {
-              e.preventDefault();
+            // Non-empty profile: show name with rename and delete buttons
+            item.dataset.profile = i;
+            const labelSpan = document.createElement('span');
+            labelSpan.className = 'profileLabel';
+            labelSpan.textContent = profileName;
+            item.appendChild(labelSpan);
+
+            const actions = document.createElement('span');
+            actions.className = 'profileActions';
+
+            const renameBtn = document.createElement('button');
+            renameBtn.type = 'button';
+            renameBtn.className = 'profileAction profileRenameBtn';
+            renameBtn.innerHTML = '&#x270E;';
+            renameBtn.setAttribute('aria-label', 'Rename profile ' + profileName);
+            renameBtn.addEventListener('click', (e) => {
               e.stopPropagation();
               startRenameProfile(i, item);
             });
+            actions.appendChild(renameBtn);
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.type = 'button';
+            deleteBtn.className = 'profileAction profileDeleteBtn';
+            deleteBtn.innerHTML = '&#x2715;';
+            deleteBtn.setAttribute('aria-label', 'Delete profile ' + profileName);
+            deleteBtn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              deleteProfile(i, item);
+            });
+            actions.appendChild(deleteBtn);
+
+            item.appendChild(actions);
+
+            item.addEventListener('mouseenter', () => { try { applyLayoutPreview(saved); } catch (e) { console.warn('profile preview failed', e); } });
+            item.addEventListener('click', () => { try { importLayout(saved); _menuSelectionMade = true; closePresetsMenu(false); showToast(profileName + ' loaded', 1000); } catch (e) { console.warn('profile load failed', e); } });
           } else {
+            // Empty profile: just show label
+            const label = profileName + ' (Empty)';
+            item.textContent = label; item.dataset.profile = i;
             item.classList.add('empty');
           }
           wrapper.appendChild(item);
@@ -197,7 +227,11 @@ export function createPresetsMenu({
         const saved = appState.profiles && appState.profiles[key];
         if (!saved) return;
         const currentName = saved.name || 'Profile ' + profileIndex;
-        itemEl.textContent = '';
+        // Save the actions element and hide it during editing
+        const actions = itemEl.querySelector('.profileActions');
+        const label = itemEl.querySelector('.profileLabel');
+        if (actions) actions.style.display = 'none';
+        if (label) label.style.display = 'none';
         const input = document.createElement('input');
         input.type = 'text';
         input.className = 'profile-rename-input';
@@ -211,18 +245,20 @@ export function createPresetsMenu({
         function finishRename(commit) {
           if (!itemEl.contains(input)) return;
           itemEl.removeChild(input);
+          if (actions) actions.style.display = '';
+          if (label) label.style.display = '';
           if (commit) {
             const newName = input.value.trim();
             if (newName) {
               saved.name = newName;
-              itemEl.textContent = newName;
+              if (label) label.textContent = newName;
               saveStateData();
               showToast('Profile renamed to ' + newName, 1000);
-            } else {
-              itemEl.textContent = currentName;
+            } else if (label) {
+              label.textContent = currentName;
             }
-          } else {
-            itemEl.textContent = currentName;
+          } else if (label) {
+            label.textContent = currentName;
           }
         }
 
@@ -236,6 +272,17 @@ export function createPresetsMenu({
             finishRename(false);
           }
         });
+      }
+
+      function deleteProfile(profileIndex, itemEl) {
+        if (itemEl.querySelector('input')) return;
+        const key = 'profile' + profileIndex;
+        const saved = appState.profiles && appState.profiles[key];
+        if (!saved) return;
+        delete appState.profiles[key];
+        saveStateData();
+        renderProfilesList();
+        showToast('Profile deleted', 1000);
       }
 
       // initial render shows profiles by default

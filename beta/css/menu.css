@@ -31,6 +31,9 @@
   text-overflow: ellipsis;
   color: var(--text-secondary);
   font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .presetItem:hover {
@@ -93,4 +96,65 @@
 .profile-rename-input:focus {
   border-color: var(--accent-primary);
   box-shadow: 0 0 0 2px var(--accent-primary-transparent);
+}
+
+/* Profile buttons and label */
+.profileLabel {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-transform: none;
+}
+
+.presetItem:hover .profileLabel {
+  color: var(--text-primary);
+}
+
+.profileActions {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 2px;
+}
+
+.profileAction {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  font-size: 12px;
+  line-height: 1;
+  color: var(--text-muted);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.profileAction:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--border-default);
+  color: var(--text-primary);
+}
+
+.profileAction:active {
+  background: var(--bg-secondary);
+}
+
+.profileAction:focus-visible {
+  outline: none;
+  border-color: var(--border-accent);
+}
+
+.profileDeleteBtn:hover {
+  color: #e53935;
+  border-color: #e53935;
 }
