@@ -14,6 +14,7 @@ import { createProfiles } from './js/profiles.js';
 import { createPresetsMenu } from './js/presets-menu.js';
 import { createLayoutState } from './js/layout-state.js';
 import { createSizing } from './js/sizing.js';
+import { createRenderState } from './js/render-state.js';
 import { createSelection } from './js/selection.js';
 import { createStickUpdate } from './js/stick-update.js';
 import { createCursor } from './js/cursor.js';
@@ -625,35 +626,6 @@ window.addEventListener('DOMContentLoaded', () => {
   // --- Profiles: save/load unified with helpers (js/profiles.js) ---
   const profiles = createProfiles({ appState, profileCount: PROFILE_COUNT, exportLayout, importLayout, saveStateData, showToast });
   const { saveProfile, loadProfile, resetToDefault } = profiles;
-
-  function updateStateData() {
-    Object.entries(btnEls).forEach(([k, el]) => {
-      const data = appState.buttons[k] || {};
-      applyPropertiesToElement(el, data);
-      let display = data.display;
-      if (display === undefined) display = appState.hiddenButtons?.includes(k) ? 'none' : 'flex';
-      if (el.style.display !== display) el.style.display = display;
-      if (data.zIndex !== undefined && el.style.zIndex !== data.zIndex) el.style.zIndex = data.zIndex;
-      if (data.backgroundImage !== undefined) applyBgImage(el, data.backgroundImage);
-      if (data.backgroundSize !== undefined) {
-        if (el === eightWayWrapper) { const arrows = eightWayWrapper.querySelectorAll('.arrow'); arrows.forEach(arrow => arrow.style.backgroundSize = data.backgroundSize); }
-        else if (el.style.backgroundSize !== data.backgroundSize) el.style.backgroundSize = data.backgroundSize;
-      }
-      if (data.label !== undefined && el.dataset?.btn) el.textContent = data.label;
-      if (data.outlineWidth != null || data.outlineColor != null) { const width = data.outlineWidth ?? 0; const color = data.outlineColor ?? 'black'; el.style.outline = `${width}px solid ${color}`; el.style.outlineOffset = `-${width}px`; }
-      if (data.boxShadowSpread != null) { const spread = data.boxShadowSpread; el.style.boxShadow = `0 0 0 ${spread}px black`; }
-    });
-
-  if (appState.joystick) { applyPropertiesToElement(stickWrapper, appState.joystick); if (appState.joystick.display !== undefined) stickWrapper.style.display = appState.joystick.display; }
-  updateAnalogStickBases();
-  if (appState.base) { applyPropertiesToElement(base, appState.base); if (appState.base.display !== undefined) base.style.display = appState.base.display; }
-  if (appState.eightWayWrapper) { applyPropertiesToElement(eightWayWrapper, appState.eightWayWrapper); if (appState.eightWayWrapper.display !== undefined) eightWayWrapper.style.display = appState.eightWayWrapper.display; if (appState.eightWayWrapper.arrowSize !== undefined) { arrowSize.value = appState.eightWayWrapper.arrowSize || 90; resizeEightWayArrows(); } }
-  if (appState.trailColor) document.documentElement.style.setProperty('--trail-color', appState.trailColor);
-  resizeJoystickWrapper(); applyJoystickHeadFromState();
-  // analog prefs applied via importLayout/exportLayout only (no on-screen controls)
-  updateCursor(true);
-}
-
   // --- copy/export/import UI (js/clipboard-io.js) ---
   const clipboardIO = createClipboardIO({ exportLayout, importLayout, showToast, saveStateData });
   const { copyLayoutToClipboard, pasteLayoutFromClipboard, importInput } = clipboardIO;
@@ -798,6 +770,19 @@ window.addEventListener('DOMContentLoaded', () => {
     for (let i = 0; i < markers.length; i++) markers[i].classList.toggle('active', i === dpadDir);
     requestAnimationFrame(animate);
   }
+
+  // --- render state: pushes appState onto DOM (js/render-state.js) ---
+  const render = createRenderState({
+    appState,
+    els: { btnEls, base, stickWrapper, eightWayWrapper, joystick },
+    applyPropertiesToElement, applyBgImage,
+    getArrowSize: () => arrowSize.value,
+    setArrowSize: v => { if (v !== undefined) arrowSize.value = v; },
+    getResizeEightWayArrows: () => resizeEightWayArrows,
+    updateAnalogStickBases, resizeJoystickWrapper, applyJoystickHeadFromState,
+    updateCursor
+  });
+  const { updateStateData } = render;
 
   // Boot
   persistenceApi = createStatePersistence({
