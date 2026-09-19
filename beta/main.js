@@ -1,4 +1,4 @@
-import { createTrailSystem } from './js/trail.js';
+﻿import { createTrailSystem } from './js/trail.js';
 import { TrailChainClient, getControllerKey as trailchainControllerKeyOf } from './js/trailchain-client.js';
 import { createColorPicker } from './js/color-picker.js';
 import { createDonateButton } from './js/donate-button.js';
@@ -6,6 +6,11 @@ import { createRemapButton, DEFAULT_BUTTON_MAP, DPAD_DIRECTIONS } from './js/but
 import { PALETTE } from './js/palette.js';
 import { getDpadDirection, directionFromVector, vectorFromDirection, getDpadComponents } from './js/dpad.js';
 import { radialDeadzone, clampRoundedSquare, getAnalogStick } from './js/stick-math.js';
+import { normalizeBgImage, applyBgImage } from './js/bg-image.js';
+import { controllerHasInput, detectActiveGamepad } from './js/input-detect.js';
+import { createClipboardIO } from './js/clipboard-io.js';
+import { createProfiles } from './js/profiles.js';
+import { createPresetsMenu } from './js/presets-menu.js';
 
 window.addEventListener('DOMContentLoaded', () => {
   const STORAGE_KEY = 'trailpad_1';
@@ -216,19 +221,6 @@ window.addEventListener('DOMContentLoaded', () => {
     if (data.display !== undefined) el.style.display = data.display;
   }
 
-  // Helper to normalize backgroundImage: strip url("...") wrapper, return just the path
-  function normalizeBgImage(val) {
-    if (!val || val === 'none') return '';
-    const m = val.match(/^url\(["']?([^"')]+)["']?\)$/i);
-    return m ? m[1] : val;
-  }
-
-  // Helper to apply backgroundImage: wrap path with url('...') if needed
-  function applyBgImage(el, val) {
-    if (!val || val === 'none') { el.style.backgroundImage = 'none'; return; }
-    const normalized = normalizeBgImage(val);
-    el.style.backgroundImage = `url('${normalized}')`;
-  }
 
   // Helper to get backgroundImage path while preserving relative URLs
   function getBgImagePath(el) {
@@ -482,11 +474,11 @@ window.addEventListener('DOMContentLoaded', () => {
     if (colorPanel && (colorPanel.style.display === 'block' || colorPanel.style.display === 'flex') && !colorPanel.contains(e.target)) {
       closeColorPanel(true);
     }
-    if (presetsMenuEl && !presetsMenuEl.contains(e.target)) closePresetsMenu(true);
+    if (presetsMenu.element() && !presetsMenu.element().contains(e.target)) presetsMenu.close(true);
     // Clicks inside a floating panel belong to that panel: don't deselect or pick
     // up the base element sitting underneath it. (remapButton.panel is created by
     // js/button-remap.js and appended to the body there.)
-    if (colorPanel?.contains(e.target) || presetsMenuEl?.contains(e.target) || remapButton.panel?.contains(e.target)) return;
+    if (colorPanel?.contains(e.target) || presetsMenu.element()?.contains(e.target) || remapButton.panel?.contains(e.target)) return;
     const topEl = document.elementFromPoint(e.clientX, e.clientY);
     const isOnUI = !!topEl?.closest?.('.btn') || !!topEl?.closest?.('#stickWrapper') || !!topEl?.closest?.('#eightWayWrapper') || !!topEl?.closest?.('#base');
     if (isOnUI) return;
@@ -515,7 +507,7 @@ window.addEventListener('DOMContentLoaded', () => {
     });
     // Long-press (hold ~0.5s) a pad button to arm its row in the mapping
     // panel: the next controller press is captured for that input alone.
-    // Buttons only — the direction arrows (Up/Down/Left/Right) have no
+    // Buttons only â€” the direction arrows (Up/Down/Left/Right) have no
     // editable label, and the base/joystick widgets are not buttons.
     if (DPAD_DIRECTIONS[btn.dataset.btn] === undefined) {
       let longPressTimer = 0;
@@ -597,8 +589,8 @@ window.addEventListener('DOMContentLoaded', () => {
       // per-element contextmenu handler calls stopPropagation on mousedown, so
       // the presets outside-click handler never fires for these elements and
       // both menus would otherwise stay visible at once.
-      closePresetsMenu(true);
-panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
+      presetsMenu.close(true);
+ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
   const stickId = anchorTarget?.dataset?.btn;
   const isStickTarget = stickId === 'LS' || stickId === 'RS';
   let gridRenderSequence = 0;
@@ -1413,7 +1405,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     }
     if (colorMode !== 'outline') return;
     // Select the outline sliders by their dedicated class rather than by DOM
-    // index — the panel contains many range inputs (stick, symbol, text, outline)
+    // index â€” the panel contains many range inputs (stick, symbol, text, outline)
     // and relying on index order picked the wrong sliders, so the stroke values
     // never reflected the selected object's actual settings.
     const outlineSliders = colorPanel.querySelectorAll('input[type="range"].colorPanelOutlineSlider');
@@ -1700,44 +1692,6 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     Object.entries(btnEls).forEach(([k, el]) => { appState.buttons[k] = appState.buttons[k] || {}; snapElement(el, appState.buttons[k]); }); snapElement(stickWrapper, appState.joystick = appState.joystick || {}); snapElement(eightWayWrapper, appState.eightWayWrapper = appState.eightWayWrapper || {}); snapElement(base, appState.base = appState.base || {}); resizeStickTrails(); updateAnalogStickBases(); saveStateData(); showToast('Snapped layout to grid!', 1000); updateCursor(true);
   }
 
-  // First native gamepad producing real input, or null. Uses
-  // controllerHasInput (fixed detection thresholds) so idle sticks/triggers
-  // can never count as input — a pad only becomes eligible for the active
-  // slot once the player actually presses something or moves a stick.
-  function detectActiveGamepad() {
-    const gps = navigator.getGamepads ? navigator.getGamepads() : [];
-    for (let i = 0; i < gps.length; i++) { if (controllerHasInput(gps[i])) return i; }
-    return null;
-  }
-
-  // Thresholds used ONLY to decide whether a controller is producing real
-  // input for the wait-for-assignment logic. They must not come from
-  // appState.analog.triggerDeadzone: that setting drives trigger-brightness
-  // display and is 0 in most layouts, which would make any resting analog
-  // jitter (sticks idle within ±0.05, triggers rest slightly above 0) look
-  // like input and instantly assign a controller on page load.
-  const INPUT_DETECT_BUTTON_THRESHOLD = 0.5; // digital buttons read 0/1; analog triggers must pass half-travel
-  const INPUT_DETECT_AXIS_THRESHOLD = 0.15;  // resting sticks sit within roughly ±0.1 of center
-
-  // True when a controller-shaped object (native Gamepad or a TrailChain
-  // controller snapshot) is producing deliberate input: a button held past
-  // half-travel, or an axis pushed past the detection deadzone. Deliberately
-  // ignores GamepadButton.pressed — browsers set pressed=true for analog
-  // buttons (triggers) whenever the value is merely above zero, so idle
-  // triggers would otherwise read as pressed.
-  function controllerHasInput(pad) {
-    if (!pad) return false;
-    const buttons = Array.isArray(pad.buttons) ? pad.buttons : [];
-    const anyBtn = buttons.some(b => {
-      if (b === true) return true; // TrailChain boolean button state
-      const value = (b && typeof b.value === 'number') ? b.value : (b ? 1 : 0);
-      return value > INPUT_DETECT_BUTTON_THRESHOLD;
-    });
-    const axes = Array.isArray(pad.axes) ? pad.axes : [];
-    const anyAx = axes.some(a => typeof a === 'number' && Math.abs(a) > INPUT_DETECT_AXIS_THRESHOLD);
-    return anyBtn || anyAx;
-  }
-
   // Auto-assign the active controller on first input: no controller is
   // considered active on load. The first connected controller (TrailChain or
   // native Gamepad API) to produce input is locked in as the active one, the
@@ -1763,14 +1717,14 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
         }
       }
       // While TrailChain has controllers to wait on, don't auto-assign native
-      // pads underneath it — the animate loop prefers TrailChain data. If
+      // pads underneath it â€” the animate loop prefers TrailChain data. If
       // TrailChain is connected but has no controllers, fall through so a
       // native pad can still claim the active slot on input.
       if (trailChain.controllers.length > 0) return;
     }
     if (selectedNativeGamepadIndex !== null) return; // already assigned
     const detected = detectActiveGamepad();
-    if (detected === null) return; // no input yet — stay unassigned
+    if (detected === null) return; // no input yet â€” stay unassigned
     const gps = navigator.getGamepads ? navigator.getGamepads() : [];
     selectedNativeGamepadIndex = detected;
     activeGamepadIndex = detected;
@@ -1832,7 +1786,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
     if (e && e.gamepad && e.gamepad.index === selectedNativeGamepadIndex) {
       selectedNativeGamepadIndex = null;
       activeGamepadIndex = null;
-      showToast('Controller disconnected — waiting for input', 1500);
+      showToast('Controller disconnected â€” waiting for input', 1500);
     }
     renderControllerList?.();
   });
@@ -1904,22 +1858,9 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
   resizeStickTrails();
   updateAnalogStickBases();
 
-  // --- Profiles: save/load unified with helpers ---
-  function saveProfile(n) {
-    if (n < 1 || n > PROFILE_COUNT) return; const snap = exportLayout(); const key = 'profile' + n; const existing = appState.profiles[key]; snap.name = existing?.name || 'Profile ' + n; appState.profiles[key] = snap; appState.lastProfile = n; saveStateData();
-  }
-
-  function loadProfile(n) {
-    const key = 'profile' + n;
-    const snap = appState.profiles[key]; if (!snap) { showToast('Profile ' + n + ' empty', 1000); return; }
-    const profileName = snap.name || 'Profile ' + n;
-    importLayout(snap); appState.lastProfile = n; showToast(profileName + ' loaded', 1000); saveStateData();
-  }
-
-  async function resetToDefault() {
-    try { const res = await fetch('layouts/default.json'); if (!res.ok) throw new Error('default.json not found'); const parsed = await res.json(); importLayout(parsed); showToast('Reset to default layout', 1000); }
-    catch { showToast('Could not load default.json', 1000); }
-  }
+  // --- Profiles: save/load unified with helpers (js/profiles.js) ---
+  const profiles = createProfiles({ appState, profileCount: PROFILE_COUNT, exportLayout, importLayout, saveStateData, showToast });
+  const { saveProfile, loadProfile, resetToDefault } = profiles;
 
   function updateStateData() {
     Object.entries(btnEls).forEach(([k, el]) => {
@@ -1949,33 +1890,9 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
   updateCursor(true);
 }
 
-  // --- copy/export/import UI ---
-  async function copyLayoutToClipboard() {
-    const snap = exportLayout(); const json = JSON.stringify(snap, null, 2);
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      try { await navigator.clipboard.writeText(json); showToast('Copied layout to clipboard', 1000); } catch (e) { console.warn(e); showToast('Copy failed', 1000); }
-    } else {
-      const ta = document.getElementById('clipboardInput'); ta.value = json; ta.select(); try { document.execCommand('copy'); showToast('Copied layout to clipboard', 1000); } catch (e) { showToast('Copy failed', 1000); }
-    }
-    saveStateData();
-  }
-
-  async function pasteLayoutFromClipboard() {
-    try {
-      const text = await navigator.clipboard.readText();
-      const parsed = JSON.parse(text);
-      importLayout(parsed);
-      showToast('Pasted layout from clipboard', 1000);
-    } catch (err) {
-      showToast('Paste failed: invalid JSON or no permission', 1000);
-    }
-  }
-
-  // Import input
-  const importInput = document.createElement('input'); importInput.type = 'file'; importInput.accept = '.json,application/json'; importInput.style.display = 'none'; document.body.appendChild(importInput);
-  importInput.addEventListener('change', e => {
-    const f = e.target.files && e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = ev => { try { const parsed = JSON.parse(ev.target.result); importLayout(parsed); showToast('Imported layout', 1000); } catch (err) { showToast('Invalid JSON', 1000); } }; r.readAsText(f); importInput.value = '';
-  });
+  // --- copy/export/import UI (js/clipboard-io.js) ---
+  const clipboardIO = createClipboardIO({ exportLayout, importLayout, showToast, saveStateData });
+  const { copyLayoutToClipboard, pasteLayoutFromClipboard, importInput } = clipboardIO;
 
   // load help
   fetch('help.html').then(r => r.text()).then(html => { document.getElementById('helpPanel').innerHTML = html; }).catch(err => console.warn('Could not load help.html', err));
@@ -1983,304 +1900,31 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
   const helpPanel = document.getElementById('helpPanel');
 
   // --- Presets menu: list layouts with hover preview and apply/cancel behavior ---
-  let layoutsIndex = null;
-  let presetsMenuEl = null;
-  let _previewFetchController = null;
-  let _prevLayoutSnapshot = null;
-  let _menuSelectionMade = false;
-  let renderControllerList = null;
+  // (DOM/state for the menu lives in js/presets-menu.js; see createPresetsMenu)
   let contextMenuRequest = 0;
-
-  async function loadLayoutsIndex() {
-    if (layoutsIndex) return layoutsIndex;
-    try {
-      const res = await fetch('layouts/index.json'); if (!res.ok) throw new Error('not found');
-      const parsed = await res.json();
-      // normalized to array of {file, name}
-      layoutsIndex = Array.isArray(parsed) ? parsed.map(it => (typeof it === 'string' ? { file: it, name: it.replace(/\.json$/i,'') } : { file: it.file, name: it.name || it.file })) : [];
-      return layoutsIndex;
-    } catch (e) { console.warn('Could not load layouts/index.json', e); layoutsIndex = []; return layoutsIndex; }
-  }
-
-  // Apply a parsed layout to the DOM without mutating appState or saving. Used for hover previews.
-  function applyLayoutPreview(parsed) {
-    if (!parsed) return;
-    try {
-      // Apply base/joystick/eightway/buttons visually, but do not merge into appState (we'll revert by re-importing the snapshot)
-      if (parsed.base) applyPropertiesToElement(base, parsed.base);
-      if (parsed.joystick) applyPropertiesToElement(stickWrapper, parsed.joystick);
-      // joystick head: apply visual properties for preview
-      if (parsed.joystickHead) {
-        applyPropertiesToElement(joystick, parsed.joystickHead);
-        // also copy specific head properties that importLayout would normally manage
-        ['boxShadow','outline','borderRadius','fontSize','backgroundColor','backgroundImage','color'].forEach(k => {
-          if (parsed.joystickHead[k] !== undefined) joystick.style[k] = parsed.joystickHead[k];
-        });
-      }
-      if (parsed.eightWayWrapper) applyPropertiesToElement(eightWayWrapper, parsed.eightWayWrapper);
-      // buttons
-      if (parsed.buttons) {
-        Object.entries(parsed.buttons).forEach(([k, data]) => { if (btnEls[k]) applyPropertiesToElement(btnEls[k], data); });
-      }
-      if (parsed.trailColor) document.documentElement.style.setProperty('--trail-color', parsed.trailColor);
-
-      // eight-way specific: arrow size and images
-      if (parsed.eightWayWrapper?.arrowSize !== undefined) { arrowSize = parseInt(parsed.eightWayWrapper.arrowSize) || arrowSize; }
-      // images
-      if (parsed.eightWayWrapper?.arrowImageOff || parsed.eightWayWrapper?.arrowImageOn) {
-        for (let i = 0; i < 8; i++) {
-          const arrow = document.getElementById('arrow' + i); if (!arrow) continue;
-          if (parsed.eightWayWrapper.arrowImageOff) applyBgImage(arrow, parsed.eightWayWrapper.arrowImageOff);
-          if (parsed.eightWayWrapper.arrowImageOn) arrow.dataset._previewOn = parsed.eightWayWrapper.arrowImageOn;
-        }
-      }
-      resizeEightWayArrows(); resizeJoystickWrapper();
-    } catch (e) { console.warn('preview apply failed', e); }
-  }
-
-  function closePresetsMenu(revert = true) {
-    if (!presetsMenuEl) return;
-    presetsMenuEl.remove(); presetsMenuEl = null;
-    renderControllerList = null;
-    // stop any outstanding fetch
-    try { if (_previewFetchController) _previewFetchController.abort(); } catch (e) {}
-    // if a selection wasn't made, revert to previous snapshot
-    if (revert && !_menuSelectionMade && _prevLayoutSnapshot) {
-      try { importLayout(_prevLayoutSnapshot); } catch (e) { console.warn('Could not revert layout after cancelling presets menu', e); }
-    }
-    _prevLayoutSnapshot = null; _menuSelectionMade = false;
-    stopUiHideTimer();
-  }
-
-  function closeColorPanel(revert = true) {
-    if (!colorPanel || (colorPanel.style.display !== 'block' && colorPanel.style.display !== 'flex')) return;
-    colorPanel.style.display = 'none';
-    if (revert) revertPreview();
-    stopUiHideTimer();
-  }
+  const presetsMenu = createPresetsMenu({
+    appState, profileCount: PROFILE_COUNT,
+    exportLayout, importLayout,
+    applyPropertiesToElement, applyBgImage,
+    els: { base, stickWrapper, eightWayWrapper, joystick, btnEls },
+    resizeEightWayArrows, resizeJoystickWrapper,
+    getDetectedControllers, getSelectedControllerKey, selectController,
+    saveStateData, showToast, stopUiHideTimer,
+    getContextMenuRequest: () => contextMenuRequest,
+    setArrowSize: (v) => { if (v !== undefined) arrowSize = v; }
+  });
+  const renderControllerList = () => presetsMenu.renderControllerList?.();
 
   function closeContextMenus(revert = true) {
     contextMenuRequest++;
     closeColorPanel(revert);
-    closePresetsMenu(revert);
-  }
-
-  async function openPresetsMenu(x, y, requestId = contextMenuRequest) {
-    try {
-      const list = await loadLayoutsIndex();
-      if (requestId !== contextMenuRequest) return;
-      // capture current layout snapshot so preview can be reverted
-      _prevLayoutSnapshot = exportLayout(); _menuSelectionMade = false;
-      // remove existing menu if present
-      if (presetsMenuEl) presetsMenuEl.remove();
-      const menu = document.createElement('div'); menu.className = 'presetsMenu';
-  // Header with toggles for Profiles, Presets, and connected Controllers
-  const hdr = document.createElement('div'); hdr.className = 'presetsHeader colorPanelModeToggle ui-tabs';
-  const profilesToggle = document.createElement('button'); profilesToggle.type = 'button'; profilesToggle.className = 'presetHeaderToggle ui-tab'; profilesToggle.textContent = 'Profiles';
-  const presetsToggle = document.createElement('button'); presetsToggle.type = 'button'; presetsToggle.className = 'presetHeaderToggle ui-tab'; presetsToggle.textContent = 'Presets';
-  const controllerToggle = document.createElement('button'); controllerToggle.type = 'button'; controllerToggle.className = 'presetHeaderToggle ui-tab'; controllerToggle.textContent = 'Controller';
-  hdr.appendChild(profilesToggle); hdr.appendChild(presetsToggle); hdr.appendChild(controllerToggle); menu.appendChild(hdr);
-  const wrapper = document.createElement('div'); wrapper.className = 'presetsList';
-      // helper to show presets list
-      function renderPresetsList() {
-        wrapper.innerHTML = '';
-        if (!list || list.length === 0) {
-          const none = document.createElement('div'); none.className = 'presetItem'; none.textContent = '(no presets found)'; wrapper.appendChild(none);
-        } else {
-          for (const entry of list) {
-            const fn = entry.file; const label = entry.name || entry.file.replace(/\.json$/i, '');
-            const item = document.createElement('div'); item.className = 'presetItem'; item.textContent = label; item.dataset.file = fn; item.dataset.name = label;
-            item.addEventListener('mouseenter', async () => {
-              try {
-                if (_previewFetchController) try { _previewFetchController.abort(); } catch (e) {}
-                _previewFetchController = new AbortController();
-                const res = await fetch('layouts/' + fn, { signal: _previewFetchController.signal }); if (!res.ok) throw new Error('not found');
-                const parsed = await res.json(); applyLayoutPreview(parsed);
-              } catch (e) { if (e.name !== 'AbortError') console.warn('Could not load preset for preview', e); }
-            });
-            item.addEventListener('click', async (ev) => {
-              ev.stopPropagation(); try {
-                const res = await fetch('layouts/' + fn); if (!res.ok) throw new Error('not found'); const parsed = await res.json();
-                importLayout(parsed);
-                _menuSelectionMade = true; closePresetsMenu(false);
-                showToast('Preset applied: ' + item.dataset.name, 1000);
-              } catch (e) { console.warn('Could not apply preset', e); }
-            });
-            wrapper.appendChild(item);
-          }
-        }
-      }
-
-      // helper to render profiles list
-      function renderProfilesList() {
-        wrapper.innerHTML = '';
-        for (let i = 1; i <= PROFILE_COUNT; i++) {
-          const key = 'profile' + i;
-          const saved = appState.profiles && appState.profiles[key];
-          const item = document.createElement('div'); item.className = 'presetItem';
-          const profileName = saved?.name || 'Profile ' + i;
-          const label = profileName + (saved ? '' : ' (Empty)');
-          item.textContent = label; item.dataset.profile = i;
-          if (saved) {
-            item.addEventListener('mouseenter', () => { try { applyLayoutPreview(saved); } catch (e) { console.warn('profile preview failed', e); } });
-            item.addEventListener('click', () => { try { importLayout(saved); _menuSelectionMade = true; closePresetsMenu(false); showToast(profileName + ' loaded', 1000); } catch (e) { console.warn('profile load failed', e); } });
-            item.addEventListener('contextmenu', (e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              startRenameProfile(i, item);
-            });
-          } else {
-            item.classList.add('empty');
-          }
-          wrapper.appendChild(item);
-        }
-      }
-
-      function renderControllersList() {
-        wrapper.innerHTML = '';
-        const controllers = getDetectedControllers();
-        if (controllers.length === 0) {
-          const none = document.createElement('div'); none.className = 'presetItem empty'; none.textContent = '(no controllers detected)'; wrapper.appendChild(none);
-          return;
-        }
-        const selectedKey = getSelectedControllerKey();
-        for (const controller of controllers) {
-          const item = document.createElement('button');
-          item.type = 'button';
-          item.className = 'presetItem controllerItem';
-          item.dataset.controllerKey = controller.key;
-          const label = document.createElement('span');
-          label.textContent = controller.name;
-          item.appendChild(label);
-          if (controller.key === selectedKey) {
-            const check = document.createElement('span');
-            check.className = 'controllerCheck';
-            check.textContent = '\u2713';
-            check.setAttribute('aria-label', 'Active controller');
-            item.appendChild(check);
-            item.classList.add('active');
-          }
-          item.addEventListener('click', event => {
-            event.stopPropagation();
-            selectController(controller);
-            renderControllersList();
-          });
-          wrapper.appendChild(item);
-        }
-      }
-      renderControllerList = renderControllersList;
-
-      function startRenameProfile(profileIndex, itemEl) {
-        if (itemEl.querySelector('input')) return;
-        const key = 'profile' + profileIndex;
-        const saved = appState.profiles && appState.profiles[key];
-        if (!saved) return;
-        const currentName = saved.name || 'Profile ' + profileIndex;
-        itemEl.textContent = '';
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.className = 'profile-rename-input';
-        input.value = currentName;
-        input.style.width = '100%';
-        input.style.boxSizing = 'border-box';
-        itemEl.appendChild(input);
-        input.focus();
-        input.select();
-
-        function finishRename(commit) {
-          if (!itemEl.contains(input)) return;
-          itemEl.removeChild(input);
-          if (commit) {
-            const newName = input.value.trim();
-            if (newName) {
-              saved.name = newName;
-              itemEl.textContent = newName;
-              saveStateData();
-              showToast('Profile renamed to ' + newName, 1000);
-            } else {
-              itemEl.textContent = currentName;
-            }
-          } else {
-            itemEl.textContent = currentName;
-          }
-        }
-
-        input.addEventListener('blur', () => finishRename(true));
-        input.addEventListener('keydown', (ev) => {
-          if (ev.key === 'Enter') {
-            ev.preventDefault();
-            finishRename(true);
-          } else if (ev.key === 'Escape') {
-            ev.preventDefault();
-            finishRename(false);
-          }
-        });
-      }
-
-  // initial render shows profiles by default
-  renderProfilesList();
-      // wire header toggles and set classes
-        function setActiveToggle(which) {
-          if (which === 'profiles') {
-            profilesToggle.classList.add('active'); presetsToggle.classList.remove('active');
-            controllerToggle.classList.remove('active');
-          } else if (which === 'presets') {
-            presetsToggle.classList.add('active'); profilesToggle.classList.remove('active');
-            controllerToggle.classList.remove('active');
-          } else {
-            controllerToggle.classList.add('active'); profilesToggle.classList.remove('active'); presetsToggle.classList.remove('active');
-          }
-        }
-
-        function repositionPresetsMenu() {
-          const rect = menu.getBoundingClientRect();
-          const vw = window.innerWidth;
-          const vh = window.innerHeight;
-          let left = parseInt(menu.style.left, 10) || x;
-          let top = parseInt(menu.style.top, 10) || y;
-          if (left + rect.width > vw) left = Math.max(8, vw - rect.width - 10);
-          if (top + rect.height > vh) top = Math.max(8, vh - rect.height - 10);
-          menu.style.left = left + 'px';
-          menu.style.top = top + 'px';
-        }
-
-        profilesToggle.addEventListener('click', () => {
-          setActiveToggle('profiles');
-          renderProfilesList();
-          repositionPresetsMenu();
-        });
-
-        presetsToggle.addEventListener('click', () => {
-          setActiveToggle('presets');
-          renderPresetsList();
-          repositionPresetsMenu();
-      });
-      controllerToggle.addEventListener('click', () => {
-        setActiveToggle('controllers');
-        renderControllersList();
-        repositionPresetsMenu();
-      });
-  setActiveToggle('profiles');
-      menu.appendChild(wrapper);
-      // const note = document.createElement('div'); note.className = 'presetPreviewNote'; note.textContent = 'Hover to preview. Click to apply. Click outside to cancel.'; menu.appendChild(note);
-      document.body.appendChild(menu); presetsMenuEl = menu;
-      // position and clamp to viewport (mirror colorPanel logic)
-      menu.style.left = x + 'px'; menu.style.top = y + 'px'; const rect = menu.getBoundingClientRect(); const vw = window.innerWidth; const vh = window.innerHeight;
-      let left = x; let top = y; if (left + rect.width > vw) left = Math.max(8, vw - rect.width - 10); if (top + rect.height > vh) top = Math.max(8, vh - rect.height - 10);
-      // Small offset to avoid obstructing the click area
-      left += 8; top += 8;
-      // Re-clamp after offset
-      if (left + rect.width > vw) left = Math.max(8, vw - rect.width - 10);
-      if (top + rect.height > vh) top = Math.max(8, vh - rect.height - 10);
-      menu.style.left = left + 'px'; menu.style.top = top + 'px';
-      startUiHideTimer();
-    } catch (e) { console.warn('openPresetsMenu failed', e); }
+    presetsMenu.close(revert);
   }
 
   // One delegated router owns all custom right-click behavior.
   document.addEventListener('contextmenu', (e) => {
     try {
-      if (colorPanel?.contains(e.target) || presetsMenuEl?.contains(e.target) || remapButton.panel?.contains(e.target)) return;
+      if (colorPanel?.contains(e.target) || presetsMenu.element()?.contains(e.target) || remapButton.panel?.contains(e.target)) return;
       e.preventDefault();
       const requestId = ++contextMenuRequest;
       const target = e.target.closest?.('.btn, #stickWrapper, #eightWayWrapper, #joystickHead, #base');
@@ -2291,7 +1935,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
         return;
       }
       closeColorPanel(true);
-      openPresetsMenu(e.pageX, e.pageY, requestId);
+      presetsMenu.open(e.pageX, e.pageY, requestId);
     } catch (err) { }
   });
 
@@ -2306,7 +1950,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
   // detect active gamepad & main animation loop
   function animate() {
     // Prefer TrailChain WebSocket data; fall back to native Gamepad API.
-    // No controller is active until one produces input — autoAssignActiveController
+    // No controller is active until one produces input â€” autoAssignActiveController
     // locks the first controller that sends input in as active.
     autoAssignActiveController();
     let pad = null;
@@ -2406,7 +2050,7 @@ panelAnchorTarget = anchorTarget; revertPreview(); colorPanel.innerHTML = '';
   loadStateData(); updateStateData(); resizeJoystickWrapper();
   if (window.ResizeObserver) { const ro = new ResizeObserver(() => { resizeJoystickWrapper(); }); ro.observe(stickWrapper); }
 
-  // Initialize TrailChain WebSocket client (optional — connects to the
+  // Initialize TrailChain WebSocket client (optional â€” connects to the
   // TrailChain companion app broadcasting controller state on port 3819).
   // The host can be overridden via ?host=192.168.1.42 in the URL.
   const urlParams = new URLSearchParams(window.location.search);
