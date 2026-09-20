@@ -13,6 +13,7 @@
     "backgroundColor": "rgba(255, 255, 255, 0.25)",
     "backgroundImage": "",
     "backgroundSize": "auto",
+    "maskImage": "",
     "color": "rgba(255, 255, 255, 0.533)",
     "fontSize": "16px",
     "fontFamily": "Kanit, sans-serif",

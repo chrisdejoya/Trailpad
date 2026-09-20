@@ -13,6 +13,7 @@
     "backgroundColor": "rgba(0, 0, 0, 0.6)",
     "backgroundImage": "images/dbfz/base.svg",
     "backgroundSize": "contain",
+    "maskImage": "images/dbfz/base.svg",
     "color": "rgb(238, 238, 238)",
     "fontSize": "16px",
     "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",

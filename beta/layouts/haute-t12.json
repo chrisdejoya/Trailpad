@@ -13,6 +13,7 @@
     "backgroundColor": "rgba(0, 0, 0, 0)",
     "backgroundImage": "images/haute/base.svg",
     "backgroundSize": "contain",
+    "maskImage": "",
     "color": "rgba(0, 0, 0, 0)",
     "fontSize": "0px",
     "fontFamily": "\"Russo One\", sans-serif",

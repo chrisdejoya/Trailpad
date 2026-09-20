@@ -13,6 +13,7 @@
     "backgroundColor": "rgba(0, 0, 0, 0)",
     "backgroundImage": "images/tokon/tok-base.svg",
     "backgroundSize": "cover",
+    "maskImage": "",
     "color": "rgb(238, 238, 238)",
     "fontSize": "0px",
     "fontFamily": "\"Barlow Condensed\", sans-serif",

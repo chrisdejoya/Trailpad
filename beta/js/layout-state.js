@@ -7,7 +7,7 @@
 // updateAnalogStickBases, saveStateData) are injected; arrowSize crosses via
 // get/set accessors, same pattern as js/presets-menu.js.
 
-import { normalizeBgImage, applyBgImage } from './bg-image.js';
+import { normalizeBgImage, applyBgImage, applyMaskImage } from './bg-image.js';
 import { preloadFontsForLayout } from './fonts.js';
 
 export function createLayoutState({
@@ -31,6 +31,18 @@ export function createLayoutState({
       el.style.backgroundPosition = 'center';
       el.style.backgroundRepeat = 'no-repeat';
     }
+    if (data.maskImage !== undefined) applyMaskImage(el, data.maskImage);
+    if (el === base && data.maskImage) {
+      // Mirror the base's background sizing (gamepad presets use "contain") so
+      // the mask lines up with the base image; an explicit maskSize wins.
+      const maskSize = data.maskSize ?? (data.backgroundSize !== undefined ? data.backgroundSize : 'cover');
+      el.style.webkitMaskSize = maskSize;
+      el.style.maskSize = maskSize;
+      el.style.webkitMaskPosition = 'center';
+      el.style.maskPosition = 'center';
+      el.style.webkitMaskRepeat = 'no-repeat';
+      el.style.maskRepeat = 'no-repeat';
+    }
     if (data.label !== undefined && el.dataset && el.dataset.btn) el.textContent = data.label;
   }
 
@@ -52,12 +64,45 @@ export function createLayoutState({
     return path;
   }
 
+  function getExportMaskImagePath(el) {
+    const path = (el === base && appState.base?.maskImage)
+      ? normalizeBgImage(appState.base.maskImage)
+      : computedMaskImagePath(el);
+    if (el !== base || !path) return path;
+    if (!/^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(path)) return path;
+    try {
+      const parsed = new URL(path, document.baseURI);
+      if (parsed.protocol === 'http:' || parsed.protocol === 'https:' || parsed.protocol === 'file:') return parsed.href;
+    } catch (e) { }
+    return path;
+  }
+
+  // Read the element's current mask path from computed style, relativizing
+  // absolute URLs under the document directory (same approach as getBgImagePath).
+  function computedMaskImagePath(el) {
+    const cs = window.getComputedStyle(el);
+    const raw = cs.webkitMaskImage || cs.maskImage || 'none';
+    if (!raw || raw === 'none') return '';
+    const m = raw.match(/^url\(["']?([^"')]+)["']?\)$/i);
+    if (!m) return '';
+    try {
+      const url = new URL(m[1], document.baseURI);
+      const docDir = new URL('.', document.baseURI).pathname;
+      let rel = url.pathname;
+      if (rel.startsWith(docDir)) rel = rel.slice(docDir.length);
+      return rel + url.search;
+    } catch (e) {
+      return m[1];
+    }
+  }
+
   function captureElementProperties(el) {
     const cs = window.getComputedStyle(el);
     const snap = {
       display: cs.display, zIndex: cs.zIndex, top: cs.top, left: cs.left, width: cs.width, height: cs.height,
       borderRadius: cs.borderRadius, outline: cs.outline, outlineOffset: cs.outlineOffset, boxShadow: cs.boxShadow,
       backgroundColor: cs.backgroundColor, backgroundImage: getExportBgImagePath(el), backgroundSize: cs.backgroundSize,
+      maskImage: getExportMaskImagePath(el),
       color: cs.color, fontSize: cs.fontSize, fontFamily: cs.fontFamily, label: (el.textContent || '').trim()
     };
     if (el.dataset && el.dataset.btn) {
@@ -118,6 +163,9 @@ export function createLayoutState({
   function importLayout(parsed) {
     if (!parsed) return;
     preloadFontsForLayout(parsed);
+    // Snapshots saved before maskImage existed lack the key; default it to
+    // empty so a previously imported gamepad mask can't leak into this layout.
+    if (parsed.base && parsed.base.maskImage === undefined) parsed.base = Object.assign({}, parsed.base, { maskImage: '' });
     applyAndStore(base, appState.base = appState.base || {}, parsed.base);
     applyAndStore(stickWrapper, appState.joystick = appState.joystick || {}, parsed.joystick);
     if (parsed.joystickHead) applyAndStore(joystick, appState.joystickHead = appState.joystickHead || {}, parsed.joystickHead);

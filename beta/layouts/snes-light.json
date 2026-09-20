@@ -13,6 +13,7 @@
     "backgroundColor": "rgba(0, 0, 0, 0)",
     "backgroundImage": "images/snes/snes-base-light.svg",
     "backgroundSize": "contain",
+    "maskImage": "images/snes/snes-base-light.svg",
     "color": "rgb(238, 238, 238)",
     "fontSize": "16px",
     "fontFamily": "\"Russo One\", sans-serif",
