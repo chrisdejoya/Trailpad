@@ -23,7 +23,7 @@ export function createPresetsMenu({
   saveStateData, showToast, startUiHideTimer, stopUiHideTimer,
   getContextMenuRequest, setArrowSize
 }) {
-  const { base, stickWrapper, eightWayWrapper, joystick, btnEls } = els;
+  const { base, lsBase, rsBase, stickWrapper, eightWayWrapper, joystick, btnEls } = els;
 
   let presetsMenuEl = null;
   let layoutsIndex = null;
@@ -37,6 +37,8 @@ export function createPresetsMenu({
     try {
       // Apply base/joystick/eightway/buttons visually, but do not merge into appState (we'll revert by re-importing the snapshot)
       if (parsed.base) applyPropertiesToElement(base, parsed.base);
+      if (parsed.LSBase) applyPropertiesToElement(lsBase, parsed.LSBase);
+      if (parsed.RSBase) applyPropertiesToElement(rsBase, parsed.RSBase);
       if (parsed.joystick) applyPropertiesToElement(stickWrapper, parsed.joystick);
       // joystick head: apply visual properties for preview
       if (parsed.joystickHead) {

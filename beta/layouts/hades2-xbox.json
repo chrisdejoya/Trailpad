@@ -311,7 +311,6 @@
       "label": "",
       "stickRadius": 8,
       "stickMovement": true,
-      "baseVisibility": false,
       "trailWidth": 12,
       "trailLength": 8
     },
@@ -334,7 +333,6 @@
       "label": "",
       "stickRadius": 8,
       "stickMovement": true,
-      "baseVisibility": false,
       "trailWidth": 12,
       "trailLength": 8
     },
@@ -381,5 +379,45 @@
     "minTriggerBrightness": 1,
     "maxTriggerBrightness": 3,
     "triggerDeadzone": 0
+  },
+  "LSBase": {
+    "display": "none",
+    "zIndex": "3",
+    "top": "0px",
+    "left": "0px",
+    "width": "100px",
+    "height": "100px",
+    "borderRadius": "50%",
+    "outline": "rgb(0, 0, 0) none 0px",
+    "outlineOffset": "0px",
+    "boxShadow": "none",
+    "backgroundColor": "rgba(0, 0, 0, 0)",
+    "backgroundImage": "",
+    "backgroundSize": "auto",
+    "maskImage": "",
+    "color": "rgb(238, 238, 238)",
+    "fontSize": "36px",
+    "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
+    "label": ""
+  },
+  "RSBase": {
+    "display": "none",
+    "zIndex": "3",
+    "top": "0px",
+    "left": "0px",
+    "width": "100px",
+    "height": "100px",
+    "borderRadius": "50%",
+    "outline": "rgb(0, 0, 0) none 0px",
+    "outlineOffset": "0px",
+    "boxShadow": "none",
+    "backgroundColor": "rgba(0, 0, 0, 0)",
+    "backgroundImage": "",
+    "backgroundSize": "auto",
+    "maskImage": "",
+    "color": "rgb(238, 238, 238)",
+    "fontSize": "36px",
+    "fontFamily": "\"Swiss 721\", Arial, Helvetica, sans-serif",
+    "label": ""
   }
 }

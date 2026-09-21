@@ -14,12 +14,12 @@ import { preloadFontsForLayout } from './fonts.js';
 
 export function createStatePersistence({
   appState, STORAGE_KEY,
-  els, // { joystick, btnEls, base, stickWrapper, eightWayWrapper }
+  els, // { lsBase, rsBase, joystick, btnEls, base, stickWrapper, eightWayWrapper }
   getButtonMap, setButtonMap, DEFAULT_BUTTON_MAP,
   applyJoystickHeadFromState, resizeJoystickWrapper, updateStateData,
   remapButton
 }) {
-  const { joystick, btnEls, base, stickWrapper, eightWayWrapper } = els;
+  const { lsBase, rsBase, joystick, btnEls, base, stickWrapper, eightWayWrapper } = els;
 
   function saveStateData() {
     try {
@@ -44,6 +44,8 @@ export function createStatePersistence({
       sync(element, appState.buttons[key]);
     });
     sync(base, appState.base);
+    sync(lsBase, appState.LSBase);
+    sync(rsBase, appState.RSBase);
     sync(stickWrapper, appState.joystick);
     sync(eightWayWrapper, appState.eightWayWrapper);
   }
@@ -55,6 +57,8 @@ export function createStatePersistence({
       appState.profiles = Object.assign({}, appState.profiles || {}, parsed.profiles || {});
       appState.joystick = Object.assign({}, appState.joystick || {}, parsed.joystick || {});
       appState.base = Object.assign({}, appState.base || {}, parsed.base || {});
+      appState.LSBase = Object.assign({}, appState.LSBase || {}, parsed.LSBase || {});
+      appState.RSBase = Object.assign({}, appState.RSBase || {}, parsed.RSBase || {});
       appState.eightWayWrapper = Object.assign({}, appState.eightWayWrapper || {}, parsed.eightWayWrapper || {});
       if (parsed.joystickHead !== undefined) appState.joystickHead = Object.assign({}, parsed.joystickHead);
       if (parsed.hiddenButtons !== undefined) appState.hiddenButtons = parsed.hiddenButtons;

@@ -16,7 +16,7 @@ export function createLayoutState({
   getArrowSize, setArrowSize,
   getResizeEightWayArrows, updateAnalogStickBases, saveStateData, getBgImagePath  // getResizeEightWayArrows: () => resizeEightWayArrows (lazy â€” js/sizing.js)
 }) {
-  const { base, stickWrapper, eightWayWrapper, joystick, btnEls } = els;
+  const { base, lsBase, rsBase, stickWrapper, eightWayWrapper, joystick, btnEls } = els;
 
   function applyPropertiesToElement(el, data) {
     if (!el || !data) return;
@@ -116,8 +116,6 @@ export function createLayoutState({
         snap.stickRadius = Math.max(0, Math.min(100, parseInt(stickState.stickRadius ?? ANALOG_DEFAULTS.stickRadius, 10) || 0));
         snap.trailLength = Math.max(1, Math.min(60, parseInt(stickState.trailLength ?? stickState.trailSize ?? ANALOG_DEFAULTS.trailLength, 10) || ANALOG_DEFAULTS.trailLength));
         snap.trailWidth = Math.max(1, Math.min(40, parseInt(stickState.trailWidth ?? ANALOG_DEFAULTS.trailWidth, 10) || ANALOG_DEFAULTS.trailWidth));
-        snap.baseVisibility = stickState.baseVisibility ?? stickState.showBase ?? ANALOG_DEFAULTS.baseVisibility;
-        snap.baseSize = Math.max(20, Math.min(300, parseInt(stickState.baseSize ?? ANALOG_DEFAULTS.baseSize, 10) || ANALOG_DEFAULTS.baseSize));
       }
     }
     if (snap.backgroundSize && snap.backgroundSize !== 'auto') {
@@ -139,6 +137,8 @@ export function createLayoutState({
   function exportLayout() {
     const snap = {
       base: captureElementProperties(base),
+      LSBase: captureElementProperties(lsBase),
+      RSBase: captureElementProperties(rsBase),
       joystick: captureElementProperties(stickWrapper),
       joystickHead: captureElementProperties(joystick),
       eightWayWrapper: captureElementProperties(eightWayWrapper),
@@ -167,6 +167,8 @@ export function createLayoutState({
     // empty so a previously imported gamepad mask can't leak into this layout.
     if (parsed.base && parsed.base.maskImage === undefined) parsed.base = Object.assign({}, parsed.base, { maskImage: '' });
     applyAndStore(base, appState.base = appState.base || {}, parsed.base);
+    if (parsed.LSBase) applyAndStore(lsBase, appState.LSBase = appState.LSBase || {}, parsed.LSBase);
+    if (parsed.RSBase) applyAndStore(rsBase, appState.RSBase = appState.RSBase || {}, parsed.RSBase);
     applyAndStore(stickWrapper, appState.joystick = appState.joystick || {}, parsed.joystick);
     if (parsed.joystickHead) applyAndStore(joystick, appState.joystickHead = appState.joystickHead || {}, parsed.joystickHead);
     applyAndStore(eightWayWrapper, appState.eightWayWrapper = appState.eightWayWrapper || {}, parsed.eightWayWrapper);

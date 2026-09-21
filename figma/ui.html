@@ -45,6 +45,29 @@
       padding: 10px 0;
     }
 
+    .grid button {
+      position: relative;
+    }
+
+    .grid button.assigned::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      right: 8px;
+      transform: translateY(-50%);
+      width: 18px;
+      height: 18px;
+      background: var(--green);
+      border-radius: 50%;
+      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z' fill='black'/%3E%3C/svg%3E") center / 13px 13px no-repeat;
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z' fill='black'/%3E%3C/svg%3E") center / 13px 13px no-repeat;
+    }
+
+    .grid button.selected {
+      outline: 2px solid var(--green);
+      outline-offset: 1px;
+    }
+
     #buttons {
       border-top: 1px solid var(--border);
     }
@@ -139,6 +162,7 @@
     const addButtons = (target, items) => {
       items.forEach(item => {
         const button = document.createElement('button');
+        button.dataset.key = item.key || item;
         button.textContent = item.label || item;
         button.onclick = () => parent.postMessage({
           pluginMessage: { type: 'NAME', name: item.key || item }
@@ -146,6 +170,16 @@
         target.appendChild(button);
       });
     };
+
+    const assigned = new Set();
+    let selectedName = '';
+
+    function renderAssignments() {
+      document.querySelectorAll('#roles button, #buttons button').forEach(button => {
+        button.classList.toggle('assigned', assigned.has(button.dataset.key));
+        button.classList.toggle('selected', button.dataset.key === selectedName);
+      });
+    }
 
     $('import').onclick = () => $('import-file').click();
 
@@ -295,12 +329,13 @@
       const manualLocalPath = message.manualLocalPath || '';
       
       // Combine manual path with frame name for full local paths in JSON
-      const fullLocalPrefix = manualLocalPath && localPathPrefix 
-        ? `${manualLocalPath.replace(/\/+$/, '')}/${localPathPrefix}`
+      // Normalize all separators to forward slashes for cross-platform consistency
+      const fullLocalPrefix = manualLocalPath && localPathPrefix
+        ? `${manualLocalPath.replace(/\\/g, '/').replace(/[\/]+$/, '')}/${localPathPrefix}`
         : localPathPrefix;
       
       if (useLocalPaths && fullLocalPrefix) {
-        for (const key of ['base', 'joystick', 'joystickHead', 'eightWayWrapper', 'arrowOn', 'arrowOff']) {
+        for (const key of ['base', 'LSBase', 'RSBase', 'joystick', 'joystickHead', 'eightWayWrapper', 'arrowOn', 'arrowOff']) {
           if (layout[key] && layout[key].backgroundImage && layout[key].backgroundImage !== 'none') {
             layout[key].backgroundImage = `${fullLocalPrefix}/${layout[key].backgroundImage}`;
           }
@@ -334,10 +369,20 @@
       if (message.type === 'CONFIG') {
         addButtons($('roles'), message.roles);
         addButtons($('buttons'), message.buttons);
+        renderAssignments();
+      }
+
+      if (message.type === 'ASSIGNMENTS') {
+        assigned.clear();
+        (message.names || []).forEach(name => assigned.add(name));
+        selectedName = message.selectedName || '';
+        renderAssignments();
       }
 
       if (message.type === 'NAMED') {
-        $('status').textContent = `Named selected layer "${message.name}".`;
+        $('status').textContent = message.conflict
+          ? `Name "${message.name}" is already in use.`
+          : `Named selected layer "${message.name}".`;
       }
 
       if (message.type === 'EXPORT_JSON') {

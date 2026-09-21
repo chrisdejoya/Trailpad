@@ -1,5 +1,7 @@
 const ROLE_NAMES = [
   { key: 'base', label: 'Base' },
+  { key: 'LSBase', label: 'LS Base' },
+  { key: 'RSBase', label: 'RS Base' },
   { key: 'joystick', label: 'Joystick' },
   { key: 'joystickHead', label: 'Joystick Head' },
   { key: 'eightWayWrapper', label: '8-way Wrapper' },
@@ -19,6 +21,35 @@ function selectedNode() {
   return figma.currentPage.selection[0] || null;
 }
 
+function enclosingFrame(node) {
+  let current = node;
+  while (current && !['FRAME', 'COMPONENT', 'COMPONENT_SET'].includes(current.type)) {
+    if (!('parent' in current)) return null;
+    current = current.parent;
+  }
+  return current || null;
+}
+
+function assignedNames() {
+  const selected = selectedNode();
+  const root = enclosingFrame(selected) || selected;
+  const names = new Set();
+  if (root && 'children' in root) {
+    for (const node of [root, ...descendants(root)]) {
+      names.add(node.name);
+    }
+  }
+  return Array.from(names);
+}
+
+function onSelectionChange() {
+  const selected = selectedNode();
+  figma.ui.postMessage({ type: 'ASSIGNMENTS', names: assignedNames(), selectedName: selected ? selected.name : '' });
+}
+
+figma.on('selectionchange', onSelectionChange);
+onSelectionChange();
+
 function notify(message) {
   figma.notify(message);
 }
@@ -26,8 +57,22 @@ function notify(message) {
 function nameSelection(name) {
   const node = selectedNode();
   if (!node) return notify('Select a layer first.');
+  const root = enclosingFrame(node) || node;
+  const existing = new Set();
+  if (root && 'children' in root) {
+    for (const n of [root, ...descendants(root)]) {
+      if (n.id !== node.id) existing.add(n.name);
+    }
+  }
+  if (existing.has(name)) {
+    notify(`Name "${name}" is already in use.`);
+    figma.ui.postMessage({ type: 'NAMED', name, nodeName: node.name, conflict: true });
+    onSelectionChange();
+    return;
+  }
   node.name = name;
   figma.ui.postMessage({ type: 'NAMED', name, nodeName: node.name });
+  onSelectionChange();
 }
 
 function colorToCss(paint) {
@@ -134,7 +179,7 @@ function descendants(node) {
 }
 
 function isSvgAssetNode(node) {
-  return ['GROUP', 'FRAME', 'COMPONENT', 'COMPONENT_SET', 'INSTANCE'].includes(node.type);
+  return ['FRAME', 'COMPONENT', 'COMPONENT_SET', 'INSTANCE', 'GROUP', 'VECTOR', 'RECTANGLE', 'ELLIPSE', 'POLYGON', 'STAR', 'LINE', 'BOOLEAN_OPERATION'].includes(node.type);
 }
 
 function exportLayout(root) {
@@ -146,6 +191,8 @@ function exportLayout(root) {
   const properties = node => elementProperties(node, rootBounds, zIndexes.get(node.id));
   const layout = {
     base: byName.has('base') ? properties(byName.get('base')) : hidden(),
+    LSBase: byName.has('LSBase') ? properties(byName.get('LSBase')) : hidden(),
+    RSBase: byName.has('RSBase') ? properties(byName.get('RSBase')) : hidden(),
     joystick: byName.has('joystick') ? properties(byName.get('joystick')) : hidden(),
     joystickHead: byName.has('joystickHead') ? properties(byName.get('joystickHead')) : hidden(),
     eightWayWrapper: byName.has('eightWayWrapper') ? properties(byName.get('eightWayWrapper')) : hidden(),
@@ -189,8 +236,8 @@ async function exportAssets(root, layout, assetFolder) {
   const assets = [];
   for (const node of recognizedAssetNodes(root)) {
     const fileName = safeAssetName(node.name);
-    const assetPath = `${assetFolder}/${fileName}`;
-    const jsonPath = `images/${assetPath}`;
+    const assetPath = `images/${assetFolder}/${fileName}`;
+    const jsonPath = `images/${assetFolder}/${fileName}`;
     if (layout.buttons[node.name]) {
       layout.buttons[node.name].backgroundImage = jsonPath;
       layout.buttons[node.name].backgroundSize = 'contain';
@@ -357,6 +404,8 @@ async function importLayout(layout, fileName, assets) {
   root.clipsContent = false;
   const layers = [
     ['base', layout.base],
+    ['LSBase', layout.LSBase],
+    ['RSBase', layout.RSBase],
     ['joystick', layout.joystick],
     ['joystickHead', layout.joystickHead],
     ['eightWayWrapper', layout.eightWayWrapper],
@@ -400,7 +449,8 @@ figma.ui.onmessage = message => {
     }
   }
   if (message.type === 'EXPORT') {
-    const root = selectedNode();
+    let root = selectedNode();
+    if (!root || !('children' in root)) root = enclosingFrame(root);
     if (!root || !('children' in root)) return notify('Select a frame or component containing your layout.');
     const result = exportLayout(root);
     const frameName = safeAssetName(root.name).replace(/\.svg$/i, '');

@@ -7,7 +7,7 @@ import { getDpadDirection, directionFromVector, vectorFromDirection, getDpadComp
 import { radialDeadzone, clampRoundedSquare, getAnalogStick } from './js/stick-math.js';
 import { loadFontsList, preloadFontsForLayout } from './js/fonts.js';
 import { createColorPanel } from './js/color-panel.js';
-import { normalizeBgImage, applyBgImage } from './js/bg-image.js';
+import { normalizeBgImage, applyBgImage, applyMaskImage } from './js/bg-image.js';
 import { controllerHasInput, detectActiveGamepad } from './js/input-detect.js';
 import { createClipboardIO } from './js/clipboard-io.js';
 import { createProfiles } from './js/profiles.js';
@@ -61,6 +61,8 @@ window.addEventListener('DOMContentLoaded', () => {
     } catch (e) {}
   });
   const base = document.getElementById('base');
+  const lsBase = document.getElementById('LSBase');
+  const rsBase = document.getElementById('RSBase');
   const stickWrapper = document.getElementById('stickWrapper');
   const joystick = document.getElementById('joystickHead');
   const eightWayWrapper = document.getElementById('eightWayWrapper');
@@ -111,6 +113,8 @@ window.addEventListener('DOMContentLoaded', () => {
     joystick: {},
     joystickHead: {},
     base: {},
+    LSBase: {},
+    RSBase: {},
     eightWayWrapper: { arrowSize: 90 },
     hiddenButtons: [],
     trailColor: getComputedStyle(document.documentElement).getPropertyValue('--trail-color') || '#CEEC73',
@@ -194,7 +198,7 @@ window.addEventListener('DOMContentLoaded', () => {
   // getBgImagePath is a hoisted function declaration.
   const layout = createLayoutState({
     appState, ANALOG_DEFAULTS,
-    els: { base, stickWrapper, eightWayWrapper, joystick, btnEls },
+    els: { base, lsBase, rsBase, stickWrapper, eightWayWrapper, joystick, btnEls },
         getArrowSize: () => arrowSize.value,
     setArrowSize: v => { if (v !== undefined) arrowSize.value = v; },
     getResizeEightWayArrows: () => resizeEightWayArrows,
@@ -609,11 +613,10 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   }
   function updateAnalogStickBases() {
-    const baseImage = getBgImagePath(stickWrapper);
     Object.entries(analogStickBases).forEach(([id, analogBase]) => {
       const button = btnEls[id];
       if (!analogBase || !button) return;
-      const state = appState.buttons[id] || {};
+      const state = id === 'LS' ? (appState.LSBase || {}) : (appState.RSBase || {});
       const size = Math.max(20, Math.min(300, parseInt(state.baseSize ?? 100, 10) || 100));
       const centerX = button.offsetLeft + button.offsetWidth / 2;
       const centerY = button.offsetTop + button.offsetHeight / 2;
@@ -621,8 +624,18 @@ window.addEventListener('DOMContentLoaded', () => {
       analogBase.style.height = `${size}px`;
       analogBase.style.left = `${centerX - size / 2}px`;
       analogBase.style.top = `${centerY - size / 2}px`;
-      analogBase.style.display = (state.baseVisibility ?? state.showBase) === true ? 'block' : 'none';
-      applyBgImage(analogBase, baseImage);
+      // Use the base's own backgroundImage and maskImage from layout state
+      applyBgImage(analogBase, state.backgroundImage);
+      applyMaskImage(analogBase, state.maskImage);
+      if (state.maskImage) {
+        const maskSize = state.maskSize ?? (state.backgroundSize !== undefined ? state.backgroundSize : 'cover');
+        analogBase.style.webkitMaskSize = maskSize;
+        analogBase.style.maskSize = maskSize;
+        analogBase.style.webkitMaskPosition = 'center';
+        analogBase.style.maskPosition = 'center';
+        analogBase.style.webkitMaskRepeat = 'no-repeat';
+        analogBase.style.maskRepeat = 'no-repeat';
+      }
     });
   }
   window.addEventListener('resize', resizeJoystickWrapper);
@@ -667,7 +680,7 @@ window.addEventListener('DOMContentLoaded', () => {
     appState, profileCount: PROFILE_COUNT,
     exportLayout, importLayout,
     applyPropertiesToElement, applyBgImage,
-    els: { base, stickWrapper, eightWayWrapper, joystick, btnEls },
+    els: { base, lsBase, rsBase, stickWrapper, eightWayWrapper, joystick, btnEls },
         getResizeEightWayArrows: () => resizeEightWayArrows, resizeJoystickWrapper,
     getDetectedControllers, getSelectedControllerKey, selectController,
     saveStateData, showToast, startUiHideTimer, stopUiHideTimer,
@@ -681,7 +694,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const colorPanelApi = createColorPanel({
     appState,
     ANALOG_DEFAULTS,
-    els: { base, stickWrapper, eightWayWrapper, joystick, btnEls },
+    els: { base, lsBase, rsBase, stickWrapper, eightWayWrapper, joystick, btnEls },
     presetsMenu,
     getSelected: () => selected,
     getPanelAnchorTarget: () => panelAnchorTarget,
@@ -799,7 +812,7 @@ window.addEventListener('DOMContentLoaded', () => {
   // --- render state: pushes appState onto DOM (js/render-state.js) ---
   const render = createRenderState({
     appState,
-    els: { btnEls, base, stickWrapper, eightWayWrapper, joystick },
+    els: { btnEls, lsBase, rsBase, base, stickWrapper, eightWayWrapper, joystick },
     applyPropertiesToElement, applyBgImage,
     getArrowSize: () => arrowSize.value,
     setArrowSize: v => { if (v !== undefined) arrowSize.value = v; },
@@ -812,7 +825,7 @@ window.addEventListener('DOMContentLoaded', () => {
   // Boot
   persistenceApi = createStatePersistence({
     appState, STORAGE_KEY,
-    els: { joystick, btnEls, base, stickWrapper, eightWayWrapper },
+    els: { lsBase, rsBase, joystick, btnEls, base, stickWrapper, eightWayWrapper },
     getButtonMap: () => buttonMap,
     setButtonMap: v => { buttonMap = v; },
     DEFAULT_BUTTON_MAP,

@@ -26,7 +26,7 @@ export function createColorPanel({
   getBgImagePath, saveStateData, showToast,
   startUiHideTimer, stopUiHideTimer
 }) {
-  const { base, stickWrapper, eightWayWrapper, joystick, btnEls } = els;
+  const { base, lsBase, rsBase, stickWrapper, eightWayWrapper, joystick, btnEls } = els;
 
   let colorPanel = document.getElementById('colorPanel');
   let applyPickedColor = null;
@@ -109,8 +109,9 @@ export function createColorPanel({
     const stickRadius = Math.max(0, Math.min(100, parseInt(stickState.stickRadius ?? ANALOG_DEFAULTS.stickRadius, 10) || 0));
     const trailLength = Math.max(1, Math.min(60, parseInt(stickState.trailLength ?? stickState.trailSize ?? ANALOG_DEFAULTS.trailLength, 10) || ANALOG_DEFAULTS.trailLength));
     const trailWidth = Math.max(1, Math.min(40, parseInt(stickState.trailWidth ?? ANALOG_DEFAULTS.trailWidth, 10) || ANALOG_DEFAULTS.trailWidth));
-    const baseVisibility = stickState.baseVisibility ?? stickState.showBase ?? ANALOG_DEFAULTS.baseVisibility;
-    const baseSize = Math.max(20, Math.min(300, parseInt(stickState.baseSize ?? ANALOG_DEFAULTS.baseSize, 10) || ANALOG_DEFAULTS.baseSize));
+    const baseState = appState[stickId + 'Base'] || (appState[stickId + 'Base'] = {});
+    const baseVisibility = baseState.baseVisibility ?? baseState.showBase ?? ANALOG_DEFAULTS.baseVisibility;
+    const baseSize = Math.max(20, Math.min(300, parseInt(baseState.baseSize ?? ANALOG_DEFAULTS.baseSize, 10) || ANALOG_DEFAULTS.baseSize));
     const makeGroupTitle = text => {
       const title = document.createElement('div'); title.className = 'colorPanelSectionTitle'; title.textContent = text; return title;
     };
@@ -156,7 +157,12 @@ export function createColorPanel({
         const parsed = parseInt(raw, 10);
         if (!Number.isFinite(parsed) || parsed < min || parsed > max) return;
         const next = parsed;
-        slider.value = String(next); value.value = String(next); stickState[key] = next;
+        slider.value = String(next); value.value = String(next);
+        if (key === 'baseSize' || key === 'baseVisibility') {
+          baseState[key] = next;
+        } else {
+          stickState[key] = next;
+        }
         if (stickTrailSystems[stickId]) stickTrailSystems[stickId].config[key] = next;
         if (key === 'baseSize') updateAnalogStickBases();
         saveStateData();
@@ -169,7 +175,7 @@ export function createColorPanel({
     makeTrailSlider('Width', trailWidth, 1, 40, 'trailWidth');
     makeTrailSlider('Length', trailLength, 1, 60, 'trailLength');
     stickControls.appendChild(makeGroupTitle('Appearance'));
-    const baseCheckbox = makeStickCheckbox('Base Visibility', baseVisibility, value => { stickState.baseVisibility = value; updateAnalogStickBases(); });
+    const baseCheckbox = makeStickCheckbox('Base Visibility', baseVisibility, value => { baseState.baseVisibility = value; updateAnalogStickBases(); });
     baseCheckbox.dataset.stickKey = 'baseVisibility';
     makeTrailSlider('Size', baseSize, 20, 300, 'baseSize');
     contentArea.appendChild(stickControls);
@@ -863,14 +869,15 @@ export function createColorPanel({
     const btnId = applyTarget?.dataset?.btn;
     if (btnId === 'LS' || btnId === 'RS') {
       const state = appState.buttons[btnId] || {};
+      const baseState = appState[btnId + 'Base'] || {};
       const values = {
         stickMovement: getStickMovementEnabled(btnId),
         showTrail: state.showTrail !== false,
         stickRadius: Math.max(0, Math.min(100, parseInt(state.stickRadius ?? ANALOG_DEFAULTS.stickRadius, 10) || 0)),
         trailWidth: Math.max(1, Math.min(40, parseInt(state.trailWidth ?? 12, 10) || 12)),
         trailLength: Math.max(1, Math.min(60, parseInt(state.trailLength ?? state.trailSize ?? ANALOG_DEFAULTS.trailLength, 10) || ANALOG_DEFAULTS.trailLength)),
-        baseVisibility: state.baseVisibility ?? state.showBase ?? ANALOG_DEFAULTS.baseVisibility,
-        baseSize: Math.max(20, Math.min(300, parseInt(state.baseSize ?? ANALOG_DEFAULTS.baseSize, 10) || ANALOG_DEFAULTS.baseSize))
+        baseVisibility: baseState.baseVisibility ?? baseState.showBase ?? ANALOG_DEFAULTS.baseVisibility,
+        baseSize: Math.max(20, Math.min(300, parseInt(baseState.baseSize ?? ANALOG_DEFAULTS.baseSize, 10) || ANALOG_DEFAULTS.baseSize))
       };
       colorPanel.querySelectorAll('[data-stick-key]').forEach(control => {
         const value = values[control.dataset.stickKey];

@@ -18,7 +18,7 @@ export function createRenderState({
   updateAnalogStickBases, resizeJoystickWrapper, applyJoystickHeadFromState,
   updateCursor
 }) {
-  const { btnEls, base, stickWrapper, eightWayWrapper, joystick } = els;
+  const { btnEls, lsBase, rsBase, base, stickWrapper, eightWayWrapper, joystick } = els;
 
   function updateStateData() {
     Object.entries(btnEls).forEach(([k, el]) => {
@@ -39,6 +39,8 @@ export function createRenderState({
     });
 
     if (appState.joystick) { applyPropertiesToElement(stickWrapper, appState.joystick); if (appState.joystick.display !== undefined) stickWrapper.style.display = appState.joystick.display; }
+    if (appState.LSBase) { applyPropertiesToElement(lsBase, appState.LSBase); if (appState.LSBase.display !== undefined) lsBase.style.display = appState.LSBase.display; }
+    if (appState.RSBase) { applyPropertiesToElement(rsBase, appState.RSBase); if (appState.RSBase.display !== undefined) rsBase.style.display = appState.RSBase.display; }
     updateAnalogStickBases();
     if (appState.base) { applyPropertiesToElement(base, appState.base); if (appState.base.display !== undefined) base.style.display = appState.base.display; }
     if (appState.eightWayWrapper) { applyPropertiesToElement(eightWayWrapper, appState.eightWayWrapper); if (appState.eightWayWrapper.display !== undefined) eightWayWrapper.style.display = appState.eightWayWrapper.display; if (appState.eightWayWrapper.arrowSize !== undefined) { setArrowSize(appState.eightWayWrapper.arrowSize || 90); getResizeEightWayArrows()(); } }

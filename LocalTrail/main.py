@@ -3,7 +3,7 @@ from pathlib import Path
 from PyQt5.QtCore import Qt, QUrl, QTimer
 from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QShortcut, QDesktopWidget
-from PyQt5.QtWebEngineWidgets import QWebEngineView
+from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEngineSettings
 
 CONFIG_PATH = Path(__file__).with_name("config.json")
 
@@ -44,6 +44,17 @@ class BrowserOverlay(QWidget):
             pass
         self.web.setAttribute(Qt.WA_TranslucentBackground, True)
         self.web.setStyleSheet("background: transparent;")
+
+        # Allow this local file:// overlay page to load image/mask resources
+        # that live anywhere on the local filesystem — including absolute
+        # "file:///<drive>:/..." URLs pointing outside the page's own directory
+        # (QtWebEngine otherwise partitions file:// origins by top-level
+        # directory, which blocks cross-tree local resources). On modern Qt
+        # this is already the default; the try/except keeps old Qt versions safe.
+        try:
+            self.web.page().settings().setAttribute(QWebEngineSettings.LocalContentCanAccessFileUrls, True)
+        except Exception:
+            pass
 
         # Load URL from config (or default index.html)
         url = self.cfg.get("url")
