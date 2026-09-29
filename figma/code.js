@@ -142,19 +142,23 @@ function absoluteBounds(node, rootBounds) {
   };
 }
 
+const BLOCK_DISPLAY_NAMES = new Set(['base', 'LSBase', 'RSBase', 'joystick', 'eightWayWrapper', 'arrowOn', 'arrowOff']);
+
 function elementProperties(node, rootBounds, zIndex) {
   const fill = firstPaint(node.fills);
   const text = textDescendant(node);
+  const display = node.visible === false ? 'none' : BLOCK_DISPLAY_NAMES.has(node.name) ? 'block' : 'flex';
+  const strokeWeight = node.strokeWeight || 0;
   const properties = {
-    display: node.visible === false ? 'none' : 'flex',
+    display: display,
     zIndex: String(zIndex),
     ...absoluteBounds(node, rootBounds),
     borderRadius: radius(node),
     outline: outline(node),
-    outlineOffset: '0px',
+    outlineOffset: strokeWeight > 0 ? `-${Math.round(strokeWeight / 2)}px` : '0px',
     boxShadow: cssShadow(node.effects),
     backgroundColor: colorToCss(fill) || 'rgba(0, 0, 0, 0)',
-    backgroundImage: 'none',
+    backgroundImage: '',
     backgroundSize: 'auto',
     color: 'rgb(238, 238, 238)',
     fontSize: '16px',
