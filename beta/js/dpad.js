@@ -96,7 +96,10 @@ export function getDpadDirection(pad, buttonMap) {
 
   const id = String(pad.id || '').toLowerCase();
   const isPlayStation = /sony|054c|dualshock|dualsense|playstation|wireless controller(?!.*xbox)/.test(id);
-  const buttonOffsets = isPlayStation || pad.mapping !== 'standard' ? [11, 12] : [12, 11];
+  // Offset 11 collides with the standard RS button, so it is only probed on
+  // devices that do not use the standard layout. A 'standard' pad is read at
+  // 12-15 only, otherwise pressing RS lights up Up.
+  const buttonOffsets = pad.mapping === 'standard' ? [12] : (isPlayStation ? [11, 12] : [12, 11]);
   for (const dpadButtonOffset of buttonOffsets) {
     const pressed = {
       up: !!buttons[dpadButtonOffset]?.pressed,
